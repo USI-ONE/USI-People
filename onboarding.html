@@ -381,7 +381,7 @@
       </div>
 
       <!-- ═══════════════ Template Manager (shared, full-page overlay) ═══════════════ -->
-      <div id="templateManagerView" class="tab-panel" style="display:none">
+      <div id="templateManagerView" style="display:none">
         <div style="margin-bottom:20px">
           <button class="btn btn-ghost" id="btnBackFromTemplates">&larr; Back</button>
         </div>
@@ -1758,8 +1758,8 @@
       tmplCurrentType = type;
       // Hide all tab panels
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('templateManagerView').style.display = '';
-      document.getElementById('templateListView').style.display = '';
+      document.getElementById('templateManagerView').style.display = 'block';
+      document.getElementById('templateListView').style.display = 'block';
       document.getElementById('templateEditorView').style.display = 'none';
       document.getElementById('tmplType').value = type;
       document.getElementById('btnBackFromTemplates').textContent = '\u2190 Back to ' + type;
