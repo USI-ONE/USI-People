@@ -1,0 +1,9 @@
+{
+  "name": "usi-people-api",
+  "version": "1.0.0",
+  "description": "USI People HRIS API Proxy",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {}
+}

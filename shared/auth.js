@@ -1,20 +1,17 @@
-/* USI People — Auth & Graph API Infrastructure */
+/* USI People — Auth & API Proxy Infrastructure */
 
 const USI = (() => {
   // ── Config ──
   let _config = {
     clientId: '345c6c12-5f4a-45a6-8e15-191d9051fad8',
     tenantId: '53e2c3bd-d5d4-443d-bd75-e93b8d6a32c1',
-    scopes: 'https://graph.microsoft.com/User.Read https://graph.microsoft.com/Files.Read.All https://graph.microsoft.com/Sites.Read.All https://graph.microsoft.com/Sites.ReadWrite.All',
+    scopes: 'User.Read',
     redirectUri: window.location.href.split('?')[0].split('#')[0],
-    sharePointHost: 'universalsystemsinc100.sharepoint.com',
-    sharePointSite: '/sites/HR',
+    apiBase: 'https://usi-timecard-api-b5gzaqhpdte9fpcj.westus2-01.azurewebsites.net',
     managerEmails: []
   };
 
-  let _siteId = null;
   let _me = null;
-  let _listIds = {};
 
   // ── Helpers ──
   function b64url(buf) {
@@ -93,7 +90,7 @@ const USI = (() => {
     window.location = `https://login.microsoftonline.com/${_config.tenantId}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(_config.redirectUri)}`;
   }
 
-  // ── Microsoft Graph API ──
+  // ── Microsoft Graph API (for user profile only) ──
   async function graph(method, path, body) {
     const token = getToken();
     if (!token) { login(); throw new Error('Redirecting to login...'); }
@@ -107,11 +104,6 @@ const USI = (() => {
     if (body) opts.body = JSON.stringify(body);
     const r = await fetch(`https://graph.microsoft.com/v1.0${path}`, opts);
     if (r.status === 401) { login(); throw new Error('Session expired'); }
-    if (r.status === 429) {
-      const retryAfter = parseInt(r.headers.get('Retry-After') || '5');
-      await new Promise(ok => setTimeout(ok, retryAfter * 1000));
-      return graph(method, path, body);
-    }
     if (r.status === 204) return null;
     if (!r.ok) {
       const t = await r.text();
@@ -146,86 +138,50 @@ const USI = (() => {
     return graph('POST', '/me/sendMail', { message, saveToSentItems: true });
   }
 
-  // ── SharePoint Helpers ──
-  async function getSiteId() {
-    if (_siteId) return _siteId;
-    const cached = sessionStorage.getItem('usi_siteId');
-    if (cached) { _siteId = cached; return _siteId; }
-    const site = await graph('GET', `/sites/${_config.sharePointHost}:${_config.sharePointSite}`);
-    _siteId = site.id;
-    sessionStorage.setItem('usi_siteId', _siteId);
-    return _siteId;
+  // ══════════════════════════════════════════════════════════
+  // ██  API PROXY — all data operations go through Azure Function
+  // ══════════════════════════════════════════════════════════
+
+  async function apiCall(action, payload) {
+    const token = getToken();
+    if (!token) { login(); throw new Error('Redirecting to login...'); }
+    const res = await fetch(`${_config.apiBase}/api/data/${action}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload || {})
+    });
+    if (res.status === 401) { login(); throw new Error('Session expired'); }
+    if (res.status === 403) throw new Error('Access denied');
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`API ${action}: ${t}`);
+    }
+    return res.json();
   }
 
-  let _allListsCache = null;
-  async function _fetchAllLists() {
-    if (_allListsCache) return _allListsCache;
-    const siteId = await getSiteId();
-    const result = await graph('GET', `/sites/${siteId}/lists?$select=id,displayName`);
-    _allListsCache = result.value || [];
-    // Cache all list IDs at once
-    _allListsCache.forEach(l => {
-      _listIds[l.displayName] = l.id;
-      sessionStorage.setItem(`usi_list_${l.displayName}`, l.id);
-    });
-    console.log(`[USI] Loaded ${_allListsCache.length} lists from SharePoint`);
-    return _allListsCache;
+  // ── Data Operations (via API proxy) ──
+
+  async function getSiteId() {
+    // Not needed client-side anymore, but kept for API compatibility
+    return 'proxy';
   }
 
   async function ensureList(listName, columns) {
-    const cacheKey = `usi_list_${listName}`;
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached) { _listIds[listName] = cached; return cached; }
-
-    // Fetch all lists once and find by display name
-    try {
-      const allLists = await _fetchAllLists();
-      const match = allLists.find(l => l.displayName === listName);
-      if (match) return match.id;
-    } catch (e) { console.warn(`Could not query lists:`, e.message); }
-
-    // List not found
-    console.error(`[USI] List "${listName}" not found in SharePoint HR site`);
-    throw new Error(`List "${listName}" not found. Please create it manually in SharePoint at the HR site.`);
-  }
-
-  // ── JSON Storage Layer ──
-  // SharePoint lists have only Title (text) + Data (multi-line text) columns.
-  // All custom fields are serialized as JSON in the Data column.
-  // Title is used for a human-readable identifier.
-
-  function _packFields(fields) {
-    // Store a short identifier in Title, everything in Data as JSON
-    const title = fields.Title || fields.EmployeeName || fields.EmployeeEmail || 'Item';
-    return { Title: String(title).substring(0, 255), Data: JSON.stringify(fields) };
-  }
-
-  function _unpackItem(item) {
-    // Merge the stored JSON data back into fields
-    const raw = item.fields || {};
-    let data = {};
-    try { data = raw.Data ? JSON.parse(raw.Data) : {}; } catch (e) { /* not JSON */ }
-    return { id: item.id, fields: { ...data, _spTitle: raw.Title }, ...data, _itemId: item.id };
+    // Lists are managed server-side; this is now a no-op
+    console.log(`[USI] List "${listName}" — managed by API proxy`);
+    return listName;
   }
 
   async function getListItems(listName) {
-    const siteId = await getSiteId();
-    const listId = _listIds[listName] || await ensureList(listName, []);
-    const url = `/sites/${siteId}/lists/${listId}/items?$expand=fields&$top=200`;
-    console.log(`[USI] Loading items from "${listName}"...`);
+    console.log(`[USI] Loading items from "${listName}" via API...`);
     try {
-      let allItems = [];
-      let response = await graph('GET', url);
-      allItems = allItems.concat(response.value || []);
-      while (response['@odata.nextLink']) {
-        const nextUrl = response['@odata.nextLink'].replace('https://graph.microsoft.com/v1.0', '');
-        response = await graph('GET', nextUrl);
-        allItems = allItems.concat(response.value || []);
-      }
-      // Unpack JSON data from each item
-      const unpacked = allItems.map(_unpackItem);
-      console.log(`[USI] Loaded ${unpacked.length} items from "${listName}"`);
-      return unpacked;
+      const result = await apiCall('listItems', { listName });
+      const items = result.items || [];
+      console.log(`[USI] Loaded ${items.length} items from "${listName}"`);
+      return items;
     } catch (e) {
       console.error(`[USI] Failed to load items from "${listName}":`, e.message);
       return [];
@@ -233,32 +189,18 @@ const USI = (() => {
   }
 
   async function createListItem(listName, fields) {
-    const siteId = await getSiteId();
-    const listId = _listIds[listName] || await ensureList(listName, []);
-    const packed = _packFields(fields);
-    const result = await graph('POST', `/sites/${siteId}/lists/${listId}/items`, { fields: packed });
-    return _unpackItem(result);
+    return apiCall('createItem', { listName, fields });
   }
 
   async function updateListItem(listName, itemId, fields) {
-    const siteId = await getSiteId();
-    const listId = _listIds[listName] || await ensureList(listName, []);
-    // Fetch current item to merge data
-    const current = await graph('GET', `/sites/${siteId}/lists/${listId}/items/${itemId}?$expand=fields`);
-    let existing = {};
-    try { existing = current.fields.Data ? JSON.parse(current.fields.Data) : {}; } catch (e) {}
-    const merged = { ...existing, ...fields };
-    const packed = _packFields(merged);
-    return graph('PATCH', `/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, packed);
+    return apiCall('updateItem', { listName, itemId, fields });
   }
 
   async function deleteListItem(listName, itemId) {
-    const siteId = await getSiteId();
-    const listId = _listIds[listName] || await ensureList(listName, []);
-    return graph('DELETE', `/sites/${siteId}/lists/${listId}/items/${itemId}`);
+    return apiCall('deleteItem', { listName, itemId });
   }
 
-  // ── Column Definition Helpers ──
+  // ── Column Definition Helpers (kept for API compatibility, unused) ──
   function textCol(name) { return { name, text: {} }; }
   function multilineCol(name) { return { name, text: { allowMultipleLines: true, textType: 'plain' } }; }
   function numberCol(name) { return { name, number: {} }; }
