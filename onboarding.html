@@ -63,6 +63,29 @@
     .interview-card:hover { box-shadow: var(--shadow-md); }
     .interview-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
     .interview-card-name { font-size: 15px; font-weight: 600; }
+
+    /* ── Org Chart ── */
+    .org-tree { padding: 8px 0; }
+    .org-node-content {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; margin: 2px 0;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--card-bg); font-size: 13px;
+    }
+    .org-node-content:hover { background: var(--bg); }
+    .org-name { font-weight: 600; }
+    .org-email { color: var(--text-muted); font-size: 12px; }
+    .org-children { padding-left: 24px; border-left: 2px solid var(--border); margin-left: 16px; }
+    .org-node-actions { margin-left: auto; display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+    .org-node-content:hover .org-node-actions { opacity: 1; }
+    .org-stats { display: flex; gap: 24px; margin-bottom: 20px; }
+    .org-stat { text-align: center; padding: 12px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); }
+    .org-stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+    .org-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+    .org-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .org-table th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid var(--border); }
+    .org-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .org-table tr:hover td { background: var(--bg); }
     .interview-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
     .interview-rating { display: flex; align-items: center; gap: 6px; }
     .interview-rating-value { font-size: 14px; font-weight: 700; color: var(--primary); }
@@ -133,6 +156,7 @@
         <div class="tab active" data-tab="panelOnboarding">Onboarding</div>
         <div class="tab" data-tab="panelOffboarding">Offboarding</div>
         <div class="tab" data-tab="panelExitInterview">Exit Interview</div>
+        <div class="tab" data-tab="panelOrgChart" id="tabOrgChart" style="display:none">Org Chart</div>
       </div>
 
       <!-- ═══════════════ Tab 1: Onboarding ═══════════════ -->
@@ -332,6 +356,28 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- ═══════════════ Tab 4: Org Chart (HR Admin only) ═══════════════ -->
+      <div id="panelOrgChart" class="tab-panel">
+        <div class="org-stats">
+          <div class="org-stat"><div class="org-stat-value" id="orgTotalCount">0</div><div class="org-stat-label">Total</div></div>
+          <div class="org-stat"><div class="org-stat-value" id="orgManagerCount">0</div><div class="org-stat-label">Managers</div></div>
+          <div class="org-stat"><div class="org-stat-value" id="orgEmployeeCount">0</div><div class="org-stat-label">Employees</div></div>
+        </div>
+        <div class="toolbar">
+          <input type="text" class="search-input" id="orgSearch" placeholder="Search employees...">
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-primary" id="btnAddEmployee">+ Add Employee</button>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Organization Chart</div></div>
+          <div id="orgTreeContainer" class="org-tree"></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-header"><div class="card-title">Employee Roster</div></div>
+          <div id="orgTableContainer"></div>
+        </div>
       </div>
 
     </div>
@@ -1274,7 +1320,240 @@
       document.getElementById('btnCompleteInterview').addEventListener('click', () => saveInterview('Complete'));
       document.getElementById('btnDeleteInterview').addEventListener('click', deleteInterview);
       document.getElementById('exitSearch').addEventListener('input', USI.debounce(renderExitInterviews, 300));
+
+      // ══════════════════════════════════════════════════════════
+      // ██  ORG CHART TAB (HR Admin only)
+      // ══════════════════════════════════════════════════════════
+
+      if (USI.isHRAdmin(me.mail)) {
+        document.getElementById('tabOrgChart').style.display = '';
+        document.getElementById('btnAddEmployee').addEventListener('click', () => showOrgMemberModal(null));
+        document.getElementById('orgSearch').addEventListener('input', USI.debounce(renderOrgTable, 300));
+
+        // Load org chart when tab is activated
+        document.getElementById('mainTabBar').parentElement.addEventListener('tabchange', (e) => {
+          if (e.detail === 'panelOrgChart') renderOrgChart();
+        });
+      }
+
     });
+
+    // ── Org Chart Functions ──
+
+    function renderOrgChart() {
+      const members = USI.orgAll();
+      // Stats
+      document.getElementById('orgTotalCount').textContent = members.length;
+      document.getElementById('orgManagerCount').textContent = members.filter(m => USI.isManager(m.email)).length;
+      document.getElementById('orgEmployeeCount').textContent = members.filter(m => !USI.isManager(m.email) && m.role !== 'executive').length;
+      // Tree
+      renderOrgTree();
+      // Table
+      renderOrgTable();
+    }
+
+    function renderOrgTree() {
+      const members = USI.orgAll();
+      const roots = members.filter(m => !m.managerEmail);
+
+      function buildNode(member) {
+        const children = members.filter(m => m.managerEmail && m.managerEmail.toLowerCase() === member.email.toLowerCase());
+        const rolePill = member.role === 'executive' ? 'pill-warning' :
+                         USI.isManager(member.email) ? 'pill-primary' : 'pill-neutral';
+        const roleLabel = member.role === 'executive' ? 'Executive' :
+                          USI.isManager(member.email) ? 'Manager' : 'Employee';
+        return `<div class="org-node">
+          <div class="org-node-content">
+            <span class="org-name">${USI.escapeHtml(member.name)}</span>
+            <span class="pill ${rolePill}">${roleLabel}</span>
+            ${member.title ? `<span class="org-email">${USI.escapeHtml(member.title)}</span>` : ''}
+            <span class="org-email">${USI.escapeHtml(member.email)}</span>
+            <div class="org-node-actions">
+              <button class="btn btn-ghost btn-sm" onclick="showOrgMemberModal('${USI.escapeHtml(member.email)}')">Edit</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--error)" onclick="removeOrgMember('${USI.escapeHtml(member.email)}')">Remove</button>
+            </div>
+          </div>
+          ${children.length > 0 ? `<div class="org-children">${children.map(c => buildNode(c)).join('')}</div>` : ''}
+        </div>`;
+      }
+
+      document.getElementById('orgTreeContainer').innerHTML = roots.map(r => buildNode(r)).join('');
+    }
+
+    function renderOrgTable() {
+      const search = (document.getElementById('orgSearch').value || '').toLowerCase();
+      let members = USI.orgAll();
+      if (search) {
+        members = members.filter(m =>
+          m.name.toLowerCase().includes(search) ||
+          m.email.toLowerCase().includes(search) ||
+          (m.title || '').toLowerCase().includes(search)
+        );
+      }
+      members.sort((a, b) => a.name.localeCompare(b.name));
+
+      const html = `<table class="org-table">
+        <thead><tr>
+          <th>Name</th><th>Email</th><th>Title</th><th>Manager</th><th>Role</th><th></th>
+        </tr></thead>
+        <tbody>${members.map(m => {
+          const mgr = m.managerEmail ? USI.orgName(m.managerEmail) : '—';
+          const rolePill = m.role === 'executive' ? 'pill-warning' :
+                           USI.isManager(m.email) ? 'pill-primary' : 'pill-neutral';
+          const roleLabel = m.role === 'executive' ? 'Executive' :
+                            USI.isManager(m.email) ? 'Manager' : 'Employee';
+          return `<tr>
+            <td><strong>${USI.escapeHtml(m.name)}</strong></td>
+            <td style="color:var(--text-muted)">${USI.escapeHtml(m.email)}</td>
+            <td style="color:var(--text-muted)">${USI.escapeHtml(m.title || '—')}</td>
+            <td>${USI.escapeHtml(mgr)}</td>
+            <td><span class="pill ${rolePill}">${roleLabel}</span></td>
+            <td>
+              <button class="btn btn-ghost btn-sm" onclick="showOrgMemberModal('${USI.escapeHtml(m.email)}')">Edit</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--error)" onclick="removeOrgMember('${USI.escapeHtml(m.email)}')">Remove</button>
+            </td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+
+      document.getElementById('orgTableContainer').innerHTML = html;
+    }
+
+    async function showOrgMemberModal(editEmail) {
+      const existing = editEmail ? USI.orgFind(editEmail) : null;
+      const allMembers = USI.orgAll();
+      const managerOptions = allMembers
+        .filter(m => !editEmail || m.email.toLowerCase() !== editEmail.toLowerCase())
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(m => `<option value="${USI.escapeHtml(m.email)}" ${existing && existing.managerEmail && existing.managerEmail.toLowerCase() === m.email.toLowerCase() ? 'selected' : ''}>${USI.escapeHtml(m.name)}</option>`)
+        .join('');
+
+      const html = `
+        <div class="form-group">
+          <label class="form-label">Name *</label>
+          <input type="text" class="form-input" id="orgMemberName" value="${existing ? USI.escapeHtml(existing.name) : ''}" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input type="email" class="form-input" id="orgMemberEmail" value="${existing ? USI.escapeHtml(existing.email) : ''}" placeholder="email@usicomputer.com" ${existing ? 'disabled' : ''}>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-input" id="orgMemberTitle" value="${existing ? USI.escapeHtml(existing.title || '') : ''}" placeholder="Job title">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Manager</label>
+            <select class="form-select" id="orgMemberManager">
+              <option value="">None (Top-level)</option>
+              ${managerOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <select class="form-select" id="orgMemberRole">
+              <option value="employee" ${!existing || existing.role === 'employee' ? 'selected' : ''}>Employee</option>
+              <option value="manager" ${existing && existing.role === 'manager' ? 'selected' : ''}>Manager</option>
+              <option value="executive" ${existing && existing.role === 'executive' ? 'selected' : ''}>Executive</option>
+            </select>
+          </div>
+        </div>`;
+
+      await USI.modal(existing ? 'Edit Employee' : 'Add Employee', html, [
+        { label: 'Cancel', class: 'btn-secondary', value: null },
+        {
+          label: existing ? 'Save Changes' : 'Add Employee',
+          class: 'btn-primary',
+          onClick: async (overlay) => {
+            const name = overlay.querySelector('#orgMemberName').value.trim();
+            const email = existing ? existing.email : overlay.querySelector('#orgMemberEmail').value.trim();
+            const title = overlay.querySelector('#orgMemberTitle').value.trim();
+            const managerEmail = overlay.querySelector('#orgMemberManager').value || null;
+            const role = overlay.querySelector('#orgMemberRole').value;
+
+            if (!name || !email) {
+              USI.toast('Name and email are required', 'error');
+              return false;
+            }
+
+            try {
+              // Update in-memory org data
+              const members = USI.orgAll();
+              const idx = members.findIndex(m => m.email.toLowerCase() === email.toLowerCase());
+              const memberData = { email, name, title, managerEmail, role };
+
+              if (idx >= 0) {
+                // Update existing
+                Object.assign(members[idx], memberData);
+              } else {
+                // Add new
+                members.push(memberData);
+              }
+
+              // Save to SharePoint
+              try {
+                await USI.ensureList('USI_OrgChart', []);
+                const items = await USI.getListItems('USI_OrgChart');
+                const existingItem = items.find(i => i.email && i.email.toLowerCase() === email.toLowerCase());
+                if (existingItem) {
+                  await USI.updateListItem('USI_OrgChart', existingItem.id, memberData);
+                } else {
+                  await USI.createListItem('USI_OrgChart', memberData);
+                }
+              } catch (e) {
+                console.warn('Could not save to SharePoint:', e.message);
+              }
+
+              USI.toast(existing ? 'Employee updated' : 'Employee added', 'success');
+              renderOrgChart();
+            } catch (err) {
+              console.error('Error saving employee:', err);
+              USI.toast('Failed to save', 'error');
+              return false;
+            }
+          }
+        }
+      ]);
+    }
+
+    async function removeOrgMember(email) {
+      const member = USI.orgFind(email);
+      if (!member) return;
+
+      const reports = USI.getDirectReports(email);
+      const warningMsg = reports.length > 0
+        ? `${member.name} has ${reports.length} direct report(s). They will become unassigned. Continue?`
+        : `Remove ${member.name} from the org chart?`;
+
+      const confirmed = await USI.confirm(warningMsg);
+      if (!confirmed) return;
+
+      try {
+        // Remove from in-memory
+        const members = USI.orgAll();
+        const idx = members.findIndex(m => m.email.toLowerCase() === email.toLowerCase());
+        if (idx >= 0) members.splice(idx, 1);
+
+        // Unassign direct reports
+        reports.forEach(r => {
+          const ri = members.findIndex(m => m.email.toLowerCase() === r.email.toLowerCase());
+          if (ri >= 0) members[ri].managerEmail = member.managerEmail || null;
+        });
+
+        // Remove from SharePoint
+        try {
+          const items = await USI.getListItems('USI_OrgChart');
+          const spItem = items.find(i => i.email && i.email.toLowerCase() === email.toLowerCase());
+          if (spItem) await USI.deleteListItem('USI_OrgChart', spItem.id);
+        } catch (e) { console.warn('Could not remove from SharePoint:', e.message); }
+
+        USI.toast(`${member.name} removed`, 'success');
+        renderOrgChart();
+      } catch (err) {
+        console.error('Error removing employee:', err);
+        USI.toast('Failed to remove', 'error');
+      }
+    }
   </script>
 </body>
 </html>
