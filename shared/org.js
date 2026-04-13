@@ -182,13 +182,14 @@
   };
 
   // ── Team selector helper ──
-  // Returns the list of people a manager can select from (for 1:1s, team reviews, etc.)
+  // Returns the list of people a manager/executive can select from (for 1:1s, team reviews, etc.)
+  // HR Admins see everyone; Executives and Managers see only their direct/indirect reports
   USI.getTeamForSelector = function(viewerEmail) {
-    if (USI.isHRAdmin(viewerEmail) || USI.isExecutive(viewerEmail)) {
+    if (USI.isHRAdmin(viewerEmail)) {
       return ORG_MEMBERS.filter(m => _norm(m.email) !== _norm(viewerEmail))
         .sort((a, b) => a.name.localeCompare(b.name));
     }
-    if (USI.isManager(viewerEmail)) {
+    if (USI.isManager(viewerEmail) || USI.isExecutive(viewerEmail)) {
       return USI.getAllReports(viewerEmail)
         .sort((a, b) => a.name.localeCompare(b.name));
     }
