@@ -95,7 +95,8 @@ const LIST_EMAIL_FIELD = {
   'USI_OneOnOneItems': 'EmployeeEmail',
   'USI_OneOnOneMeetings': 'EmployeeEmail',
   'USI_Onboarding': 'EmployeeEmail',
-  'USI_Offboarding': 'EmployeeEmail'
+  'USI_Offboarding': 'EmployeeEmail',
+  'PIPs': 'EmployeeEmail'
 };
 
 // ══════════════════════════════════════════════════════════
