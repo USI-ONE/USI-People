@@ -2564,6 +2564,8 @@
       const empSigDate = pip ? pip.EmployeeSignatureDate : null;
       const supSig = pip ? pip.SupervisorSignature : '';
       const supSigDate = pip ? pip.SupervisorSignatureDate : null;
+      const hrSig = pip ? pip.HRSignature : '';
+      const hrSigDate = pip ? pip.HRSignatureDate : null;
       const execSig = pip ? pip.ExecutiveSignature : '';
       const execSigDate = pip ? pip.ExecutiveSignatureDate : null;
       const showExec = pip ? pip.ShowExecutiveSignature : false;
@@ -2596,14 +2598,14 @@
               `}
             </div>
 
-            <!-- Supervisor / HR Representative Signature -->
+            <!-- Supervisor Signature -->
             <div class="pip-signature-block ${supSig ? 'signed' : ''}">
               <div class="pip-signature-block-role">
                 ${supSig ? '<span class="checkmark">&#10003;</span>' : ''}
-                Supervisor / HR Representative
+                Supervisor
               </div>
               <div class="pip-signature-block-disclaimer">
-                This document has been prepared in good faith, reviewed for accuracy, and delivered to the employee in a respectful and professional manner.
+                This document has been reviewed and discussed with the employee by the direct supervisor.
               </div>
               ${supSig ? `
                 <div class="pip-signature-line">
@@ -2617,6 +2619,30 @@
                   <button class="btn btn-primary btn-sm" onclick="pipSign('supervisor')">Acknowledge</button>
                 </div>
                 ` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Awaiting supervisor acknowledgment</div>`}
+              `}
+            </div>
+
+            <!-- HR Representative Signature -->
+            <div class="pip-signature-block ${hrSig ? 'signed' : ''}">
+              <div class="pip-signature-block-role">
+                ${hrSig ? '<span class="checkmark">&#10003;</span>' : ''}
+                HR Representative
+              </div>
+              <div class="pip-signature-block-disclaimer">
+                This document has been prepared in good faith, reviewed for accuracy, and delivered to the employee in a respectful and professional manner.
+              </div>
+              ${hrSig ? `
+                <div class="pip-signature-line">
+                  <span><strong>${USI.escapeHtml(hrSig)}</strong></span>
+                  <span>${hrSigDate ? new Date(hrSigDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</span>
+                </div>
+              ` : `
+                ${(!readOnly && pipEditingId) ? `
+                <div class="pip-signature-input-row">
+                  <input type="text" class="form-input" id="pipHRSigInput" placeholder="Type your full name to acknowledge">
+                  <button class="btn btn-primary btn-sm" onclick="pipSign('hr')">Acknowledge</button>
+                </div>
+                ` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Awaiting HR acknowledgment</div>`}
               `}
             </div>
 
@@ -2905,6 +2931,9 @@
       } else if (role === 'supervisor') {
         inputId = 'pipSupSigInput';
         fields = { SupervisorSignature: '', SupervisorSignatureDate: new Date().toISOString() };
+      } else if (role === 'hr') {
+        inputId = 'pipHRSigInput';
+        fields = { HRSignature: '', HRSignatureDate: new Date().toISOString() };
       } else {
         inputId = 'pipExecSigInput';
         fields = { ExecutiveSignature: '', ExecutiveSignatureDate: new Date().toISOString() };
@@ -3011,6 +3040,8 @@
           fields.EmployeeSignatureDate = null;
           fields.SupervisorSignature = '';
           fields.SupervisorSignatureDate = null;
+          fields.HRSignature = '';
+          fields.HRSignatureDate = null;
           fields.ExecutiveSignature = '';
           fields.ExecutiveSignatureDate = null;
           fields.CompletionStatus = '';
