@@ -93,6 +93,8 @@
 
   // ── Navigation Bar ──
   USI.renderNav = function(activePage) {
+    const existing = document.querySelector('.topbar');
+    if (existing) existing.remove();
     const nav = document.createElement('nav');
     nav.className = 'topbar';
     const pages = [
@@ -252,7 +254,7 @@
     } catch (e) {
       console.error('Boot failed:', e);
       USI.toast('Failed to load: ' + e.message, 'error');
-      USI.show('loginView');
+      USI.show('appView');
     }
   };
 
