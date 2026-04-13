@@ -168,34 +168,16 @@ const USI = (() => {
       const allLists = await graph('GET', `/sites/${siteId}/lists?$select=id,displayName`);
       const match = (allLists.value || []).find(l => l.displayName === listName);
       if (match) {
+        console.log(`[USI] Found list "${listName}" (${match.id})`);
         _listIds[listName] = match.id;
         sessionStorage.setItem(cacheKey, match.id);
-        // Try to add any missing columns (ignore errors silently)
-        for (const col of columns) {
-          try { await graph('POST', `/sites/${siteId}/lists/${match.id}/columns`, col); }
-          catch (e) { /* column likely already exists */ }
-        }
         return match.id;
       }
     } catch (e) { console.warn(`Could not query lists:`, e.message); }
 
-    // List not found — try to create it
-    try {
-      const list = await graph('POST', `/sites/${siteId}/lists`, {
-        displayName: listName,
-        list: { template: 'genericList' }
-      });
-      for (const col of columns) {
-        try { await graph('POST', `/sites/${siteId}/lists/${list.id}/columns`, col); }
-        catch (e) { /* ignore */ }
-      }
-      _listIds[listName] = list.id;
-      sessionStorage.setItem(cacheKey, list.id);
-      return list.id;
-    } catch (e) {
-      console.warn(`Cannot create list ${listName}:`, e.message);
-      throw new Error(`List "${listName}" not found. Please create it manually in SharePoint at the HR site.`);
-    }
+    // List not found
+    console.error(`[USI] List "${listName}" not found in SharePoint HR site`);
+    throw new Error(`List "${listName}" not found. Please create it manually in SharePoint at the HR site.`);
   }
 
   async function getListItems(listName, filter, orderby, top) {
