@@ -301,7 +301,7 @@ a:hover { text-decoration: underline; }
 .empty-state-text { font-size: 13px; max-width: 360px; margin: 0 auto 16px; }
 
 /* ── Login Screen ── */
-.login-view {
+.login-view.active {
   display: flex; align-items: center; justify-content: center;
   min-height: 100vh; background: var(--bg);
   position: fixed; inset: 0; z-index: 150;
