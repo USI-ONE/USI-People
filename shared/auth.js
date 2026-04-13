@@ -188,6 +188,31 @@ const USI = (() => {
     }
   }
 
+  // Fetch multiple lists in one API call — much faster than individual calls
+  async function batchGetListItems(listNames) {
+    console.log(`[USI] Batch loading ${listNames.length} lists via API...`);
+    try {
+      const result = await apiCall('batchListItems', { listNames });
+      listNames.forEach(name => {
+        console.log(`[USI] Loaded ${(result[name] || []).length} items from "${name}"`);
+      });
+      return result;
+    } catch (e) {
+      console.error('[USI] Batch load failed:', e.message);
+      // Fallback: load individually
+      const result = {};
+      for (const name of listNames) {
+        result[name] = await getListItems(name);
+      }
+      return result;
+    }
+  }
+
+  // Pre-warm the API proxy (triggers app token acquisition + site ID lookup)
+  async function warmUp() {
+    try { await apiCall('getSiteId', {}); } catch(e) { /* ignore */ }
+  }
+
   async function createListItem(listName, fields) {
     return apiCall('createItem', { listName, fields });
   }
@@ -219,7 +244,7 @@ const USI = (() => {
   return {
     init, login, handleRedirect, getToken, logout,
     graph, getMe, isManager, sendMail,
-    getSiteId, ensureList, getListItems, createListItem, updateListItem, deleteListItem,
+    getSiteId, ensureList, getListItems, batchGetListItems, warmUp, createListItem, updateListItem, deleteListItem,
     textCol, multilineCol, numberCol, dateCol, dateTimeCol, choiceCol, boolCol,
     get config() { return _config; }
   };

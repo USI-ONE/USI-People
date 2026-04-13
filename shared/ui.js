@@ -266,7 +266,8 @@
     // Authenticated — load app
     USI.show('loadingView');
     try {
-      const me = await USI.getMe();
+      // Warm up API proxy in parallel with user profile fetch
+      const [me] = await Promise.all([USI.getMe(), USI.warmUp()]);
       USI.renderNav(pageName);
       await initFn(me);
       USI.show('appView');

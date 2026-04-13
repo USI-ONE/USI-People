@@ -221,6 +221,31 @@ function unpackItem(item) {
   return { id: item.id, fields: { ...data, _spTitle: raw.Title }, ...data, _itemId: item.id };
 }
 
+// ── Fetch and filter a single list's items ──
+async function fetchAndFilterList(listName, userEmail) {
+  const siteId = await getSiteId();
+  const listId = await getListId(listName);
+  const url = `/sites/${siteId}/lists/${listId}/items?$expand=fields&$top=200`;
+
+  let allItems = [];
+  let response = await graphApi('GET', url);
+  allItems = allItems.concat(response.value || []);
+  while (response['@odata.nextLink']) {
+    const nextUrl = response['@odata.nextLink'].replace('https://graph.microsoft.com/v1.0', '');
+    response = await graphApi('GET', nextUrl);
+    allItems = allItems.concat(response.value || []);
+  }
+
+  let items = allItems.map(unpackItem);
+
+  if (!PUBLIC_LISTS.includes(listName)) {
+    const emailField = LIST_EMAIL_FIELD[listName] || 'EmployeeEmail';
+    items = items.filter(item => canViewItem(userEmail, item, emailField));
+  }
+
+  return items;
+}
+
 // ══════════════════════════════════════════════════════════
 // ██  USER TOKEN VALIDATION
 // ══════════════════════════════════════════════════════════
@@ -296,31 +321,24 @@ module.exports = async function (context, req) {
       case 'listItems': {
         const { listName } = body;
         if (!listName) throw new Error('listName required');
+        result = { items: await fetchAndFilterList(listName, userEmail) };
+        break;
+      }
 
-        const siteId = await getSiteId();
-        const listId = await getListId(listName);
-        const url = `/sites/${siteId}/lists/${listId}/items?$expand=fields&$top=200`;
+      case 'batchListItems': {
+        // Fetch multiple lists in one call for faster page loads
+        const { listNames } = body;
+        if (!listNames || !Array.isArray(listNames)) throw new Error('listNames array required');
 
-        // Fetch all items with pagination
-        let allItems = [];
-        let response = await graphApi('GET', url);
-        allItems = allItems.concat(response.value || []);
-        while (response['@odata.nextLink']) {
-          const nextUrl = response['@odata.nextLink'].replace('https://graph.microsoft.com/v1.0', '');
-          response = await graphApi('GET', nextUrl);
-          allItems = allItems.concat(response.value || []);
-        }
+        const results = await Promise.all(
+          listNames.map(name => fetchAndFilterList(name, userEmail).catch(e => {
+            context.log.warn(`Failed to load ${name}:`, e.message);
+            return [];
+          }))
+        );
 
-        // Unpack JSON data
-        let items = allItems.map(unpackItem);
-
-        // Apply access control filtering
-        if (!PUBLIC_LISTS.includes(listName)) {
-          const emailField = LIST_EMAIL_FIELD[listName] || 'EmployeeEmail';
-          items = items.filter(item => canViewItem(userEmail, item, emailField));
-        }
-
-        result = { items };
+        result = {};
+        listNames.forEach((name, i) => { result[name] = results[i]; });
         break;
       }
 

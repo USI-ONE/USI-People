@@ -1975,9 +1975,19 @@
         USI.ensureList(REVIEWS_LIST, REVIEWS_COLUMNS)
       ]);
 
-      // Load initial data
-      await loadRocks();
-      await loadGoals();
+      // Load initial data (batch — one API call for both lists)
+      const batchData = await USI.batchGetListItems([ROCKS_LIST, GOALS_LIST]);
+      rocks = (batchData[ROCKS_LIST] || []).map(i => ({ id: i.id, ...i.fields }));
+      allGoals = (batchData[GOALS_LIST] || []).map(i => ({ id: i.id, ...i.fields }));
+      if (!viewAllGoals) {
+        goals = allGoals.filter(g => g.EmployeeEmail && g.EmployeeEmail.toLowerCase() === me.mail.toLowerCase());
+      } else {
+        goals = allGoals;
+      }
+      document.getElementById('rocksLoading').style.display = 'none';
+      document.getElementById('goalsLoading').style.display = 'none';
+      renderRocks();
+      renderGoals();
 
       // Init tab system
       const tabBar = document.getElementById('mainTabBar');
