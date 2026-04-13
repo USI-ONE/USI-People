@@ -189,6 +189,25 @@ const USI = (() => {
     throw new Error(`List "${listName}" not found. Please create it manually in SharePoint at the HR site.`);
   }
 
+  // ── JSON Storage Layer ──
+  // SharePoint lists have only Title (text) + Data (multi-line text) columns.
+  // All custom fields are serialized as JSON in the Data column.
+  // Title is used for a human-readable identifier.
+
+  function _packFields(fields) {
+    // Store a short identifier in Title, everything in Data as JSON
+    const title = fields.Title || fields.EmployeeName || fields.EmployeeEmail || 'Item';
+    return { Title: String(title).substring(0, 255), Data: JSON.stringify(fields) };
+  }
+
+  function _unpackItem(item) {
+    // Merge the stored JSON data back into fields
+    const raw = item.fields || {};
+    let data = {};
+    try { data = raw.Data ? JSON.parse(raw.Data) : {}; } catch (e) { /* not JSON */ }
+    return { id: item.id, fields: { ...data, _spTitle: raw.Title }, ...data, _itemId: item.id };
+  }
+
   async function getListItems(listName) {
     const siteId = await getSiteId();
     const listId = _listIds[listName] || await ensureList(listName, []);
@@ -203,8 +222,10 @@ const USI = (() => {
         response = await graph('GET', nextUrl);
         allItems = allItems.concat(response.value || []);
       }
-      console.log(`[USI] Loaded ${allItems.length} items from "${listName}"`);
-      return allItems;
+      // Unpack JSON data from each item
+      const unpacked = allItems.map(_unpackItem);
+      console.log(`[USI] Loaded ${unpacked.length} items from "${listName}"`);
+      return unpacked;
     } catch (e) {
       console.error(`[USI] Failed to load items from "${listName}":`, e.message);
       return [];
@@ -214,13 +235,21 @@ const USI = (() => {
   async function createListItem(listName, fields) {
     const siteId = await getSiteId();
     const listId = _listIds[listName] || await ensureList(listName, []);
-    return graph('POST', `/sites/${siteId}/lists/${listId}/items`, { fields });
+    const packed = _packFields(fields);
+    const result = await graph('POST', `/sites/${siteId}/lists/${listId}/items`, { fields: packed });
+    return _unpackItem(result);
   }
 
   async function updateListItem(listName, itemId, fields) {
     const siteId = await getSiteId();
     const listId = _listIds[listName] || await ensureList(listName, []);
-    return graph('PATCH', `/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, fields);
+    // Fetch current item to merge data
+    const current = await graph('GET', `/sites/${siteId}/lists/${listId}/items/${itemId}?$expand=fields`);
+    let existing = {};
+    try { existing = current.fields.Data ? JSON.parse(current.fields.Data) : {}; } catch (e) {}
+    const merged = { ...existing, ...fields };
+    const packed = _packFields(merged);
+    return graph('PATCH', `/sites/${siteId}/lists/${listId}/items/${itemId}/fields`, packed);
   }
 
   async function deleteListItem(listName, itemId) {
