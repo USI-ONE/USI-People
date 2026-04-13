@@ -160,39 +160,38 @@ const USI = (() => {
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) { _listIds[listName] = cached; return cached; }
 
-    // Try to find existing list
+    // Fetch all lists and find by display name
     try {
-      const existing = await graph('GET', `/sites/${siteId}/lists?$filter=displayName eq '${listName}'`);
-      if (existing.value && existing.value.length > 0) {
-        const id = existing.value[0].id;
-        _listIds[listName] = id;
-        sessionStorage.setItem(cacheKey, id);
-        // Try to add any missing columns (ignore errors)
+      const allLists = await graph('GET', `/sites/${siteId}/lists?$select=id,displayName`);
+      const match = (allLists.value || []).find(l => l.displayName === listName);
+      if (match) {
+        _listIds[listName] = match.id;
+        sessionStorage.setItem(cacheKey, match.id);
+        // Try to add any missing columns (ignore errors silently)
         for (const col of columns) {
-          try { await graph('POST', `/sites/${siteId}/lists/${id}/columns`, col); }
+          try { await graph('POST', `/sites/${siteId}/lists/${match.id}/columns`, col); }
           catch (e) { /* column likely already exists */ }
         }
-        return id;
+        return match.id;
       }
-    } catch (e) { console.warn(`Could not query list ${listName}:`, e.message); }
+    } catch (e) { console.warn(`Could not query lists:`, e.message); }
 
-    // Try to create list (may fail if tenant restricts list creation via API)
+    // List not found — try to create it
     try {
       const list = await graph('POST', `/sites/${siteId}/lists`, {
         displayName: listName,
         list: { template: 'genericList' }
       });
-      const listId = list.id;
       for (const col of columns) {
-        try { await graph('POST', `/sites/${siteId}/lists/${listId}/columns`, col); }
-        catch (e) { console.warn(`Column ${col.name} may already exist:`, e.message); }
+        try { await graph('POST', `/sites/${siteId}/lists/${list.id}/columns`, col); }
+        catch (e) { /* ignore */ }
       }
-      _listIds[listName] = listId;
-      sessionStorage.setItem(cacheKey, listId);
-      return listId;
+      _listIds[listName] = list.id;
+      sessionStorage.setItem(cacheKey, list.id);
+      return list.id;
     } catch (e) {
-      console.error(`Cannot create list ${listName}:`, e.message);
-      throw new Error(`List "${listName}" not found and could not be created. Please create it manually in SharePoint.`);
+      console.warn(`Cannot create list ${listName}:`, e.message);
+      throw new Error(`List "${listName}" not found. Please create it manually in SharePoint at the HR site.`);
     }
   }
 
