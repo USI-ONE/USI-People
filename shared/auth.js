@@ -167,29 +167,33 @@ const USI = (() => {
         const id = existing.value[0].id;
         _listIds[listName] = id;
         sessionStorage.setItem(cacheKey, id);
+        // Try to add any missing columns (ignore errors)
+        for (const col of columns) {
+          try { await graph('POST', `/sites/${siteId}/lists/${id}/columns`, col); }
+          catch (e) { /* column likely already exists */ }
+        }
         return id;
       }
-    } catch (e) { /* list doesn't exist */ }
+    } catch (e) { console.warn(`Could not query list ${listName}:`, e.message); }
 
-    // Create list
-    const list = await graph('POST', `/sites/${siteId}/lists`, {
-      displayName: listName,
-      list: { template: 'genericList' }
-    });
-    const listId = list.id;
-
-    // Add columns one at a time
-    for (const col of columns) {
-      try {
-        await graph('POST', `/sites/${siteId}/lists/${listId}/columns`, col);
-      } catch (e) {
-        console.warn(`Column ${col.name} may already exist:`, e.message);
+    // Try to create list (may fail if tenant restricts list creation via API)
+    try {
+      const list = await graph('POST', `/sites/${siteId}/lists`, {
+        displayName: listName,
+        list: { template: 'genericList' }
+      });
+      const listId = list.id;
+      for (const col of columns) {
+        try { await graph('POST', `/sites/${siteId}/lists/${listId}/columns`, col); }
+        catch (e) { console.warn(`Column ${col.name} may already exist:`, e.message); }
       }
+      _listIds[listName] = listId;
+      sessionStorage.setItem(cacheKey, listId);
+      return listId;
+    } catch (e) {
+      console.error(`Cannot create list ${listName}:`, e.message);
+      throw new Error(`List "${listName}" not found and could not be created. Please create it manually in SharePoint.`);
     }
-
-    _listIds[listName] = listId;
-    sessionStorage.setItem(cacheKey, listId);
-    return listId;
   }
 
   async function getListItems(listName, filter, orderby, top) {
