@@ -68,11 +68,11 @@
       overlay.querySelector('.modal-close').onclick = () => close(null);
       overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
       overlay.querySelectorAll('.modal-footer .btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const idx = parseInt(btn.dataset.idx);
           const b = buttons[idx];
           if (b.onClick) {
-            const result = b.onClick(overlay);
+            const result = await b.onClick(overlay);
             if (result !== false) close(b.value !== undefined ? b.value : b.label);
           } else {
             close(b.value !== undefined ? b.value : b.label);
