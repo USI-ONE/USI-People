@@ -327,7 +327,7 @@ a:hover { text-decoration: underline; }
 .btn-microsoft svg { width: 20px; height: 20px; }
 
 /* ── Loading ── */
-.loading-view {
+.loading-view.active {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   min-height: 100vh; gap: 16px;
