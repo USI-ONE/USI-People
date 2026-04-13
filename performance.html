@@ -200,6 +200,78 @@
       .team-columns { grid-template-columns: 1fr; }
       .rating-display { grid-template-columns: 1fr; }
     }
+
+    /* ── PIP Cards ── */
+    .pip-card { cursor: pointer; transition: box-shadow 0.15s; }
+    .pip-card:hover { box-shadow: var(--shadow-md); }
+    .pip-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .pip-card-name { font-size: 15px; font-weight: 600; }
+    .pip-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .pip-card-latest { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+    .pip-days-left { font-weight: 600; }
+
+    /* ── PIP Worksheet ── */
+    .pip-worksheet { max-width: 900px; margin: 0 auto; }
+    .pip-section { margin-bottom: 28px; }
+    .pip-section-title {
+      font-size: 14px; font-weight: 600; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 0.03em;
+      padding-bottom: 8px; border-bottom: 2px solid var(--primary-light);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .pip-quick-btns { display: flex; gap: 8px; margin-top: 6px; }
+    .pip-quick-btns .btn { padding: 4px 12px; font-size: 12px; }
+
+    /* ── PIP Timeline (Check-ins) ── */
+    .pip-timeline { position: relative; }
+    .pip-checkin-entry {
+      display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px;
+      background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 8px;
+    }
+    .pip-checkin-dot {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+    }
+    .pip-checkin-dot.meeting-expectations { background: var(--success); }
+    .pip-checkin-dot.improving { background: #facc15; }
+    .pip-checkin-dot.not-improving { background: var(--warning); }
+    .pip-checkin-dot.regressing { background: var(--error); }
+    .pip-checkin-content { flex: 1; }
+    .pip-checkin-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .pip-checkin-notes { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .pip-checkin-by { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+
+    /* ── PIP Signature ── */
+    .pip-signature {
+      padding: 16px 20px; border-radius: var(--radius-sm);
+      border-left: 4px solid var(--border); background: var(--bg);
+      margin-bottom: 16px;
+    }
+    .pip-signature.signed {
+      border-left-color: var(--success); background: var(--success-bg);
+    }
+    .pip-signature-title {
+      font-size: 14px; font-weight: 600; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .pip-signature-title .checkmark { color: var(--success); font-size: 18px; }
+    .pip-signature-disclaimer {
+      font-size: 12px; color: var(--text-muted); line-height: 1.5;
+      margin-bottom: 12px; font-style: italic;
+    }
+    .pip-signature-details {
+      font-size: 13px; color: var(--text); display: flex; gap: 20px; flex-wrap: wrap;
+    }
+    .pip-signature-details strong { font-weight: 600; }
+    .pip-signature-input-row {
+      display: flex; gap: 10px; align-items: flex-end; margin-top: 10px;
+    }
+    .pip-signature-input-row .form-input { flex: 1; max-width: 300px; }
+
+    /* ── PIP Completion Section ── */
+    .pip-completion {
+      padding: 20px; border-radius: var(--radius-sm);
+      background: var(--bg); border: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -232,6 +304,7 @@
         <div class="tab" data-tab="panelRocks">EOS Rocks</div>
         <div class="tab" data-tab="panelReview">My Review</div>
         <div class="tab" data-tab="panelTeam" id="tabTeam" style="display:none">Team</div>
+        <div class="tab" data-tab="panelPIPs" id="tabPIPs" style="display:none">PIPs</div>
       </div>
 
       <!-- ═══════════════ Tab 1: SMART Goals ═══════════════ -->
@@ -464,6 +537,42 @@
         <div id="teamLoading" class="empty-state">
           <div class="spinner" style="margin:0 auto 12px"></div>
           <div class="empty-state-text">Loading team reviews...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ Tab 5: PIPs (Managers/HR/Executives) ═══════════════ -->
+      <div id="panelPIPs" class="tab-panel">
+        <div id="pipListView">
+          <div class="toolbar">
+            <select class="filter-select" id="pipFilterStatus">
+              <option value="">All Statuses</option>
+              <option value="Draft">Draft</option>
+              <option value="Active" selected>Active</option>
+              <option value="Improving">Improving</option>
+              <option value="Completed Successfully">Completed Successfully</option>
+              <option value="Closed - Not Met">Closed - Not Met</option>
+            </select>
+            <input type="text" class="search-input" id="pipSearch" placeholder="Search PIPs...">
+            <div class="toolbar-spacer"></div>
+            <button class="btn btn-primary" id="btnAddPIP" style="display:none">+ New PIP</button>
+          </div>
+          <div id="pipsGrid" class="card-grid"></div>
+          <div id="pipsEmpty" class="empty-state" style="display:none">
+            <div class="empty-state-icon">&#128203;</div>
+            <div class="empty-state-title">No Performance Improvement Plans</div>
+            <div class="empty-state-text">PIPs will appear here when created.</div>
+          </div>
+          <div id="pipsLoading" class="empty-state">
+            <div class="spinner" style="margin:0 auto 12px"></div>
+            <div class="empty-state-text">Loading PIPs...</div>
+          </div>
+        </div>
+
+        <div id="pipDetailView" style="display:none">
+          <div style="margin-bottom:20px">
+            <button class="btn btn-ghost" id="btnBackToPIPs">&larr; Back to PIPs</button>
+          </div>
+          <div class="pip-worksheet" id="pipWorksheet"></div>
         </div>
       </div>
 
@@ -1925,6 +2034,657 @@
     }
 
     // ══════════════════════════════════════════════════════════
+    // ██  TAB 5: PERFORMANCE IMPROVEMENT PLANS (PIPs)
+    // ══════════════════════════════════════════════════════════
+
+    const PIPS_LIST = 'USI_PIPs';
+    let pips = [];
+    let pipEditingId = null;
+    let pipCheckIns = [];
+    let pipCheckInFormVisible = false;
+    let pipIsReadOnly = false;
+
+    // ── PIP Status Helpers ──
+    function pipStatusPillClass(status) {
+      switch (status) {
+        case 'Active': return 'pill-error';
+        case 'Improving': return 'pill-warning';
+        case 'Completed Successfully': return 'pill-success';
+        case 'Closed - Not Met': return '';
+        case 'Draft': return 'pill-info';
+        default: return '';
+      }
+    }
+
+    function pipCheckInDotClass(status) {
+      switch (status) {
+        case 'Meeting Expectations': return 'meeting-expectations';
+        case 'Improving': return 'improving';
+        case 'Not Improving': return 'not-improving';
+        case 'Regressing': return 'regressing';
+        default: return '';
+      }
+    }
+
+    function pipDaysRemaining(endDate) {
+      if (!endDate) return null;
+      const end = new Date(endDate);
+      const now = new Date();
+      return Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    }
+
+    // ── Load PIPs ──
+    async function loadPIPs() {
+      document.getElementById('pipsLoading').style.display = '';
+      document.getElementById('pipsGrid').innerHTML = '';
+      document.getElementById('pipsEmpty').style.display = 'none';
+      try {
+        const items = await USI.getListItems(PIPS_LIST);
+        const allPIPs = items.map(i => ({ id: i.id, ...i.fields }));
+        // Filter by access: managers see their reports, HR sees all, employees see own
+        if (amHRAdmin) {
+          pips = allPIPs;
+        } else if (amManager || USI.isExecutive(me.mail)) {
+          pips = USI.filterByAccess(allPIPs, me.mail, 'EmployeeEmail');
+          // Also include PIPs where current user is the manager
+          const managerPIPs = allPIPs.filter(p => p.ManagerEmail && p.ManagerEmail.toLowerCase() === me.mail.toLowerCase());
+          const pipIds = new Set(pips.map(p => p.id));
+          managerPIPs.forEach(p => { if (!pipIds.has(p.id)) pips.push(p); });
+        } else {
+          // Regular employee: only see own PIPs
+          pips = allPIPs.filter(p => p.EmployeeEmail && p.EmployeeEmail.toLowerCase() === me.mail.toLowerCase());
+        }
+      } catch (e) {
+        console.error('Failed to load PIPs:', e);
+        USI.toast('Failed to load PIPs', 'error');
+        pips = [];
+      }
+      document.getElementById('pipsLoading').style.display = 'none';
+      renderPIPs();
+    }
+
+    // ── Render PIP List ──
+    function renderPIPs() {
+      const statusFilter = document.getElementById('pipFilterStatus').value;
+      const searchTerm = document.getElementById('pipSearch').value.toLowerCase().trim();
+
+      let filtered = pips;
+      if (statusFilter) filtered = filtered.filter(p => p.Status === statusFilter);
+      if (searchTerm) filtered = filtered.filter(p =>
+        (p.EmployeeName || '').toLowerCase().includes(searchTerm) ||
+        (p.ManagerName || '').toLowerCase().includes(searchTerm) ||
+        (p.Reason || '').toLowerCase().includes(searchTerm)
+      );
+
+      const grid = document.getElementById('pipsGrid');
+      const empty = document.getElementById('pipsEmpty');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = '';
+        return;
+      }
+      empty.style.display = 'none';
+
+      grid.innerHTML = filtered.map(p => {
+        const status = p.Status || 'Draft';
+        const days = pipDaysRemaining(p.EndDate);
+        const checkIns = parseJSON(p.CheckIns);
+        const latestCheckIn = checkIns.length > 0 ? checkIns.sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0] : null;
+        const startStr = p.StartDate ? new Date(p.StartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        const endStr = p.EndDate ? new Date(p.EndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+        return `
+        <div class="card pip-card" onclick="openPIPDetail('${p.id}')">
+          <div class="pip-card-header">
+            <div>
+              <div class="pip-card-name">${USI.escapeHtml(p.EmployeeName || 'Unknown Employee')}</div>
+              <div class="pip-card-meta">
+                <span class="pill ${pipStatusPillClass(status)}">${USI.escapeHtml(status)}</span>
+                ${startStr && endStr ? `<span style="font-size:12px;color:var(--text-muted)">${USI.escapeHtml(startStr)} &mdash; ${USI.escapeHtml(endStr)}</span>` : ''}
+              </div>
+            </div>
+            ${days !== null && (status === 'Active' || status === 'Improving') ? `
+              <div style="text-align:right">
+                <div class="pip-days-left" style="color:${days <= 7 ? 'var(--error)' : days <= 14 ? 'var(--warning)' : 'var(--primary)'}">${days > 0 ? days : 0}</div>
+                <div style="font-size:11px;color:var(--text-muted)">days left</div>
+              </div>
+            ` : ''}
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Manager: ${USI.escapeHtml(p.ManagerName || '')}</div>
+          ${latestCheckIn ? `
+            <div class="pip-card-latest">
+              Latest check-in: ${USI.escapeHtml(new Date(latestCheckIn.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))}
+              &mdash; ${USI.escapeHtml(latestCheckIn.status || '')}
+            </div>
+          ` : ''}
+          ${p.EmployeeAcknowledged && p.ManagerAcknowledged ? `
+            <div style="font-size:11px;color:var(--success);margin-top:6px;display:flex;align-items:center;gap:4px">
+              <span>&#10003;</span> Fully acknowledged
+            </div>
+          ` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    // ── Open PIP Detail / Editor ──
+    function openPIPDetail(pipId) {
+      const pip = pipId ? pips.find(p => p.id == pipId) : null;
+      pipEditingId = pip ? pip.id : null;
+      pipCheckIns = pip ? parseJSON(pip.CheckIns) : [];
+      pipCheckInFormVisible = false;
+
+      const isOwnPIP = pip && pip.EmployeeEmail && pip.EmployeeEmail.toLowerCase() === me.mail.toLowerCase();
+      const isCreator = pip && pip.ManagerEmail && pip.ManagerEmail.toLowerCase() === me.mail.toLowerCase();
+      // Read-only for employees viewing their own PIP (they can only acknowledge)
+      pipIsReadOnly = !amManager && !amHRAdmin && !USI.isExecutive(me.mail);
+      // Also read-only for managers who are NOT the PIP creator and NOT HR
+      if (pip && amManager && !isCreator && !amHRAdmin) {
+        pipIsReadOnly = true;
+      }
+
+      document.getElementById('pipListView').style.display = 'none';
+      document.getElementById('pipDetailView').style.display = '';
+
+      renderPIPWorksheet(pip);
+    }
+
+    function closePIPDetail() {
+      document.getElementById('pipDetailView').style.display = 'none';
+      document.getElementById('pipListView').style.display = '';
+      pipEditingId = null;
+      pipCheckIns = [];
+      pipCheckInFormVisible = false;
+      pipIsReadOnly = false;
+    }
+
+    function renderPIPWorksheet(pip) {
+      const ws = document.getElementById('pipWorksheet');
+      const isNew = !pip;
+      const isOwnPIP = pip && pip.EmployeeEmail && pip.EmployeeEmail.toLowerCase() === me.mail.toLowerCase();
+      const readOnly = pipIsReadOnly;
+      const disabled = readOnly ? 'disabled' : '';
+
+      // Build employee dropdown options
+      let employeeOptions = '';
+      if (isNew) {
+        const team = USI.getTeamForSelector(me.mail);
+        employeeOptions = '<option value="">Select Employee...</option>' +
+          team.map(p => `<option value="${USI.escapeHtml(p.email)}">${USI.escapeHtml(p.name)} (${USI.escapeHtml(p.email)})</option>`).join('');
+      }
+
+      // Status options
+      const statuses = ['Draft', 'Active', 'Improving', 'Completed Successfully', 'Closed - Not Met'];
+      const currentStatus = pip ? (pip.Status || 'Draft') : 'Draft';
+      const isClosing = currentStatus === 'Completed Successfully' || currentStatus === 'Closed - Not Met';
+
+      let html = '';
+
+      // ── Section 1: PIP Overview ──
+      html += `
+        <div class="pip-section">
+          <div class="pip-section-title">PIP Overview</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Employee</label>
+              ${isNew ?
+                `<select class="form-select" id="pipEmployee" ${disabled}>${employeeOptions}</select>` :
+                `<input type="text" class="form-input" value="${USI.escapeHtml(pip.EmployeeName || '')}" disabled>`
+              }
+            </div>
+            <div class="form-group">
+              <label class="form-label">Manager</label>
+              <input type="text" class="form-input" id="pipManager" value="${USI.escapeHtml(pip ? (pip.ManagerName || '') : me.displayName)}" disabled>
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Start Date</label>
+              <input type="date" class="form-input" id="pipStartDate" value="${pip ? (pip.StartDate || '') : new Date().toISOString().split('T')[0]}" ${disabled}>
+              ${!readOnly ? `
+              <div class="pip-quick-btns">
+                <button class="btn btn-secondary" type="button" onclick="setPIPDuration(30)">30 Day</button>
+                <button class="btn btn-secondary" type="button" onclick="setPIPDuration(60)">60 Day</button>
+                <button class="btn btn-secondary" type="button" onclick="setPIPDuration(90)">90 Day</button>
+              </div>` : ''}
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date</label>
+              <input type="date" class="form-input" id="pipEndDate" value="${pip ? (pip.EndDate || '') : ''}" ${disabled}>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="pipStatus" ${disabled}>
+                ${statuses.map(s => `<option value="${s}" ${currentStatus === s ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+        </div>`;
+
+      // ── Section 2: Plan Details ──
+      html += `
+        <div class="pip-section">
+          <div class="pip-section-title">Plan Details</div>
+          <div class="form-group">
+            <label class="form-label">Reason for PIP</label>
+            <textarea class="form-textarea" id="pipReason" rows="3" placeholder="Describe the specific performance deficiencies that led to this PIP..." ${disabled}>${USI.escapeHtml(pip ? (pip.Reason || '') : '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Expectations &amp; Goals</label>
+            <textarea class="form-textarea" id="pipExpectations" rows="4" placeholder="List the measurable objectives the employee must meet to successfully complete this PIP..." ${disabled}>${USI.escapeHtml(pip ? (pip.ExpectationsAndGoals || '') : '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Support Provided</label>
+            <textarea class="form-textarea" id="pipSupport" rows="3" placeholder="Describe what the company will provide: training, mentoring, adjusted workload, etc..." ${disabled}>${USI.escapeHtml(pip ? (pip.SupportProvided || '') : '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Consequences if Not Met</label>
+            <textarea class="form-textarea" id="pipConsequences" rows="2" placeholder="Describe consequences if goals are not met within the timeframe..." ${disabled}>${USI.escapeHtml(pip ? (pip.ConsequencesIfNotMet || '') : '')}</textarea>
+          </div>
+        </div>`;
+
+      // ── Section 3: Check-In Log ──
+      html += `
+        <div class="pip-section">
+          <div class="pip-section-title">Check-In Log ${!readOnly ? `<button class="btn btn-sm btn-secondary" id="btnAddPIPCheckIn" style="margin-left:12px">+ Add Check-In</button>` : ''}</div>
+          <div class="pip-timeline" id="pipCheckInList"></div>
+        </div>`;
+
+      // ── Section 4: Acknowledgment & Signatures ──
+      const mgrAck = pip ? pip.ManagerAcknowledged : false;
+      const empAck = pip ? pip.EmployeeAcknowledged : false;
+
+      html += `
+        <div class="pip-section">
+          <div class="pip-section-title">Acknowledgment &amp; Signatures</div>
+
+          <!-- Manager Acknowledgment -->
+          <div class="pip-signature ${mgrAck ? 'signed' : ''}" id="pipMgrSignature">
+            <div class="pip-signature-title">
+              ${mgrAck ? '<span class="checkmark">&#10003;</span>' : ''}
+              Manager Acknowledgment
+            </div>
+            <div class="pip-signature-disclaimer">
+              I acknowledge that I have discussed this Performance Improvement Plan with the employee and have provided them a copy of this document.
+            </div>
+            ${mgrAck ? `
+              <div class="pip-signature-details">
+                <span><strong>Signed by:</strong> ${USI.escapeHtml(pip.ManagerSignature || pip.ManagerName || '')}</span>
+                <span><strong>Date:</strong> ${pip.ManagerAcknowledgedDate ? new Date(pip.ManagerAcknowledgedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</span>
+              </div>
+            ` : `
+              ${!readOnly && pipEditingId ? `
+              <div class="pip-signature-input-row">
+                <input type="text" class="form-input" id="pipMgrSignatureInput" placeholder="Type your full name as signature">
+                <button class="btn btn-primary btn-sm" onclick="acknowledgePIP('manager')">Acknowledge</button>
+              </div>` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Not yet acknowledged</div>`}
+            `}
+          </div>
+
+          <!-- Employee Acknowledgment -->
+          <div class="pip-signature ${empAck ? 'signed' : ''}" id="pipEmpSignature">
+            <div class="pip-signature-title">
+              ${empAck ? '<span class="checkmark">&#10003;</span>' : ''}
+              Employee Acknowledgment
+            </div>
+            <div class="pip-signature-disclaimer">
+              I acknowledge receipt of this Performance Improvement Plan. My signature does not indicate agreement with the assessment but confirms that I have received and reviewed this document.
+            </div>
+            ${empAck ? `
+              <div class="pip-signature-details">
+                <span><strong>Signed by:</strong> ${USI.escapeHtml(pip.EmployeeSignature || pip.EmployeeName || '')}</span>
+                <span><strong>Date:</strong> ${pip.EmployeeAcknowledgedDate ? new Date(pip.EmployeeAcknowledgedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</span>
+              </div>
+            ` : `
+              ${isOwnPIP && pipEditingId ? `
+              <div class="pip-signature-input-row">
+                <input type="text" class="form-input" id="pipEmpSignatureInput" placeholder="Type your full name as signature">
+                <button class="btn btn-primary btn-sm" onclick="acknowledgePIP('employee')">Acknowledge</button>
+              </div>` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Not yet acknowledged</div>`}
+            `}
+          </div>
+        </div>`;
+
+      // ── Section 5: Completion (only when closing) ──
+      if (isClosing || (pip && pip.CompletionStatus)) {
+        html += `
+          <div class="pip-section">
+            <div class="pip-section-title">Completion</div>
+            <div class="pip-completion">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Completion Status</label>
+                  <select class="form-select" id="pipCompletionStatus" ${disabled}>
+                    <option value="">Select...</option>
+                    <option value="Completed Successfully" ${pip && pip.CompletionStatus === 'Completed Successfully' ? 'selected' : ''}>Completed Successfully</option>
+                    <option value="Closed - Not Met" ${pip && pip.CompletionStatus === 'Closed - Not Met' ? 'selected' : ''}>Closed - Not Met</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Completion Date</label>
+                  <input type="date" class="form-input" id="pipCompletionDate" value="${pip && pip.CompletionDate ? pip.CompletionDate.split('T')[0] : new Date().toISOString().split('T')[0]}" ${disabled}>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Completion Notes</label>
+                <textarea class="form-textarea" id="pipCompletionNotes" rows="3" placeholder="Summarize the outcome of this PIP..." ${disabled}>${USI.escapeHtml(pip && pip.CompletionNotes ? pip.CompletionNotes : '')}</textarea>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      // ── Save / Delete Actions ──
+      if (!readOnly) {
+        html += `
+          <div class="ws-exit-actions">
+            <button class="btn btn-primary" id="btnPIPSave">Save PIP</button>
+            ${pipEditingId ? `<button class="btn btn-danger" id="btnPIPDelete" style="margin-left:auto">Delete PIP</button>` : ''}
+          </div>`;
+      }
+
+      ws.innerHTML = html;
+
+      // Render check-ins
+      renderPIPCheckIns();
+
+      // Wire up buttons after rendering
+      if (!readOnly) {
+        const addCheckInBtn = document.getElementById('btnAddPIPCheckIn');
+        if (addCheckInBtn) addCheckInBtn.addEventListener('click', addPIPCheckIn);
+
+        const saveBtn = document.getElementById('btnPIPSave');
+        if (saveBtn) saveBtn.addEventListener('click', savePIP);
+
+        const deleteBtn = document.getElementById('btnPIPDelete');
+        if (deleteBtn) deleteBtn.addEventListener('click', deletePIP);
+      }
+
+      // Show/hide completion section based on status change
+      const statusSelect = document.getElementById('pipStatus');
+      if (statusSelect && !readOnly) {
+        statusSelect.addEventListener('change', function() {
+          const pip_data = pipEditingId ? pips.find(p => p.id == pipEditingId) : null;
+          // Re-render to show/hide completion section
+          const fakeP = pip_data ? { ...pip_data } : {};
+          fakeP.Status = this.value;
+          // Store form values before re-render
+          const formState = capturePIPFormState();
+          renderPIPWorksheet(Object.assign(fakeP, formState));
+        });
+      }
+    }
+
+    function capturePIPFormState() {
+      const state = {};
+      const el = (id) => document.getElementById(id);
+      if (el('pipStartDate')) state.StartDate = el('pipStartDate').value;
+      if (el('pipEndDate')) state.EndDate = el('pipEndDate').value;
+      if (el('pipStatus')) state.Status = el('pipStatus').value;
+      if (el('pipReason')) state.Reason = el('pipReason').value;
+      if (el('pipExpectations')) state.ExpectationsAndGoals = el('pipExpectations').value;
+      if (el('pipSupport')) state.SupportProvided = el('pipSupport').value;
+      if (el('pipConsequences')) state.ConsequencesIfNotMet = el('pipConsequences').value;
+      if (el('pipCompletionStatus')) state.CompletionStatus = el('pipCompletionStatus').value;
+      if (el('pipCompletionDate')) state.CompletionDate = el('pipCompletionDate').value;
+      if (el('pipCompletionNotes')) state.CompletionNotes = el('pipCompletionNotes').value;
+      state.CheckIns = JSON.stringify(pipCheckIns);
+      return state;
+    }
+
+    function setPIPDuration(days) {
+      const startInput = document.getElementById('pipStartDate');
+      if (!startInput.value) startInput.value = new Date().toISOString().split('T')[0];
+      const start = new Date(startInput.value);
+      const end = new Date(start);
+      end.setDate(end.getDate() + days);
+      document.getElementById('pipEndDate').value = end.toISOString().split('T')[0];
+    }
+
+    // ── Check-In Log ──
+    function renderPIPCheckIns() {
+      const listEl = document.getElementById('pipCheckInList');
+      if (!listEl) return;
+
+      let html = '';
+
+      // Inline add form
+      if (pipCheckInFormVisible && !pipIsReadOnly) {
+        html += `
+          <div class="pulse-inline-form" id="pipCheckInForm">
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-input" id="pipCheckInDate" value="${new Date().toISOString().split('T')[0]}">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="pipCheckInStatus">
+                  <option value="Meeting Expectations">Meeting Expectations</option>
+                  <option value="Improving">Improving</option>
+                  <option value="Not Improving">Not Improving</option>
+                  <option value="Regressing">Regressing</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:10px;margin-bottom:10px">
+              <label class="form-label">Notes</label>
+              <textarea class="form-textarea" id="pipCheckInNotes" rows="2" placeholder="Describe progress, areas of concern, and next steps..."></textarea>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="savePIPCheckIn()">Save Check-In</button>
+              <button class="btn btn-secondary btn-sm" onclick="pipCheckInFormVisible=false;renderPIPCheckIns()">Cancel</button>
+            </div>
+          </div>`;
+      }
+
+      if (pipCheckIns.length === 0 && !pipCheckInFormVisible) {
+        listEl.innerHTML = html + '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No check-ins recorded yet</div>';
+        return;
+      }
+
+      // Sort newest first
+      const sorted = [...pipCheckIns].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      html += sorted.map(c => {
+        const dotClass = pipCheckInDotClass(c.status);
+        const dateStr = c.date ? new Date(c.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        const addedByName = c.addedBy ? USI.orgName(c.addedBy) : '';
+        return `
+        <div class="pip-checkin-entry">
+          <div class="pip-checkin-dot ${dotClass}"></div>
+          <div class="pip-checkin-content">
+            <div class="pip-checkin-header">
+              <span>${USI.escapeHtml(c.status || '')}</span>
+              <span style="font-weight:400;color:var(--text-muted)">${USI.escapeHtml(dateStr)}</span>
+            </div>
+            <div class="pip-checkin-notes">${USI.escapeHtml(c.notes || '')}</div>
+            ${addedByName ? `<div class="pip-checkin-by">Added by ${USI.escapeHtml(addedByName)}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+
+      listEl.innerHTML = html;
+    }
+
+    function addPIPCheckIn() {
+      pipCheckInFormVisible = true;
+      renderPIPCheckIns();
+    }
+
+    function savePIPCheckIn() {
+      const date = document.getElementById('pipCheckInDate').value;
+      const status = document.getElementById('pipCheckInStatus').value;
+      const notes = document.getElementById('pipCheckInNotes').value.trim();
+
+      if (!date) { USI.toast('Date is required', 'error'); return; }
+      if (!status) { USI.toast('Status is required', 'error'); return; }
+
+      pipCheckIns.push({
+        id: USI.generateId(),
+        date: date,
+        status: status,
+        notes: notes,
+        addedBy: me.mail
+      });
+
+      pipCheckInFormVisible = false;
+      renderPIPCheckIns();
+    }
+
+    // ── Acknowledge PIP ──
+    async function acknowledgePIP(role) {
+      if (!pipEditingId) {
+        USI.toast('Please save the PIP first before acknowledging', 'error');
+        return;
+      }
+
+      const pip = pips.find(p => p.id == pipEditingId);
+      if (!pip) return;
+
+      if (role === 'manager') {
+        const sigInput = document.getElementById('pipMgrSignatureInput');
+        const signature = sigInput ? sigInput.value.trim() : '';
+        if (!signature) { USI.toast('Please type your name as a signature', 'error'); return; }
+
+        try {
+          await USI.updateListItem(PIPS_LIST, pipEditingId, {
+            ManagerAcknowledged: true,
+            ManagerAcknowledgedDate: new Date().toISOString(),
+            ManagerSignature: signature
+          });
+          pip.ManagerAcknowledged = true;
+          pip.ManagerAcknowledgedDate = new Date().toISOString();
+          pip.ManagerSignature = signature;
+          USI.toast('Manager acknowledgment recorded', 'success');
+          renderPIPWorksheet(pip);
+        } catch (e) {
+          console.error('Failed to acknowledge PIP:', e);
+          USI.toast('Failed to record acknowledgment', 'error');
+        }
+      } else if (role === 'employee') {
+        const sigInput = document.getElementById('pipEmpSignatureInput');
+        const signature = sigInput ? sigInput.value.trim() : '';
+        if (!signature) { USI.toast('Please type your name as a signature', 'error'); return; }
+
+        try {
+          await USI.updateListItem(PIPS_LIST, pipEditingId, {
+            EmployeeAcknowledged: true,
+            EmployeeAcknowledgedDate: new Date().toISOString(),
+            EmployeeSignature: signature
+          });
+          pip.EmployeeAcknowledged = true;
+          pip.EmployeeAcknowledgedDate = new Date().toISOString();
+          pip.EmployeeSignature = signature;
+          USI.toast('Employee acknowledgment recorded', 'success');
+          renderPIPWorksheet(pip);
+        } catch (e) {
+          console.error('Failed to acknowledge PIP:', e);
+          USI.toast('Failed to record acknowledgment', 'error');
+        }
+      }
+    }
+
+    // ── Save PIP ──
+    async function savePIP() {
+      const isNew = !pipEditingId;
+      let employeeEmail, employeeName;
+
+      if (isNew) {
+        const empSelect = document.getElementById('pipEmployee');
+        if (!empSelect || !empSelect.value) {
+          USI.toast('Please select an employee', 'error');
+          return;
+        }
+        employeeEmail = empSelect.value;
+        const empPerson = USI.orgFind(employeeEmail);
+        employeeName = empPerson ? empPerson.name : employeeEmail;
+      } else {
+        const pip = pips.find(p => p.id == pipEditingId);
+        employeeEmail = pip.EmployeeEmail;
+        employeeName = pip.EmployeeName;
+      }
+
+      const startDate = document.getElementById('pipStartDate').value;
+      const endDate = document.getElementById('pipEndDate').value;
+      const status = document.getElementById('pipStatus').value;
+
+      if (!startDate) { USI.toast('Start date is required', 'error'); return; }
+      if (!endDate) { USI.toast('End date is required', 'error'); return; }
+
+      const fields = {
+        Title: `Performance Improvement Plan - ${employeeName}`,
+        EmployeeEmail: employeeEmail,
+        EmployeeName: employeeName,
+        ManagerEmail: isNew ? me.mail : (pips.find(p => p.id == pipEditingId)?.ManagerEmail || me.mail),
+        ManagerName: isNew ? me.displayName : (pips.find(p => p.id == pipEditingId)?.ManagerName || me.displayName),
+        StartDate: startDate,
+        EndDate: endDate,
+        Status: status,
+        Reason: document.getElementById('pipReason').value,
+        ExpectationsAndGoals: document.getElementById('pipExpectations').value,
+        SupportProvided: document.getElementById('pipSupport').value,
+        ConsequencesIfNotMet: document.getElementById('pipConsequences').value,
+        CheckIns: JSON.stringify(pipCheckIns)
+      };
+
+      // Completion fields
+      const completionStatusEl = document.getElementById('pipCompletionStatus');
+      if (completionStatusEl) {
+        fields.CompletionStatus = completionStatusEl.value;
+        fields.CompletionDate = document.getElementById('pipCompletionDate').value || null;
+        fields.CompletionNotes = document.getElementById('pipCompletionNotes').value;
+      }
+
+      try {
+        const saveBtn = document.getElementById('btnPIPSave');
+        if (saveBtn) saveBtn.disabled = true;
+
+        if (isNew) {
+          fields.EmployeeAcknowledged = false;
+          fields.EmployeeAcknowledgedDate = null;
+          fields.EmployeeSignature = '';
+          fields.ManagerAcknowledged = false;
+          fields.ManagerAcknowledgedDate = null;
+          fields.ManagerSignature = '';
+          fields.CompletionStatus = '';
+          fields.CompletionDate = null;
+          fields.CompletionNotes = '';
+          await USI.createListItem(PIPS_LIST, fields);
+          USI.toast('PIP created', 'success');
+        } else {
+          await USI.updateListItem(PIPS_LIST, pipEditingId, fields);
+          USI.toast('PIP updated', 'success');
+        }
+
+        await loadPIPs();
+        closePIPDetail();
+      } catch (e) {
+        console.error('Failed to save PIP:', e);
+        USI.toast('Failed to save PIP', 'error');
+      } finally {
+        const saveBtn = document.getElementById('btnPIPSave');
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    }
+
+    // ── Delete PIP ──
+    async function deletePIP() {
+      if (!pipEditingId) return;
+      const confirmed = await USI.confirm('Are you sure you want to delete this PIP? This action cannot be undone.');
+      if (!confirmed) return;
+
+      try {
+        await USI.deleteListItem(PIPS_LIST, pipEditingId);
+        USI.toast('PIP deleted', 'success');
+        await loadPIPs();
+        closePIPDetail();
+      } catch (e) {
+        console.error('Failed to delete PIP:', e);
+        USI.toast('Failed to delete PIP', 'error');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
     // ██  INITIALIZATION
     // ══════════════════════════════════════════════════════════
 
@@ -1935,11 +2695,21 @@
       amManager = USI.isManager(me.mail);
       amHRAdmin = USI.isHRAdmin(me.mail);
 
+      const amExecutive = USI.isExecutive(me.mail);
+
       // Show manager/HR admin elements
       if (amManager || amHRAdmin) {
         document.getElementById('tabTeam').style.display = '';
         document.getElementById('btnAddRock').style.display = '';
         document.getElementById('goalViewAllToggle').style.display = '';
+      }
+
+      // Show PIPs tab for managers, executives, and HR admins
+      if (amManager || amHRAdmin || amExecutive) {
+        document.getElementById('tabPIPs').style.display = '';
+        if (amManager || amHRAdmin) {
+          document.getElementById('btnAddPIP').style.display = '';
+        }
       }
 
       // Populate quarter filter
@@ -1972,7 +2742,8 @@
       await Promise.all([
         USI.ensureList(GOALS_LIST, GOALS_COLUMNS),
         USI.ensureList(ROCKS_LIST, ROCKS_COLUMNS),
-        USI.ensureList(REVIEWS_LIST, REVIEWS_COLUMNS)
+        USI.ensureList(REVIEWS_LIST, REVIEWS_COLUMNS),
+        USI.ensureList(PIPS_LIST, [])
       ]);
 
       // Load initial data (batch — one API call for both lists)
@@ -1997,6 +2768,7 @@
         const panel = e.detail;
         if (panel === 'panelReview') loadMyReview();
         if (panel === 'panelTeam' && (amManager || amHRAdmin)) loadTeamReviews();
+        if (panel === 'panelPIPs') loadPIPs();
       });
 
       // ── Event Listeners ──
@@ -2044,6 +2816,29 @@
         expandedTeamCards.clear();
         loadTeamReviews();
       });
+
+      // PIP event listeners
+      document.getElementById('pipFilterStatus').addEventListener('change', renderPIPs);
+      document.getElementById('pipSearch').addEventListener('input', USI.debounce(renderPIPs, 300));
+      document.getElementById('btnAddPIP').addEventListener('click', () => openPIPDetail(null));
+      document.getElementById('btnBackToPIPs').addEventListener('click', closePIPDetail);
+
+      // Check if current employee has an active PIP (for regular employees)
+      if (!amManager && !amHRAdmin && !amExecutive) {
+        try {
+          const pipItems = await USI.getListItems(PIPS_LIST);
+          const myPIP = pipItems.find(i =>
+            i.fields.EmployeeEmail &&
+            i.fields.EmployeeEmail.toLowerCase() === me.mail.toLowerCase() &&
+            (i.fields.Status === 'Active' || i.fields.Status === 'Improving' || i.fields.Status === 'Draft')
+          );
+          if (myPIP) {
+            document.getElementById('tabPIPs').style.display = '';
+          }
+        } catch (e) {
+          console.warn('Failed to check employee PIPs:', e);
+        }
+      }
     });
   </script>
 </body>

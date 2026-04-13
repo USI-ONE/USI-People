@@ -214,6 +214,36 @@
     .history-discussed-item .pill {
       flex-shrink: 0;
     }
+
+    /* ── SMART Goals Summary ── */
+    .goals-summary { margin-bottom: 20px; }
+    .goals-summary-header {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none;
+    }
+    .goals-summary-title { font-size: 14px; font-weight: 600; color: var(--primary); }
+    .goals-summary-toggle { color: var(--text-muted); font-size: 12px; transition: transform 0.2s; }
+    .goals-summary.collapsed .goals-summary-toggle { transform: rotate(-90deg); }
+    .goals-summary.collapsed .goals-summary-body { display: none; }
+    .goal-summary-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); margin-bottom: 6px; font-size: 13px;
+    }
+    .goal-summary-title { flex: 1; font-weight: 500; }
+    .goal-summary-progress { width: 80px; }
+    .goal-summary-progress .progress-bar {
+      height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+    }
+    .goal-summary-progress .progress-fill {
+      height: 100%; border-radius: 3px; background: var(--primary);
+    }
+    .goal-pulse {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .goal-pulse.on-track { background: var(--success); }
+    .goal-pulse.needs-attention { background: var(--warning); }
+    .goal-pulse.blocked { background: var(--error); }
   </style>
 </head>
 <body>
@@ -260,6 +290,17 @@
 
         <!-- Agenda Panel -->
         <div id="panelAgenda" class="tab-panel active">
+
+          <!-- SMART Goals Summary -->
+          <div id="goalsSummary" class="card goals-summary" style="display:none;">
+            <div class="goals-summary-header" onclick="App.toggleGoalsSummary()">
+              <span class="goals-summary-title">SMART Goals</span>
+              <span class="goals-summary-toggle">&#9660;</span>
+            </div>
+            <div class="goals-summary-body" style="margin-top:12px;">
+              <div id="goalsSummaryContent"></div>
+            </div>
+          </div>
 
           <!-- Add Item Form -->
           <div class="card add-item-card">
@@ -330,13 +371,14 @@
   <script src="shared/org.js"></script>
   <script>
     // ── Config ──
-    const CATEGORIES = ['Updates', 'Blockers', 'Wins', 'Feedback', 'Career', 'Topics'];
+    const CATEGORIES = ['Updates', 'Blockers', 'Wins', 'Feedback', 'Career', 'Goals', 'Topics'];
     const CATEGORY_PILL_CLASS = {
       Updates: 'pill-info',
       Blockers: 'pill-error',
       Wins: 'pill-success',
       Feedback: 'pill-warning',
       Career: 'pill-primary',
+      Goals: 'pill-success',
       Topics: 'pill-neutral'
     };
     const PRIORITY_ORDER = { High: 0, Medium: 1, Low: 2 };
@@ -348,7 +390,7 @@
       USI.textCol('EmployeeEmail'),
       USI.textCol('ManagerEmail'),
       USI.multilineCol('Content'),
-      USI.choiceCol('Category', ['Updates','Blockers','Wins','Feedback','Career','Topics']),
+      USI.choiceCol('Category', ['Updates','Blockers','Wins','Feedback','Career','Goals','Topics']),
       USI.choiceCol('Priority', ['High','Medium','Low']),
       USI.textCol('AddedByEmail'),
       USI.textCol('AddedByName'),
@@ -417,8 +459,8 @@
         if (e.detail === 'panelHistory') App.loadHistory();
       });
 
-      // Load agenda
-      await App.loadAgenda();
+      // Load agenda and goals
+      await Promise.all([App.loadAgenda(), App.loadEmployeeGoals()]);
     });
 
     // ── Employee Change (Manager) ──
@@ -432,6 +474,69 @@
       }
 
       App.loadAgenda();
+      App.loadEmployeeGoals();
+    };
+
+    // ── SMART Goals Summary ──
+    App.loadEmployeeGoals = async function() {
+      const summaryCard = document.getElementById('goalsSummary');
+      const contentEl = document.getElementById('goalsSummaryContent');
+
+      try {
+        const allGoals = await USI.getListItems('USI_Goals');
+        const activeGoals = allGoals.filter(g => {
+          const f = g.fields;
+          return (f.EmployeeEmail || '').toLowerCase() === App.selectedEmployeeEmail.toLowerCase() &&
+            f.Status !== 'Completed' && f.Status !== 'Cancelled';
+        });
+
+        if (activeGoals.length === 0) {
+          contentEl.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:4px 0;">No active goals</div>';
+          summaryCard.style.display = 'block';
+          return;
+        }
+
+        let html = '';
+        activeGoals.forEach(goal => {
+          const f = goal.fields;
+          const title = f.Title || 'Untitled Goal';
+          const progress = parseInt(f.Progress) || 0;
+          const pulse = (f.Pulse || 'On Track').replace(/\s+/g, ' ').trim();
+          const pulseClass = pulse === 'On Track' ? 'on-track' : pulse === 'Needs Attention' ? 'needs-attention' : 'blocked';
+          const pulseLabel = USI.escapeHtml(pulse);
+          const category = f.Category || '';
+          const rockName = f.RockName || '';
+
+          html += `<div class="goal-summary-item">
+            <div class="goal-pulse ${pulseClass}" title="${pulseLabel}"></div>
+            <div class="goal-summary-title">${USI.escapeHtml(title)}</div>`;
+
+          if (rockName) {
+            html += `<span class="pill pill-primary" style="font-size:10px;">${USI.escapeHtml(rockName)}</span>`;
+          }
+
+          if (category) {
+            html += `<span class="pill pill-neutral" style="font-size:10px;">${USI.escapeHtml(category)}</span>`;
+          }
+
+          html += `<div class="goal-summary-progress">
+              <div style="font-size:11px;color:var(--text-muted);text-align:right;margin-bottom:2px;">${progress}%</div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${progress}%;"></div></div>
+            </div>
+          </div>`;
+        });
+
+        contentEl.innerHTML = html;
+        summaryCard.style.display = 'block';
+      } catch (e) {
+        console.error('Failed to load employee goals:', e);
+        contentEl.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:4px 0;">Unable to load goals</div>';
+        summaryCard.style.display = 'block';
+      }
+    };
+
+    App.toggleGoalsSummary = function() {
+      document.getElementById('goalsSummary').classList.toggle('collapsed');
     };
 
     // ── Category Pills ──
