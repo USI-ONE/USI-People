@@ -184,7 +184,9 @@
 
   USI.formatDate = function(iso) {
     if (!iso) return '';
-    const d = new Date(iso);
+    // Append T12:00:00 to date-only strings to avoid UTC timezone shift
+    const dateStr = iso.length === 10 ? iso + 'T12:00:00' : iso;
+    const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
