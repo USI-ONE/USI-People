@@ -6,45 +6,33 @@
   // loaded from the USI_OrgChart SharePoint list instead.
 
   const ORG_MEMBERS = [
-    // Executives
+    // Executives — see everything company-wide
     { email: 'sammy@usicomputer.com', name: 'Sammy Wong', title: 'CEO', managerEmail: null, role: 'executive' },
+    { email: 'gary@usicomputer.com', name: 'Gary Gonzalez', title: '', managerEmail: 'sammy@usicomputer.com', role: 'executive' },
+    { email: 'johnathank@usicomputer.com', name: 'Johnathan Kendrick', title: '', managerEmail: 'sammy@usicomputer.com', role: 'executive' },
+    { email: 'RachelW@usicomputer.com', name: 'Rachel Wong', title: '', managerEmail: 'sammy@usicomputer.com', role: 'executive' },
+    { email: 'rachel@usicomputer.com', name: 'Rachel Connett', title: '', managerEmail: 'gary@usicomputer.com', role: 'executive' },
+    { email: 'CWall@usicomputer.com', name: 'Chris Wall', title: '', managerEmail: 'johnathank@usicomputer.com', role: 'executive' },
+    { email: 'Benson@usicomputer.com', name: 'Benson Chiu', title: '', managerEmail: 'RachelW@usicomputer.com', role: 'executive' },
+    { email: 'Aaron@usicomputer.com', name: 'Aaron Kendrick', title: '', managerEmail: 'RachelW@usicomputer.com', role: 'executive' },
 
-    // VPs / Directors
-    { email: 'gary@usicomputer.com', name: 'Gary Gonzalez', title: '', managerEmail: 'sammy@usicomputer.com', role: 'manager' },
-    { email: 'johnathank@usicomputer.com', name: 'Johnathan Kendrick', title: '', managerEmail: 'sammy@usicomputer.com', role: 'manager' },
-    { email: 'RachelW@usicomputer.com', name: 'Rachel Wong', title: '', managerEmail: 'sammy@usicomputer.com', role: 'manager' },
-
-    // Mid-level managers
-    { email: 'rachel@usicomputer.com', name: 'Rachel Connett', title: '', managerEmail: 'gary@usicomputer.com', role: 'manager' },
-    { email: 'CWall@usicomputer.com', name: 'Chris Wall', title: '', managerEmail: 'johnathank@usicomputer.com', role: 'manager' },
-    { email: 'Benson@usicomputer.com', name: 'Benson Chiu', title: '', managerEmail: 'RachelW@usicomputer.com', role: 'manager' },
-    { email: 'Aaron@usicomputer.com', name: 'Aaron Kendrick', title: '', managerEmail: 'RachelW@usicomputer.com', role: 'manager' },
-
-    // Team leads (also managers of ICs)
+    // Managers — see their own + direct/indirect reports only
     { email: 'chriss@usicomputer.com', name: 'Chris Sudweeks', title: '', managerEmail: 'CWall@usicomputer.com', role: 'manager' },
     { email: 'Ray@usicomputer.com', name: 'Ray Leota', title: '', managerEmail: 'CWall@usicomputer.com', role: 'manager' },
 
-    // Individual contributors — Rachel Connett's team
+    // Employees — see only their own data
     { email: 'Mitch@usicomputer.com', name: 'Mitchell Lindsey', title: '', managerEmail: 'rachel@usicomputer.com', role: 'employee' },
     { email: 'Matt.Dasher@usicomputer.com', name: 'Matt Dasher', title: '', managerEmail: 'rachel@usicomputer.com', role: 'employee' },
     { email: 'Dave@usicomputer.com', name: 'Dave Hancey', title: '', managerEmail: 'rachel@usicomputer.com', role: 'employee' },
-
-    // Individual contributors — Chris Sudweeks' team
     { email: 'mark@usicomputer.com', name: 'Mark Foy', title: '', managerEmail: 'chriss@usicomputer.com', role: 'employee' },
     { email: 'MJones@usicomputer.com', name: 'Marc Jones', title: '', managerEmail: 'chriss@usicomputer.com', role: 'employee' },
     { email: 'colton@usicomputer.com', name: 'Colton Parker', title: '', managerEmail: 'chriss@usicomputer.com', role: 'employee' },
-
-    // Individual contributors — Ray Leota's team
     { email: 'Justin@usicomputer.com', name: 'Justin Silotti', title: '', managerEmail: 'Ray@usicomputer.com', role: 'employee' },
     { email: 'ethan@usicomputer.com', name: 'Ethan Sudweeks', title: '', managerEmail: 'Ray@usicomputer.com', role: 'employee' },
-
-    // Individual contributors — Benson Chiu's team
     { email: 'jwan@usicomputer.com', name: 'Jonathan Wan', title: '', managerEmail: 'Benson@usicomputer.com', role: 'employee' },
     { email: 'PeterSmith@usicomputer.com', name: 'Peter Smith', title: '', managerEmail: 'Benson@usicomputer.com', role: 'employee' },
     { email: 'Fernando@usicomputer.com', name: 'Fernando Cardenas', title: '', managerEmail: 'Benson@usicomputer.com', role: 'employee' },
     { email: 'lsudweeks@usicomputer.com', name: 'Lee Sudweeks', title: '', managerEmail: 'Benson@usicomputer.com', role: 'employee' },
-
-    // Individual contributors — Aaron Kendrick's team
     { email: 'Ron@usicomputer.com', name: 'Ron Dickson', title: '', managerEmail: 'Aaron@usicomputer.com', role: 'employee' },
     { email: 'Tui@usicomputer.com', name: 'Tui', title: '', managerEmail: 'Aaron@usicomputer.com', role: 'employee' },
     { email: 'lee@usicomputer.com', name: 'Lee Allred', title: '', managerEmail: 'Aaron@usicomputer.com', role: 'employee' }
