@@ -192,14 +192,9 @@ const USI = (() => {
   async function getListItems(listName, filter, orderby, top) {
     const siteId = await getSiteId();
     const listId = _listIds[listName] || await ensureList(listName, []);
-    let url = `/sites/${siteId}/lists/${listId}/items?$expand=fields`;
-    const params = [];
-    if (filter) params.push(`$filter=${encodeURIComponent(filter)}`);
-    if (orderby) params.push(`$orderby=${encodeURIComponent(orderby)}`);
-    if (top) params.push(`$top=${top}`);
-    if (params.length) url += '&' + params.join('&');
+    // Fetch all items (no server-side filter/sort — custom columns may not exist yet)
+    let url = `/sites/${siteId}/lists/${listId}/items?$expand=fields&$top=200`;
 
-    // Handle pagination
     let allItems = [];
     let response = await graph('GET', url);
     allItems = allItems.concat(response.value || []);

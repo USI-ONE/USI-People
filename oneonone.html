@@ -505,8 +505,12 @@
       loading.style.display = 'block';
 
       try {
-        const filter = `fields/EmployeeEmail eq '${App.selectedEmployeeEmail}' and (fields/Status eq 'Pending' or fields/Status eq 'CarriedForward')`;
-        const items = await USI.getListItems(LIST_ITEMS, filter, 'fields/AddedDate desc', 200);
+        const allItems = await USI.getListItems(LIST_ITEMS);
+        const items = allItems.filter(i => {
+          const f = i.fields;
+          return f.EmployeeEmail === App.selectedEmployeeEmail &&
+            (f.Status === 'Pending' || f.Status === 'CarriedForward');
+        }).sort((a, b) => new Date(b.fields.AddedDate || 0) - new Date(a.fields.AddedDate || 0));
         App.agendaItems = items;
 
         loading.style.display = 'none';
@@ -830,8 +834,9 @@
       loading.style.display = 'block';
 
       try {
-        const filter = `fields/EmployeeEmail eq '${App.selectedEmployeeEmail}'`;
-        const items = await USI.getListItems(LIST_MEETINGS, filter, 'fields/MeetingDate desc', 50);
+        const allMeetings = await USI.getListItems(LIST_MEETINGS);
+        const items = allMeetings.filter(i => i.fields.EmployeeEmail === App.selectedEmployeeEmail)
+          .sort((a, b) => new Date(b.fields.MeetingDate || 0) - new Date(a.fields.MeetingDate || 0));
         App.meetings = items;
 
         loading.style.display = 'none';
