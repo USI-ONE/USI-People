@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1:1 Meetings | USI People</title>
+  <link rel="stylesheet" href="shared/styles.css">
+  <style>
+    /* ── Manager Dropdown ── */
+    .employee-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      background: var(--primary-light);
+      border-radius: var(--radius-sm);
+    }
+    .employee-selector label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+    .employee-selector select {
+      flex: 1;
+      max-width: 320px;
+    }
+
+    /* ── Add Item Form ── */
+    .add-item-card {
+      margin-bottom: 24px;
+    }
+    .add-item-card .category-pills {
+      margin-bottom: 12px;
+    }
+    .add-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .add-item-actions .form-select {
+      width: auto;
+      min-width: 120px;
+    }
+
+    /* ── Agenda Category Group ── */
+    .category-group {
+      margin-bottom: 24px;
+    }
+    .category-group-header {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .category-group-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+
+    /* ── Agenda Item ── */
+    .agenda-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      transition: background 0.15s;
+    }
+    .agenda-item:hover {
+      background: var(--bg);
+    }
+    .agenda-item-check {
+      display: none;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .meeting-active .agenda-item-check {
+      display: block;
+    }
+    .agenda-item-check input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .agenda-item-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .agenda-item-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .agenda-item-content {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .agenda-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-light);
+    }
+    .agenda-item-actions {
+      flex-shrink: 0;
+    }
+    .agenda-item.checked {
+      opacity: 0.5;
+    }
+    .agenda-item.checked .agenda-item-content {
+      text-decoration: line-through;
+    }
+
+    /* ── Meeting Toolbar ── */
+    .meeting-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .meeting-toolbar .toolbar-spacer {
+      flex: 1;
+    }
+
+    /* ── History Meeting Card ── */
+    .history-card {
+      cursor: pointer;
+    }
+    .history-card-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .history-date {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .history-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .history-details {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .history-card.expanded .history-details {
+      display: block;
+    }
+    .history-notes {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+    }
+    .history-notes-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .history-items-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+    .history-discussed-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      margin-bottom: 4px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .history-discussed-item .pill {
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login View -->
+  <div id="loginView" class="view active login-view">
+    <div class="login-card">
+      <div class="login-logo">USI People</div>
+      <div class="login-subtitle">1:1 Meeting Management</div>
+      <button class="btn-microsoft" onclick="USI.login()">
+        <svg viewBox="0 0 21 21" width="20" height="20">
+          <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+          <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+          <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+          <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+        </svg>
+        Sign in with Microsoft
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading View -->
+  <div id="loadingView" class="view loading-view">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading...</div>
+  </div>
+
+  <!-- App View -->
+  <div id="appView" class="view">
+    <div class="app-container">
+
+      <!-- Manager Employee Selector -->
+      <div id="employeeSelector" class="employee-selector" style="display:none;">
+        <label for="employeeSelect">Viewing 1:1 for:</label>
+        <select id="employeeSelect" class="form-select" onchange="App.onEmployeeChange()">
+        </select>
+      </div>
+
+      <!-- Tabs -->
+      <div id="tabContainer">
+        <div class="tab-bar">
+          <div class="tab active" data-tab="panelAgenda">Agenda</div>
+          <div class="tab" data-tab="panelHistory">Meeting History</div>
+        </div>
+
+        <!-- Agenda Panel -->
+        <div id="panelAgenda" class="tab-panel active">
+
+          <!-- Add Item Form -->
+          <div class="card add-item-card">
+            <div class="card-title" style="margin-bottom:12px;">Add Agenda Item</div>
+            <div class="category-pills" id="categoryPills"></div>
+            <textarea id="itemContent" class="form-textarea" placeholder="What do you want to discuss?" rows="2"></textarea>
+            <div class="add-item-actions">
+              <select id="itemPriority" class="form-select">
+                <option value="Medium">Medium Priority</option>
+                <option value="High">High Priority</option>
+                <option value="Low">Low Priority</option>
+              </select>
+              <div style="flex:1;"></div>
+              <button class="btn btn-primary" onclick="App.addItem()">Add Item</button>
+            </div>
+          </div>
+
+          <!-- Meeting Toolbar -->
+          <div class="meeting-toolbar">
+            <div id="meetingTimer" class="meeting-timer" style="display:none;">
+              <div class="dot"></div>
+              <span id="timerDisplay">00:00:00</span>
+            </div>
+            <div class="toolbar-spacer"></div>
+            <button id="btnCheckAll" class="btn btn-secondary btn-sm" style="display:none;" onclick="App.checkAll()">Check All</button>
+            <button id="btnStartMeeting" class="btn btn-primary" onclick="App.startMeeting()">Start Meeting</button>
+            <button id="btnEndMeeting" class="btn btn-danger" style="display:none;" onclick="App.endMeeting()">End &amp; Archive</button>
+          </div>
+
+          <!-- Agenda Items -->
+          <div id="agendaItems"></div>
+
+          <!-- Agenda Empty State -->
+          <div id="agendaEmpty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">&#128172;</div>
+            <div class="empty-state-title">No agenda items yet</div>
+            <div class="empty-state-text">Add items above to build your 1:1 agenda. Topics, blockers, wins, feedback — anything you want to discuss.</div>
+          </div>
+
+          <!-- Agenda Loading -->
+          <div id="agendaLoading" style="text-align:center;padding:32px;display:none;">
+            <div class="spinner" style="margin:0 auto 12px;"></div>
+            <div class="loading-text">Loading agenda...</div>
+          </div>
+        </div>
+
+        <!-- History Panel -->
+        <div id="panelHistory" class="tab-panel">
+          <div id="historyList"></div>
+
+          <div id="historyEmpty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">&#128197;</div>
+            <div class="empty-state-title">No meetings yet</div>
+            <div class="empty-state-text">After your first 1:1 meeting, archived notes and discussed items will appear here.</div>
+          </div>
+
+          <div id="historyLoading" style="text-align:center;padding:32px;display:none;">
+            <div class="spinner" style="margin:0 auto 12px;"></div>
+            <div class="loading-text">Loading meeting history...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared/auth.js"></script>
+  <script src="shared/ui.js"></script>
+  <script>
+    // ── Config ──
+    const MANAGER_EMAILS = ['CWall@usicomputer.com', 'Aaron@usicomputer.com'];
+
+    const TEAM_EMAILS = [
+      { email: 'employee1@usicomputer.com', name: 'Employee One' },
+      { email: 'employee2@usicomputer.com', name: 'Employee Two' }
+    ];
+
+    const CATEGORIES = ['Updates', 'Blockers', 'Wins', 'Feedback', 'Career', 'Topics'];
+    const CATEGORY_PILL_CLASS = {
+      Updates: 'pill-info',
+      Blockers: 'pill-error',
+      Wins: 'pill-success',
+      Feedback: 'pill-warning',
+      Career: 'pill-primary',
+      Topics: 'pill-neutral'
+    };
+    const PRIORITY_ORDER = { High: 0, Medium: 1, Low: 2 };
+
+    const LIST_ITEMS = 'USI_OneOnOneItems';
+    const LIST_MEETINGS = 'USI_OneOnOneMeetings';
+
+    const ITEMS_COLUMNS = [
+      USI.textCol('EmployeeEmail'),
+      USI.textCol('ManagerEmail'),
+      USI.multilineCol('Content'),
+      USI.choiceCol('Category', ['Updates','Blockers','Wins','Feedback','Career','Topics']),
+      USI.choiceCol('Priority', ['High','Medium','Low']),
+      USI.textCol('AddedByEmail'),
+      USI.textCol('AddedByName'),
+      USI.dateTimeCol('AddedDate'),
+      USI.choiceCol('Status', ['Pending','Discussed','CarriedForward']),
+      USI.textCol('MeetingId')
+    ];
+
+    const MEETINGS_COLUMNS = [
+      USI.textCol('EmployeeEmail'),
+      USI.textCol('EmployeeName'),
+      USI.textCol('ManagerEmail'),
+      USI.dateCol('MeetingDate'),
+      USI.numberCol('Duration'),
+      USI.multilineCol('Notes'),
+      USI.multilineCol('DiscussedItems')
+    ];
+
+    // ── App State ──
+    const App = {
+      me: null,
+      isManager: false,
+      selectedCategory: 'Updates',
+      selectedEmployeeEmail: '',
+      agendaItems: [],
+      meetings: [],
+      meetingActive: false,
+      timerInterval: null,
+      timerStartTime: null,
+      timerElapsed: 0
+    };
+
+    // ── Initialization ──
+    USI.init({ managerEmails: MANAGER_EMAILS });
+    USI.boot('oneonone', async (me) => {
+      App.me = me;
+      App.isManager = USI.isManager(me.mail || me.userPrincipalName);
+
+      // Ensure SharePoint lists
+      await Promise.all([
+        USI.ensureList(LIST_ITEMS, ITEMS_COLUMNS),
+        USI.ensureList(LIST_MEETINGS, MEETINGS_COLUMNS)
+      ]);
+
+      // Set up manager employee selector
+      if (App.isManager) {
+        const selector = document.getElementById('employeeSelector');
+        selector.style.display = 'flex';
+        const select = document.getElementById('employeeSelect');
+        select.innerHTML = TEAM_EMAILS.map(t =>
+          `<option value="${USI.escapeHtml(t.email)}">${USI.escapeHtml(t.name)} (${USI.escapeHtml(t.email)})</option>`
+        ).join('');
+        App.selectedEmployeeEmail = TEAM_EMAILS.length > 0 ? TEAM_EMAILS[0].email : '';
+      } else {
+        App.selectedEmployeeEmail = me.mail || me.userPrincipalName;
+      }
+
+      // Render category pills
+      App.renderCategoryPills();
+
+      // Set up tabs
+      USI.initTabs(document.getElementById('tabContainer'));
+      document.getElementById('tabContainer').addEventListener('tabchange', (e) => {
+        if (e.detail === 'panelHistory') App.loadHistory();
+      });
+
+      // Load agenda
+      await App.loadAgenda();
+    });
+
+    // ── Employee Change (Manager) ──
+    App.onEmployeeChange = function() {
+      const select = document.getElementById('employeeSelect');
+      App.selectedEmployeeEmail = select.value;
+
+      // If meeting is active, end it first
+      if (App.meetingActive) {
+        App.exitMeetingMode();
+      }
+
+      App.loadAgenda();
+    };
+
+    // ── Category Pills ──
+    App.renderCategoryPills = function() {
+      const container = document.getElementById('categoryPills');
+      container.innerHTML = CATEGORIES.map(cat => {
+        const cls = CATEGORY_PILL_CLASS[cat];
+        const selected = cat === App.selectedCategory ? ' selected' : '';
+        return `<span class="pill ${cls} pill-clickable${selected}" data-cat="${cat}" onclick="App.selectCategory('${cat}')">${cat}</span>`;
+      }).join('');
+    };
+
+    App.selectCategory = function(cat) {
+      App.selectedCategory = cat;
+      App.renderCategoryPills();
+    };
+
+    // ── Add Item ──
+    App.addItem = async function() {
+      const content = document.getElementById('itemContent').value.trim();
+      if (!content) {
+        USI.toast('Please enter some content for the agenda item.', 'error');
+        return;
+      }
+
+      const priority = document.getElementById('itemPriority').value;
+      const managerEmail = App.isManager
+        ? (App.me.mail || App.me.userPrincipalName)
+        : MANAGER_EMAILS[0];
+
+      try {
+        await USI.createListItem(LIST_ITEMS, {
+          EmployeeEmail: App.selectedEmployeeEmail,
+          ManagerEmail: managerEmail,
+          Content: content,
+          Category: App.selectedCategory,
+          Priority: priority,
+          AddedByEmail: App.me.mail || App.me.userPrincipalName,
+          AddedByName: App.me.displayName,
+          AddedDate: new Date().toISOString(),
+          Status: 'Pending',
+          MeetingId: ''
+        });
+
+        document.getElementById('itemContent').value = '';
+        USI.toast('Agenda item added', 'success');
+        await App.loadAgenda();
+      } catch (e) {
+        console.error('Failed to add item:', e);
+        USI.toast('Failed to add item: ' + e.message, 'error');
+      }
+    };
+
+    // ── Load Agenda ──
+    App.loadAgenda = async function() {
+      const container = document.getElementById('agendaItems');
+      const empty = document.getElementById('agendaEmpty');
+      const loading = document.getElementById('agendaLoading');
+
+      container.innerHTML = '';
+      empty.style.display = 'none';
+      loading.style.display = 'block';
+
+      try {
+        const filter = `fields/EmployeeEmail eq '${App.selectedEmployeeEmail}' and (fields/Status eq 'Pending' or fields/Status eq 'CarriedForward')`;
+        const items = await USI.getListItems(LIST_ITEMS, filter, 'fields/AddedDate desc', 200);
+        App.agendaItems = items;
+
+        loading.style.display = 'none';
+
+        if (!items || items.length === 0) {
+          empty.style.display = 'block';
+          App.updateMeetingButtons();
+          return;
+        }
+
+        App.renderAgenda(items);
+        App.updateMeetingButtons();
+      } catch (e) {
+        console.error('Failed to load agenda:', e);
+        loading.style.display = 'none';
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error loading agenda</div><div class="empty-state-text">${USI.escapeHtml(e.message)}</div></div>`;
+      }
+    };
+
+    // ── Render Agenda ──
+    App.renderAgenda = function(items) {
+      const container = document.getElementById('agendaItems');
+      const currentEmail = (App.me.mail || App.me.userPrincipalName || '').toLowerCase();
+
+      // Group by category
+      const groups = {};
+      CATEGORIES.forEach(cat => { groups[cat] = []; });
+      items.forEach(item => {
+        const cat = item.fields.Category || 'Topics';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(item);
+      });
+
+      // Sort each group by priority
+      Object.keys(groups).forEach(cat => {
+        groups[cat].sort((a, b) => {
+          const pa = PRIORITY_ORDER[a.fields.Priority] ?? 1;
+          const pb = PRIORITY_ORDER[b.fields.Priority] ?? 1;
+          return pa - pb;
+        });
+      });
+
+      let html = '';
+      const meetingClass = App.meetingActive ? ' meeting-active' : '';
+
+      CATEGORIES.forEach(cat => {
+        const groupItems = groups[cat];
+        if (groupItems.length === 0) return;
+
+        const pillClass = CATEGORY_PILL_CLASS[cat];
+        html += `<div class="category-group${meetingClass}">`;
+        html += `<div class="category-group-header">
+          <span class="pill ${pillClass}">${cat}</span>
+          <span class="category-group-count">${groupItems.length} item${groupItems.length !== 1 ? 's' : ''}</span>
+        </div>`;
+
+        groupItems.forEach(item => {
+          const f = item.fields;
+          const priorityClass = f.Priority === 'High' ? 'priority-high' : f.Priority === 'Medium' ? 'priority-medium' : 'priority-low';
+          const canDelete = (f.AddedByEmail || '').toLowerCase() === currentEmail;
+          const isCarried = f.Status === 'CarriedForward';
+
+          html += `<div class="agenda-item" data-id="${item.id}" id="agenda-${item.id}">
+            <div class="agenda-item-check">
+              <input type="checkbox" onchange="App.onItemCheck(this, '${item.id}')">
+            </div>
+            <div class="agenda-item-body">
+              <div class="agenda-item-top">
+                <span class="${priorityClass}" style="font-size:11px;">${USI.escapeHtml(f.Priority)}</span>
+                ${isCarried ? '<span class="pill pill-warning" style="font-size:10px;">Carried Forward</span>' : ''}
+              </div>
+              <div class="agenda-item-content">${USI.escapeHtml(f.Content)}</div>
+              <div class="agenda-item-meta">
+                <span>${USI.escapeHtml(f.AddedByName || 'Unknown')}</span>
+                <span>${USI.relativeTime(f.AddedDate)}</span>
+              </div>
+            </div>
+            <div class="agenda-item-actions">
+              ${canDelete ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="App.deleteItem('${item.id}')" title="Delete">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H5.5l1-1h3l1 1H13.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+              </button>` : ''}
+            </div>
+          </div>`;
+        });
+
+        html += '</div>';
+      });
+
+      container.innerHTML = html;
+    };
+
+    // ── Update Meeting Buttons ──
+    App.updateMeetingButtons = function() {
+      const hasItems = App.agendaItems && App.agendaItems.length > 0;
+      const btnStart = document.getElementById('btnStartMeeting');
+      const btnEnd = document.getElementById('btnEndMeeting');
+      const btnCheck = document.getElementById('btnCheckAll');
+      const timer = document.getElementById('meetingTimer');
+
+      if (App.meetingActive) {
+        btnStart.style.display = 'none';
+        btnEnd.style.display = 'inline-flex';
+        btnCheck.style.display = 'inline-flex';
+        timer.style.display = 'inline-flex';
+      } else {
+        btnStart.style.display = hasItems ? 'inline-flex' : 'none';
+        btnEnd.style.display = 'none';
+        btnCheck.style.display = 'none';
+        timer.style.display = 'none';
+      }
+    };
+
+    // ── Delete Item ──
+    App.deleteItem = async function(id) {
+      const ok = await USI.confirm('Delete this agenda item?');
+      if (!ok) return;
+
+      try {
+        await USI.deleteListItem(LIST_ITEMS, id);
+        USI.toast('Item deleted', 'success');
+        await App.loadAgenda();
+      } catch (e) {
+        console.error('Failed to delete item:', e);
+        USI.toast('Failed to delete item: ' + e.message, 'error');
+      }
+    };
+
+    // ── Meeting Mode ──
+    App.startMeeting = function() {
+      App.meetingActive = true;
+      App.timerStartTime = Date.now();
+      App.timerElapsed = 0;
+
+      // Start timer
+      App.timerInterval = setInterval(() => {
+        App.timerElapsed = Math.floor((Date.now() - App.timerStartTime) / 1000);
+        document.getElementById('timerDisplay').textContent = App.formatTimer(App.timerElapsed);
+      }, 1000);
+
+      App.updateMeetingButtons();
+      App.renderAgenda(App.agendaItems);
+    };
+
+    App.formatTimer = function(totalSeconds) {
+      const hrs = Math.floor(totalSeconds / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+      return String(hrs).padStart(2, '0') + ':' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+    };
+
+    App.exitMeetingMode = function() {
+      App.meetingActive = false;
+      if (App.timerInterval) {
+        clearInterval(App.timerInterval);
+        App.timerInterval = null;
+      }
+      App.timerStartTime = null;
+      App.timerElapsed = 0;
+      document.getElementById('timerDisplay').textContent = '00:00:00';
+      App.updateMeetingButtons();
+      App.renderAgenda(App.agendaItems);
+    };
+
+    // ── Item Check/Uncheck ──
+    App.onItemCheck = function(checkbox, id) {
+      const el = document.getElementById('agenda-' + id);
+      if (el) {
+        el.classList.toggle('checked', checkbox.checked);
+      }
+    };
+
+    // ── Check All ──
+    App.checkAll = function() {
+      const checkboxes = document.querySelectorAll('.agenda-item-check input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        cb.checked = true;
+        const el = cb.closest('.agenda-item');
+        if (el) el.classList.add('checked');
+      });
+    };
+
+    // ── End & Archive ──
+    App.endMeeting = async function() {
+      const durationMinutes = Math.max(1, Math.round(App.timerElapsed / 60));
+      const today = new Date().toISOString().split('T')[0];
+
+      const html = `
+        <div class="form-group">
+          <label class="form-label">Meeting Date</label>
+          <input type="date" id="archiveDate" class="form-input" value="${today}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (minutes)</label>
+          <input type="number" id="archiveDuration" class="form-input" value="${durationMinutes}" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes / Summary</label>
+          <textarea id="archiveNotes" class="form-textarea" rows="4" placeholder="Key takeaways, action items, decisions made..."></textarea>
+        </div>
+      `;
+
+      const result = await USI.modal('Archive Meeting', html, [
+        { label: 'Cancel', class: 'btn-secondary', value: false },
+        {
+          label: 'Archive Meeting',
+          class: 'btn-primary',
+          value: true,
+          onClick: (overlay) => {
+            const date = overlay.querySelector('#archiveDate').value;
+            const dur = overlay.querySelector('#archiveDuration').value;
+            const notes = overlay.querySelector('#archiveNotes').value;
+            if (!date) {
+              USI.toast('Please select a meeting date.', 'error');
+              return false;
+            }
+            App._archiveData = { date, duration: parseInt(dur) || durationMinutes, notes };
+            return true;
+          }
+        }
+      ]);
+
+      if (!result || !App._archiveData) return;
+
+      await App.performArchive(App._archiveData);
+      App._archiveData = null;
+    };
+
+    App.performArchive = async function({ date, duration, notes }) {
+      try {
+        // Determine which items are checked vs unchecked
+        const checkedIds = new Set();
+        const uncheckedIds = new Set();
+        document.querySelectorAll('.agenda-item').forEach(el => {
+          const id = el.dataset.id;
+          const cb = el.querySelector('.agenda-item-check input[type="checkbox"]');
+          if (cb && cb.checked) {
+            checkedIds.add(id);
+          } else {
+            uncheckedIds.add(id);
+          }
+        });
+
+        const meetingId = USI.generateId();
+
+        // Build discussed items summary for the meeting record
+        const discussedItems = App.agendaItems
+          .filter(item => checkedIds.has(item.id))
+          .map(item => {
+            const f = item.fields;
+            return `[${f.Category}] (${f.Priority}) ${f.Content}`;
+          })
+          .join('\n');
+
+        // Find employee name
+        const empEntry = TEAM_EMAILS.find(t => t.email.toLowerCase() === App.selectedEmployeeEmail.toLowerCase());
+        const employeeName = empEntry ? empEntry.name : App.selectedEmployeeEmail;
+
+        const managerEmail = App.isManager
+          ? (App.me.mail || App.me.userPrincipalName)
+          : MANAGER_EMAILS[0];
+
+        // Create meeting record
+        await USI.createListItem(LIST_MEETINGS, {
+          EmployeeEmail: App.selectedEmployeeEmail,
+          EmployeeName: employeeName,
+          ManagerEmail: managerEmail,
+          MeetingDate: date,
+          Duration: duration,
+          Notes: notes,
+          DiscussedItems: discussedItems
+        });
+
+        // Update checked items: status = Discussed, link to meeting
+        const checkedPromises = [];
+        App.agendaItems.forEach(item => {
+          if (checkedIds.has(item.id)) {
+            checkedPromises.push(
+              USI.updateListItem(LIST_ITEMS, item.id, {
+                Status: 'Discussed',
+                MeetingId: meetingId
+              })
+            );
+          }
+        });
+
+        // Update unchecked items: status = CarriedForward
+        const uncheckedPromises = [];
+        App.agendaItems.forEach(item => {
+          if (uncheckedIds.has(item.id)) {
+            uncheckedPromises.push(
+              USI.updateListItem(LIST_ITEMS, item.id, {
+                Status: 'CarriedForward'
+              })
+            );
+          }
+        });
+
+        await Promise.all([...checkedPromises, ...uncheckedPromises]);
+
+        // Stop timer and exit meeting mode
+        App.exitMeetingMode();
+
+        USI.toast('Meeting archived successfully', 'success');
+
+        // Reload agenda
+        await App.loadAgenda();
+      } catch (e) {
+        console.error('Failed to archive meeting:', e);
+        USI.toast('Failed to archive meeting: ' + e.message, 'error');
+      }
+    };
+
+    // ── Load Meeting History ──
+    App.loadHistory = async function() {
+      const container = document.getElementById('historyList');
+      const empty = document.getElementById('historyEmpty');
+      const loading = document.getElementById('historyLoading');
+
+      container.innerHTML = '';
+      empty.style.display = 'none';
+      loading.style.display = 'block';
+
+      try {
+        const filter = `fields/EmployeeEmail eq '${App.selectedEmployeeEmail}'`;
+        const items = await USI.getListItems(LIST_MEETINGS, filter, 'fields/MeetingDate desc', 50);
+        App.meetings = items;
+
+        loading.style.display = 'none';
+
+        if (!items || items.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+
+        App.renderHistory(items);
+      } catch (e) {
+        console.error('Failed to load history:', e);
+        loading.style.display = 'none';
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error loading history</div><div class="empty-state-text">${USI.escapeHtml(e.message)}</div></div>`;
+      }
+    };
+
+    // ── Render History ──
+    App.renderHistory = function(meetings) {
+      const container = document.getElementById('historyList');
+
+      let html = '';
+      meetings.forEach((meeting, idx) => {
+        const f = meeting.fields;
+        const dateStr = USI.formatDate(f.MeetingDate);
+        const duration = f.Duration || 0;
+        const durationStr = duration >= 60
+          ? `${Math.floor(duration / 60)}h ${duration % 60}m`
+          : `${duration} min`;
+
+        // Count discussed items
+        const discussedText = f.DiscussedItems || '';
+        const discussedLines = discussedText ? discussedText.split('\n').filter(l => l.trim()) : [];
+        const itemCount = discussedLines.length;
+
+        const notes = f.Notes || '';
+
+        html += `<div class="card history-card" onclick="App.toggleHistory(this)" data-idx="${idx}">
+          <div class="history-card-header">
+            <span class="expand-arrow">&#9654;</span>
+            <span class="history-date">${USI.escapeHtml(dateStr)}</span>
+            <div class="history-stats">
+              <span>${USI.escapeHtml(durationStr)}</span>
+              <span>${itemCount} item${itemCount !== 1 ? 's' : ''} discussed</span>
+            </div>
+          </div>
+          <div class="history-details">
+            ${notes ? `<div class="history-notes-label">Meeting Notes</div><div class="history-notes">${USI.escapeHtml(notes)}</div>` : ''}
+            ${discussedLines.length > 0 ? `
+              <div class="history-items-label">Discussed Items</div>
+              ${discussedLines.map(line => {
+                // Parse [Category] (Priority) Content
+                const catMatch = line.match(/^\[([^\]]+)\]/);
+                const cat = catMatch ? catMatch[1] : 'Topics';
+                const pillClass = CATEGORY_PILL_CLASS[cat] || 'pill-neutral';
+                const contentText = line.replace(/^\[[^\]]+\]\s*(\([^)]+\)\s*)?/, '');
+                return `<div class="history-discussed-item">
+                  <span class="pill ${pillClass}">${USI.escapeHtml(cat)}</span>
+                  <span>${USI.escapeHtml(contentText)}</span>
+                </div>`;
+              }).join('')}
+            ` : '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">No items recorded.</div>'}
+          </div>
+        </div>`;
+      });
+
+      container.innerHTML = html;
+    };
+
+    // ── Toggle History Card ──
+    App.toggleHistory = function(el) {
+      el.classList.toggle('expanded');
+    };
+  </script>
+</body>
+</html>

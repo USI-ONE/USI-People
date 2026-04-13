@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USI People</title>
+  <link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="loginView" class="view active login-view">
+    <div class="login-card">
+      <div class="login-logo">USI People</div>
+      <div class="login-subtitle">Universal Systems Inc. HR Platform</div>
+      <button class="btn-microsoft" onclick="USI.login()">
+        <svg viewBox="0 0 21 21" width="20" height="20"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+        Sign in with Microsoft
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingView" class="view loading-view">
+    <div class="spinner"></div>
+    <div class="loading-text">Signing in...</div>
+  </div>
+
+  <script src="shared/auth.js"></script>
+  <script src="shared/ui.js"></script>
+  <script>
+    USI.init({});
+    (async () => {
+      if (window.location.search.includes('code=')) {
+        USI.show('loadingView');
+        const ok = await USI.handleRedirect();
+        if (ok) { window.location.href = 'performance.html'; return; }
+      }
+      if (USI.getToken()) { window.location.href = 'performance.html'; return; }
+      USI.show('loginView');
+    })();
+  </script>
+</body>
+</html>

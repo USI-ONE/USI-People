@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR / Onboarding | USI People</title>
+  <link rel="stylesheet" href="shared/styles.css">
+  <style>
+    /* ── Onboarding / Offboarding Cards ── */
+    .board-card { transition: box-shadow 0.15s; }
+    .board-card:hover { box-shadow: var(--shadow-md); }
+    .board-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .board-card-name { font-size: 15px; font-weight: 600; }
+    .board-card-email { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .board-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+    .board-card-progress { margin-top: 12px; }
+    .board-card .expandable-body { padding-top: 16px; }
+
+    /* ── Checklist Extras ── */
+    .checklist-item-title { flex: 1; font-size: 13px; }
+    .checklist-item-title.completed { text-decoration: line-through; color: var(--text-light); }
+    .checklist-item-due { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .checklist-item-due.overdue { color: var(--error); font-weight: 600; }
+    .checklist-item-notes {
+      background: none; border: none; cursor: pointer;
+      font-size: 14px; color: var(--text-light); padding: 2px 6px;
+      transition: color 0.15s;
+    }
+    .checklist-item-notes:hover { color: var(--primary); }
+    .checklist-item-notes.has-notes { color: var(--primary); }
+
+    /* ── Assignee Pills ── */
+    .assignee-pill { font-size: 10px; padding: 2px 8px; }
+    .assignee-hr { background: #ede9fe; color: #6d28d9; }
+    .assignee-it { background: #dbeafe; color: #1e40af; }
+    .assignee-manager { background: #fef3c7; color: #92400e; }
+
+    /* ── Status Pills ── */
+    .status-active { background: var(--info-bg); color: #1e40af; }
+    .status-completed { background: var(--success-bg); color: #166534; }
+
+    /* ── Exit Interview Form ── */
+    .exit-form { max-width: 800px; }
+    .exit-section { margin-bottom: 28px; }
+    .exit-section-title {
+      font-size: 14px; font-weight: 600; color: var(--primary);
+      margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary-light);
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .star-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .star-row-label { font-size: 13px; font-weight: 500; min-width: 180px; }
+    .radio-group { display: flex; gap: 16px; align-items: center; }
+    .radio-group label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+    .radio-group input[type="radio"] { accent-color: var(--primary); }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; }
+    .checkbox-row input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; }
+    .checkbox-row label { font-size: 13px; cursor: pointer; }
+    .exit-form-actions { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+    /* ── Interview Card ── */
+    .interview-card { transition: box-shadow 0.15s; cursor: pointer; }
+    .interview-card:hover { box-shadow: var(--shadow-md); }
+    .interview-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .interview-card-name { font-size: 15px; font-weight: 600; }
+    .interview-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+    .interview-rating { display: flex; align-items: center; gap: 6px; }
+    .interview-rating-value { font-size: 14px; font-weight: 700; color: var(--primary); }
+    .interview-expanded { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .interview-field { margin-bottom: 14px; }
+    .interview-field-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.03em; margin-bottom: 4px; }
+    .interview-field-value { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
+    .interview-field-value:empty::after { content: 'No response'; color: var(--text-light); font-style: italic; }
+    .interview-ratings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .interview-rating-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg); border-radius: var(--radius-sm); font-size: 12px; }
+
+    /* ── Delete Button ── */
+    .board-card-delete {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-light); font-size: 16px; padding: 2px 6px;
+      transition: color 0.15s; line-height: 1;
+    }
+    .board-card-delete:hover { color: var(--error); }
+
+    /* ── Print Styles ── */
+    @media print {
+      .topbar, .tab-bar, .toolbar, .btn, .exit-form-actions,
+      .board-card-delete, .checklist-item-notes, .filter-select,
+      .search-input, #loginView, #loadingView { display: none !important; }
+      .view, .tab-panel { display: block !important; }
+      .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+      .exit-form { max-width: 100%; }
+      .star-rating .star { font-size: 18px; }
+      body { background: #fff; }
+      .app-container { max-width: 100%; padding: 0; }
+      .interview-expanded { display: block !important; }
+    }
+
+    @media (max-width: 768px) {
+      .interview-ratings-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .star-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .radio-group { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="loginView" class="view active login-view">
+    <div class="login-card">
+      <div class="login-logo">USI People</div>
+      <div class="login-subtitle">HR &amp; Onboarding</div>
+      <button class="btn-microsoft" onclick="USI.login()">
+        <svg viewBox="0 0 21 21" width="20" height="20"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+        Sign in with Microsoft
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingView" class="view loading-view">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading onboarding data...</div>
+  </div>
+
+  <!-- App -->
+  <div id="appView" class="view">
+    <div class="app-container">
+
+      <!-- Tab Bar -->
+      <div class="tab-bar" id="mainTabBar">
+        <div class="tab active" data-tab="panelOnboarding">Onboarding</div>
+        <div class="tab" data-tab="panelOffboarding">Offboarding</div>
+        <div class="tab" data-tab="panelExitInterview">Exit Interview</div>
+      </div>
+
+      <!-- ═══════════════ Tab 1: Onboarding ═══════════════ -->
+      <div id="panelOnboarding" class="tab-panel active">
+        <div class="toolbar">
+          <select class="filter-select" id="onboardFilterStatus">
+            <option value="Active">Active</option>
+            <option value="Completed">Completed</option>
+            <option value="">All</option>
+          </select>
+          <input type="text" class="search-input" id="onboardSearch" placeholder="Search onboardings...">
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-primary" id="btnNewOnboarding" style="display:none">+ New Onboarding</button>
+        </div>
+        <div id="onboardGrid" class="card-list"></div>
+        <div id="onboardEmpty" class="empty-state" style="display:none">
+          <div class="empty-state-icon">&#128640;</div>
+          <div class="empty-state-title">No onboardings found</div>
+          <div class="empty-state-text">Start a new onboarding process for incoming employees.</div>
+        </div>
+        <div id="onboardLoading" class="empty-state">
+          <div class="spinner" style="margin:0 auto 12px"></div>
+          <div class="empty-state-text">Loading onboardings...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ Tab 2: Offboarding ═══════════════ -->
+      <div id="panelOffboarding" class="tab-panel">
+        <div class="toolbar">
+          <select class="filter-select" id="offboardFilterStatus">
+            <option value="Active">Active</option>
+            <option value="Completed">Completed</option>
+            <option value="">All</option>
+          </select>
+          <input type="text" class="search-input" id="offboardSearch" placeholder="Search offboardings...">
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-primary" id="btnNewOffboarding" style="display:none">+ Start Offboarding</button>
+        </div>
+        <div id="offboardGrid" class="card-list"></div>
+        <div id="offboardEmpty" class="empty-state" style="display:none">
+          <div class="empty-state-icon">&#128682;</div>
+          <div class="empty-state-title">No offboardings found</div>
+          <div class="empty-state-text">Start the offboarding process when an employee is departing.</div>
+        </div>
+        <div id="offboardLoading" class="empty-state">
+          <div class="spinner" style="margin:0 auto 12px"></div>
+          <div class="empty-state-text">Loading offboardings...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ Tab 3: Exit Interview ═══════════════ -->
+      <div id="panelExitInterview" class="tab-panel">
+
+        <!-- Interview List View -->
+        <div id="exitListView">
+          <div class="toolbar">
+            <input type="text" class="search-input" id="exitSearch" placeholder="Search interviews...">
+            <div class="toolbar-spacer"></div>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+            <button class="btn btn-primary" id="btnNewExitInterview" style="display:none">+ New Exit Interview</button>
+          </div>
+          <div id="exitGrid" class="card-list"></div>
+          <div id="exitEmpty" class="empty-state" style="display:none">
+            <div class="empty-state-icon">&#128221;</div>
+            <div class="empty-state-title">No exit interviews</div>
+            <div class="empty-state-text">Conduct exit interviews to gather valuable feedback from departing employees.</div>
+          </div>
+          <div id="exitLoading" class="empty-state">
+            <div class="spinner" style="margin:0 auto 12px"></div>
+            <div class="empty-state-text">Loading interviews...</div>
+          </div>
+        </div>
+
+        <!-- Interview Form View -->
+        <div id="exitFormView" style="display:none">
+          <div style="margin-bottom:20px">
+            <button class="btn btn-ghost" id="btnBackToList">&larr; Back to Interviews</button>
+          </div>
+          <div class="exit-form" id="exitForm">
+            <!-- Employee Information -->
+            <div class="exit-section">
+              <div class="exit-section-title">Employee Information</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Employee Name</label>
+                  <input type="text" class="form-input" id="exitEmployeeName">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Employee Email</label>
+                  <input type="email" class="form-input" id="exitEmployeeEmail">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Interview Date</label>
+                  <input type="date" class="form-input" id="exitInterviewDate">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Interviewer</label>
+                  <input type="text" class="form-input" id="exitInterviewer" disabled>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reason for Leaving -->
+            <div class="exit-section">
+              <div class="exit-section-title">Reason for Leaving</div>
+              <div class="form-group">
+                <label class="form-label">Primary Reason</label>
+                <select class="form-select" id="exitReason">
+                  <option value="">Select a reason...</option>
+                  <option value="New Opportunity">New Opportunity</option>
+                  <option value="Compensation">Compensation</option>
+                  <option value="Management">Management</option>
+                  <option value="Culture">Culture</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Relocation">Relocation</option>
+                  <option value="Career Change">Career Change</option>
+                  <option value="Retirement">Retirement</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Details</label>
+                <textarea class="form-textarea" id="exitReasonDetails" rows="3" placeholder="Please provide additional details about your reason for leaving..."></textarea>
+              </div>
+            </div>
+
+            <!-- Satisfaction Ratings -->
+            <div class="exit-section">
+              <div class="exit-section-title">Satisfaction Ratings</div>
+              <div class="star-row">
+                <span class="star-row-label">Management &amp; Leadership</span>
+                <div id="starsManagement"></div>
+              </div>
+              <div class="star-row">
+                <span class="star-row-label">Compensation &amp; Benefits</span>
+                <div id="starsCompensation"></div>
+              </div>
+              <div class="star-row">
+                <span class="star-row-label">Company Culture</span>
+                <div id="starsCulture"></div>
+              </div>
+              <div class="star-row">
+                <span class="star-row-label">Career Growth &amp; Development</span>
+                <div id="starsGrowth"></div>
+              </div>
+              <div class="star-row">
+                <span class="star-row-label">Work-Life Balance</span>
+                <div id="starsWorkLife"></div>
+              </div>
+            </div>
+
+            <!-- Open-ended Questions -->
+            <div class="exit-section">
+              <div class="exit-section-title">Open-ended Feedback</div>
+              <div class="form-group">
+                <label class="form-label">What went well during your time here?</label>
+                <textarea class="form-textarea" id="exitWentWell" rows="4" placeholder="Share positive experiences, accomplishments, and things you enjoyed..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">What could be improved?</label>
+                <textarea class="form-textarea" id="exitImprove" rows="4" placeholder="Share constructive feedback about processes, culture, or management..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Any recommendations for the company?</label>
+                <textarea class="form-textarea" id="exitRecommendations" rows="4" placeholder="Suggestions for future improvements, policies, or practices..."></textarea>
+              </div>
+            </div>
+
+            <!-- Would You Return & Confidential -->
+            <div class="exit-section">
+              <div class="exit-section-title">Final Questions</div>
+              <div class="form-group">
+                <label class="form-label">Would you consider returning to this company?</label>
+                <div class="radio-group" id="exitWouldReturn">
+                  <label><input type="radio" name="wouldReturn" value="Yes"> Yes</label>
+                  <label><input type="radio" name="wouldReturn" value="No"> No</label>
+                  <label><input type="radio" name="wouldReturn" value="Maybe"> Maybe</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="checkbox-row">
+                  <input type="checkbox" id="exitConfidential" checked>
+                  <label for="exitConfidential">Keep responses confidential (visible only to HR)</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="exit-form-actions">
+              <button class="btn btn-secondary" id="btnSaveDraft">Save Draft</button>
+              <button class="btn btn-primary" id="btnCompleteInterview">Complete Interview</button>
+              <div style="flex:1"></div>
+              <button class="btn btn-danger" id="btnDeleteInterview" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="shared/auth.js"></script>
+  <script src="shared/ui.js"></script>
+  <script>
+    /* ═══════════════════════════════════════════════════════
+       USI People — HR / Onboarding Module
+       ═══════════════════════════════════════════════════════ */
+
+    const MANAGER_EMAILS = ['CWall@usicomputer.com', 'Aaron@usicomputer.com'];
+
+    // ── Templates ──
+    const ONBOARDING_TEMPLATES = {
+      'Standard Onboarding': [
+        { title: 'Create Microsoft 365 account', category: 'IT Setup', assigneeType: 'IT', daysFromStart: -3 },
+        { title: 'Set up workstation and monitors', category: 'IT Setup', assigneeType: 'IT', daysFromStart: -2 },
+        { title: 'Configure VPN access', category: 'IT Setup', assigneeType: 'IT', daysFromStart: -1 },
+        { title: 'Create phone extension', category: 'IT Setup', assigneeType: 'IT', daysFromStart: -1 },
+        { title: 'Set up printer access', category: 'IT Setup', assigneeType: 'IT', daysFromStart: 0 },
+        { title: 'Complete I-9 verification', category: 'HR Paperwork', assigneeType: 'HR', daysFromStart: 0 },
+        { title: 'Complete W-4 form', category: 'HR Paperwork', assigneeType: 'HR', daysFromStart: 0 },
+        { title: 'Sign employee handbook acknowledgment', category: 'HR Paperwork', assigneeType: 'HR', daysFromStart: 0 },
+        { title: 'Set up direct deposit', category: 'HR Paperwork', assigneeType: 'HR', daysFromStart: 1 },
+        { title: 'Complete emergency contact form', category: 'HR Paperwork', assigneeType: 'HR', daysFromStart: 0 },
+        { title: 'Health insurance enrollment', category: 'Benefits', assigneeType: 'HR', daysFromStart: 5 },
+        { title: 'Dental and vision enrollment', category: 'Benefits', assigneeType: 'HR', daysFromStart: 5 },
+        { title: '401(k) enrollment', category: 'Benefits', assigneeType: 'HR', daysFromStart: 14 },
+        { title: 'Life insurance beneficiary form', category: 'Benefits', assigneeType: 'HR', daysFromStart: 14 },
+        { title: 'Company orientation session', category: 'Training', assigneeType: 'HR', daysFromStart: 0 },
+        { title: 'Department introduction meeting', category: 'Training', assigneeType: 'Manager', daysFromStart: 0 },
+        { title: 'Safety and compliance training', category: 'Training', assigneeType: 'HR', daysFromStart: 3 },
+        { title: 'Tools and systems training', category: 'Training', assigneeType: 'Manager', daysFromStart: 5 },
+        { title: 'Order business cards', category: 'Equipment', assigneeType: 'HR', daysFromStart: 1 },
+        { title: 'Issue building access badge', category: 'Access/Permissions', assigneeType: 'IT', daysFromStart: -1 },
+        { title: 'Grant SharePoint site access', category: 'Access/Permissions', assigneeType: 'IT', daysFromStart: 0 },
+        { title: 'Add to distribution lists', category: 'Access/Permissions', assigneeType: 'IT', daysFromStart: 0 },
+        { title: '30-day check-in scheduled', category: 'Training', assigneeType: 'Manager', daysFromStart: 30 },
+        { title: '90-day review scheduled', category: 'Training', assigneeType: 'Manager', daysFromStart: 90 }
+      ]
+    };
+
+    const OFFBOARDING_TEMPLATES = {
+      'Standard Offboarding': [
+        { title: 'Disable Microsoft 365 account', category: 'IT Deprovisioning', assigneeType: 'IT', daysFromEnd: 0 },
+        { title: 'Revoke VPN access', category: 'IT Deprovisioning', assigneeType: 'IT', daysFromEnd: 0 },
+        { title: 'Disable building access badge', category: 'IT Deprovisioning', assigneeType: 'IT', daysFromEnd: 0 },
+        { title: 'Remove from distribution lists', category: 'IT Deprovisioning', assigneeType: 'IT', daysFromEnd: 0 },
+        { title: 'Transfer email and files to manager', category: 'IT Deprovisioning', assigneeType: 'IT', daysFromEnd: 1 },
+        { title: 'Collect laptop and charger', category: 'Equipment Return', assigneeType: 'IT', daysFromEnd: 0 },
+        { title: 'Collect monitors and peripherals', category: 'Equipment Return', assigneeType: 'IT', daysFromEnd: 0 },
+        { title: 'Collect building access badge', category: 'Equipment Return', assigneeType: 'HR', daysFromEnd: 0 },
+        { title: 'Collect company credit card', category: 'Equipment Return', assigneeType: 'HR', daysFromEnd: 0 },
+        { title: 'Collect parking pass', category: 'Equipment Return', assigneeType: 'HR', daysFromEnd: 0 },
+        { title: 'Document current projects and status', category: 'Knowledge Transfer', assigneeType: 'Manager', daysFromEnd: -5 },
+        { title: 'Identify project handoff recipients', category: 'Knowledge Transfer', assigneeType: 'Manager', daysFromEnd: -5 },
+        { title: 'Complete knowledge transfer sessions', category: 'Knowledge Transfer', assigneeType: 'Manager', daysFromEnd: -2 },
+        { title: 'Update shared documentation', category: 'Knowledge Transfer', assigneeType: 'Manager', daysFromEnd: -3 },
+        { title: 'Process final paycheck', category: 'Final Pay', assigneeType: 'HR', daysFromEnd: 0 },
+        { title: 'Calculate PTO payout', category: 'Final Pay', assigneeType: 'HR', daysFromEnd: -2 },
+        { title: 'Process expense reimbursements', category: 'Final Pay', assigneeType: 'HR', daysFromEnd: -3 },
+        { title: 'Send COBRA notification', category: 'Benefits/COBRA', assigneeType: 'HR', daysFromEnd: 1 },
+        { title: 'Process 401(k) rollover paperwork', category: 'Benefits/COBRA', assigneeType: 'HR', daysFromEnd: 5 },
+        { title: 'Schedule exit interview', category: 'Benefits/COBRA', assigneeType: 'HR', daysFromEnd: -3 }
+      ]
+    };
+
+    const ONBOARD_CATEGORIES = ['IT Setup', 'HR Paperwork', 'Benefits', 'Training', 'Equipment', 'Access/Permissions'];
+    const OFFBOARD_CATEGORIES = ['IT Deprovisioning', 'Equipment Return', 'Knowledge Transfer', 'Final Pay', 'Benefits/COBRA'];
+
+    // ── State ──
+    let me = null;
+    let amManager = false;
+    let onboardItems = [];
+    let offboardItems = [];
+    let exitInterviews = [];
+    let editingInterviewId = null;
+
+    // ── Star rating state for form ──
+    let starValues = { management: 0, compensation: 0, culture: 0, growth: 0, workLife: 0 };
+
+    // ── Helpers ──
+    function addDays(dateStr, days) {
+      const d = new Date(dateStr + 'T00:00:00');
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
+    }
+
+    function isOverdue(dateStr) {
+      if (!dateStr) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(dateStr + 'T00:00:00');
+      return due < today;
+    }
+
+    function assigneePillClass(type) {
+      const map = { HR: 'assignee-hr', IT: 'assignee-it', Manager: 'assignee-manager' };
+      return map[type] || 'pill-neutral';
+    }
+
+    function groupByEmployee(items, dateField) {
+      const groups = {};
+      items.forEach(item => {
+        const key = item.fields.EmployeeEmail || item.fields.EmployeeName || 'Unknown';
+        if (!groups[key]) {
+          groups[key] = {
+            name: item.fields.EmployeeName || 'Unknown',
+            email: item.fields.EmployeeEmail || '',
+            date: item.fields[dateField] || '',
+            tasks: []
+          };
+        }
+        groups[key].tasks.push(item);
+      });
+      return Object.values(groups);
+    }
+
+    function getEmployeeStatus(tasks) {
+      const total = tasks.length;
+      const complete = tasks.filter(t => t.fields.Status === 'Complete').length;
+      return complete === total ? 'Completed' : 'Active';
+    }
+
+    // ══════════════════════════════════════════════════════
+    // Shared Board Rendering (Onboarding & Offboarding)
+    // ══════════════════════════════════════════════════════
+
+    function renderBoard(config) {
+      const {
+        items, containerId, emptyId, loadingId,
+        filterStatusId, searchId, dateField, categories, listName
+      } = config;
+
+      const container = document.getElementById(containerId);
+      const emptyEl = document.getElementById(emptyId);
+      const loadingEl = document.getElementById(loadingId);
+      const filterStatus = document.getElementById(filterStatusId).value;
+      const searchTerm = document.getElementById(searchId).value.toLowerCase();
+
+      loadingEl.style.display = 'none';
+      const groups = groupByEmployee(items, dateField);
+
+      // Filter
+      const filtered = groups.filter(g => {
+        const status = getEmployeeStatus(g.tasks);
+        if (filterStatus && status !== filterStatus) return false;
+        if (searchTerm && !g.name.toLowerCase().includes(searchTerm) && !g.email.toLowerCase().includes(searchTerm)) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyEl.style.display = '';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      container.innerHTML = filtered.map(group => {
+        const total = group.tasks.length;
+        const complete = group.tasks.filter(t => t.fields.Status === 'Complete').length;
+        const pct = total > 0 ? Math.round((complete / total) * 100) : 0;
+        const status = getEmployeeStatus(group.tasks);
+        const statusClass = status === 'Completed' ? 'status-completed' : 'status-active';
+        const progressClass = pct === 100 ? 'success' : pct >= 50 ? '' : 'warning';
+        const dateLabel = dateField === 'StartDate' ? 'Start' : 'Last Day';
+        const groupKey = group.email || group.name;
+
+        // Group tasks by category
+        const tasksByCategory = {};
+        categories.forEach(cat => { tasksByCategory[cat] = []; });
+        group.tasks.forEach(t => {
+          const cat = t.fields.Category || 'Other';
+          if (!tasksByCategory[cat]) tasksByCategory[cat] = [];
+          tasksByCategory[cat].push(t);
+        });
+
+        const checklistHtml = categories.map(cat => {
+          const catTasks = tasksByCategory[cat];
+          if (!catTasks || catTasks.length === 0) return '';
+          return `
+            <div class="checklist-group">
+              <div class="checklist-group-title">${USI.escapeHtml(cat)}</div>
+              ${catTasks.map(t => {
+                const isComplete = t.fields.Status === 'Complete';
+                const due = t.fields.DueDate;
+                const overdue = !isComplete && isOverdue(due);
+                const hasNotes = t.fields.Notes && t.fields.Notes.trim();
+                return `
+                  <div class="checklist-item">
+                    <input type="checkbox" ${isComplete ? 'checked' : ''}
+                      onchange="toggleTaskStatus('${listName}', '${t.id}', this.checked)">
+                    <span class="checklist-item-title ${isComplete ? 'completed' : ''}">${USI.escapeHtml(t.fields.Title)}</span>
+                    <span class="pill assignee-pill ${assigneePillClass(t.fields.AssigneeType)}">${USI.escapeHtml(t.fields.AssigneeType || '')}</span>
+                    ${due ? `<span class="checklist-item-due ${overdue ? 'overdue' : ''}">${USI.formatDate(due)}${overdue ? ' (overdue)' : ''}</span>` : ''}
+                    <button class="checklist-item-notes ${hasNotes ? 'has-notes' : ''}"
+                      onclick="openNotes('${listName}', '${t.id}')" title="${hasNotes ? 'View/edit notes' : 'Add notes'}">&#128221;</button>
+                  </div>`;
+              }).join('')}
+            </div>`;
+        }).join('');
+
+        return `
+          <div class="card board-card expandable" data-group="${USI.escapeHtml(groupKey)}">
+            <div class="expandable-header" onclick="this.parentElement.classList.toggle('expanded')">
+              <span class="expand-arrow">&#9654;</span>
+              <div style="flex:1">
+                <div class="board-card-header">
+                  <div>
+                    <div class="board-card-name">${USI.escapeHtml(group.name)}</div>
+                    <div class="board-card-email">${USI.escapeHtml(group.email)}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span class="pill ${statusClass}">${status}</span>
+                    ${amManager ? `<button class="board-card-delete" onclick="event.stopPropagation();deleteEmployee('${listName}','${USI.escapeHtml(groupKey)}')" title="Delete">&times;</button>` : ''}
+                  </div>
+                </div>
+                <div class="board-card-meta">
+                  <span>${dateLabel}: ${USI.formatDate(group.date)}</span>
+                  <span>&bull;</span>
+                  <span>${complete} of ${total} tasks complete</span>
+                </div>
+                <div class="board-card-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill ${progressClass}" style="width:${pct}%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="expandable-body">
+              ${checklistHtml}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Toggle Task Status ──
+    async function toggleTaskStatus(listName, itemId, checked) {
+      try {
+        const status = checked ? 'Complete' : 'Pending';
+        const updates = { Status: status };
+        if (checked) {
+          updates.CompletedDate = new Date().toISOString();
+        } else {
+          updates.CompletedDate = null;
+        }
+        await USI.updateListItem(listName, itemId, updates);
+        await loadAllData();
+        USI.toast(checked ? 'Task completed' : 'Task reopened', 'success');
+      } catch (err) {
+        console.error('Error updating task:', err);
+        USI.toast('Failed to update task', 'error');
+        await loadAllData();
+      }
+    }
+
+    // ── Notes Modal ──
+    async function openNotes(listName, itemId) {
+      const items = listName === 'USI_Onboarding' ? onboardItems : offboardItems;
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      const currentNotes = item.fields.Notes || '';
+      const html = `
+        <div class="form-group">
+          <label class="form-label">Notes for: ${USI.escapeHtml(item.fields.Title)}</label>
+          <textarea class="form-textarea" id="modalNotes" rows="5" placeholder="Add notes...">${USI.escapeHtml(currentNotes)}</textarea>
+        </div>`;
+
+      await USI.modal('Task Notes', html, [
+        { label: 'Cancel', class: 'btn-secondary', value: null },
+        {
+          label: 'Save',
+          class: 'btn-primary',
+          onClick: async (overlay) => {
+            const notes = overlay.querySelector('#modalNotes').value;
+            try {
+              await USI.updateListItem(listName, itemId, { Notes: notes });
+              await loadAllData();
+              USI.toast('Notes saved', 'success');
+            } catch (err) {
+              console.error('Error saving notes:', err);
+              USI.toast('Failed to save notes', 'error');
+            }
+          }
+        }
+      ]);
+    }
+
+    // ── Delete Employee (all tasks) ──
+    async function deleteEmployee(listName, key) {
+      const confirmed = await USI.confirm('Delete all tasks for this employee? This cannot be undone.');
+      if (!confirmed) return;
+
+      try {
+        const items = listName === 'USI_Onboarding' ? onboardItems : offboardItems;
+        const toDelete = items.filter(i => (i.fields.EmployeeEmail || i.fields.EmployeeName) === key);
+        for (const item of toDelete) {
+          await USI.deleteListItem(listName, item.id);
+        }
+        await loadAllData();
+        USI.toast('Employee tasks deleted', 'success');
+      } catch (err) {
+        console.error('Error deleting:', err);
+        USI.toast('Failed to delete', 'error');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════
+    // New Onboarding Modal
+    // ══════════════════════════════════════════════════════
+
+    async function showNewOnboardingModal() {
+      const templateOptions = ['Blank', ...Object.keys(ONBOARDING_TEMPLATES)].map(t =>
+        `<option value="${t}">${t}</option>`
+      ).join('');
+
+      const html = `
+        <div class="form-group">
+          <label class="form-label">Employee Name</label>
+          <input type="text" class="form-input" id="modalOnboardName" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Employee Email</label>
+          <input type="email" class="form-input" id="modalOnboardEmail" placeholder="email@company.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-input" id="modalOnboardDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Template</label>
+          <select class="form-select" id="modalOnboardTemplate">${templateOptions}</select>
+        </div>`;
+
+      await USI.modal('New Onboarding', html, [
+        { label: 'Cancel', class: 'btn-secondary', value: null },
+        {
+          label: 'Create',
+          class: 'btn-primary',
+          onClick: async (overlay) => {
+            const name = overlay.querySelector('#modalOnboardName').value.trim();
+            const email = overlay.querySelector('#modalOnboardEmail').value.trim();
+            const startDate = overlay.querySelector('#modalOnboardDate').value;
+            const template = overlay.querySelector('#modalOnboardTemplate').value;
+
+            if (!name || !email || !startDate) {
+              USI.toast('Please fill in all fields', 'error');
+              return false;
+            }
+
+            try {
+              const tasks = template !== 'Blank' && ONBOARDING_TEMPLATES[template]
+                ? ONBOARDING_TEMPLATES[template]
+                : [];
+
+              if (tasks.length === 0 && template === 'Blank') {
+                // Create a single placeholder task for blank
+                await USI.createListItem('USI_Onboarding', {
+                  Title: 'First onboarding task',
+                  EmployeeName: name,
+                  EmployeeEmail: email,
+                  StartDate: startDate,
+                  Category: 'HR Paperwork',
+                  AssigneeType: 'HR',
+                  DueDate: startDate,
+                  Status: 'Pending',
+                  TemplateName: 'Blank'
+                });
+              } else {
+                for (const task of tasks) {
+                  await USI.createListItem('USI_Onboarding', {
+                    Title: task.title,
+                    EmployeeName: name,
+                    EmployeeEmail: email,
+                    StartDate: startDate,
+                    Category: task.category,
+                    AssigneeType: task.assigneeType,
+                    DueDate: addDays(startDate, task.daysFromStart),
+                    Status: 'Pending',
+                    TemplateName: template
+                  });
+                }
+              }
+
+              await loadAllData();
+              USI.toast(`Onboarding created for ${name}`, 'success');
+            } catch (err) {
+              console.error('Error creating onboarding:', err);
+              USI.toast('Failed to create onboarding', 'error');
+            }
+          }
+        }
+      ]);
+    }
+
+    // ══════════════════════════════════════════════════════
+    // New Offboarding Modal
+    // ══════════════════════════════════════════════════════
+
+    async function showNewOffboardingModal() {
+      const templateOptions = ['Blank', ...Object.keys(OFFBOARDING_TEMPLATES)].map(t =>
+        `<option value="${t}">${t}</option>`
+      ).join('');
+
+      const html = `
+        <div class="form-group">
+          <label class="form-label">Employee Name</label>
+          <input type="text" class="form-input" id="modalOffboardName" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Employee Email</label>
+          <input type="email" class="form-input" id="modalOffboardEmail" placeholder="email@company.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Day</label>
+          <input type="date" class="form-input" id="modalOffboardDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Template</label>
+          <select class="form-select" id="modalOffboardTemplate">${templateOptions}</select>
+        </div>`;
+
+      await USI.modal('Start Offboarding', html, [
+        { label: 'Cancel', class: 'btn-secondary', value: null },
+        {
+          label: 'Create',
+          class: 'btn-primary',
+          onClick: async (overlay) => {
+            const name = overlay.querySelector('#modalOffboardName').value.trim();
+            const email = overlay.querySelector('#modalOffboardEmail').value.trim();
+            const lastDay = overlay.querySelector('#modalOffboardDate').value;
+            const template = overlay.querySelector('#modalOffboardTemplate').value;
+
+            if (!name || !email || !lastDay) {
+              USI.toast('Please fill in all fields', 'error');
+              return false;
+            }
+
+            try {
+              const tasks = template !== 'Blank' && OFFBOARDING_TEMPLATES[template]
+                ? OFFBOARDING_TEMPLATES[template]
+                : [];
+
+              if (tasks.length === 0 && template === 'Blank') {
+                await USI.createListItem('USI_Offboarding', {
+                  Title: 'First offboarding task',
+                  EmployeeName: name,
+                  EmployeeEmail: email,
+                  LastDay: lastDay,
+                  Category: 'IT Deprovisioning',
+                  AssigneeType: 'IT',
+                  DueDate: lastDay,
+                  Status: 'Pending',
+                  TemplateName: 'Blank'
+                });
+              } else {
+                for (const task of tasks) {
+                  await USI.createListItem('USI_Offboarding', {
+                    Title: task.title,
+                    EmployeeName: name,
+                    EmployeeEmail: email,
+                    LastDay: lastDay,
+                    Category: task.category,
+                    AssigneeType: task.assigneeType,
+                    DueDate: addDays(lastDay, task.daysFromEnd),
+                    Status: 'Pending',
+                    TemplateName: template
+                  });
+                }
+              }
+
+              await loadAllData();
+              USI.toast(`Offboarding started for ${name}`, 'success');
+            } catch (err) {
+              console.error('Error creating offboarding:', err);
+              USI.toast('Failed to create offboarding', 'error');
+            }
+          }
+        }
+      ]);
+    }
+
+    // ══════════════════════════════════════════════════════
+    // Exit Interview — Form Logic
+    // ══════════════════════════════════════════════════════
+
+    function showExitForm(interview) {
+      document.getElementById('exitListView').style.display = 'none';
+      document.getElementById('exitFormView').style.display = '';
+
+      // Reset star values
+      starValues = { management: 0, compensation: 0, culture: 0, growth: 0, workLife: 0 };
+
+      if (interview) {
+        editingInterviewId = interview.id;
+        document.getElementById('exitEmployeeName').value = interview.fields.EmployeeName || '';
+        document.getElementById('exitEmployeeEmail').value = interview.fields.EmployeeEmail || '';
+        document.getElementById('exitInterviewDate').value = interview.fields.InterviewDate || new Date().toISOString().split('T')[0];
+        document.getElementById('exitInterviewer').value = interview.fields.InterviewerName || me.displayName;
+        document.getElementById('exitReason').value = interview.fields.ReasonForLeaving || '';
+        document.getElementById('exitReasonDetails').value = interview.fields.ReasonDetails || '';
+        document.getElementById('exitWentWell').value = interview.fields.WhatWentWell || '';
+        document.getElementById('exitImprove').value = interview.fields.WhatCouldImprove || '';
+        document.getElementById('exitRecommendations').value = interview.fields.Recommendations || '';
+        document.getElementById('exitConfidential').checked = interview.fields.IsConfidential !== false;
+
+        // Set would return radio
+        const wouldReturn = interview.fields.WouldReturn || '';
+        document.querySelectorAll('input[name="wouldReturn"]').forEach(r => {
+          r.checked = r.value === wouldReturn;
+        });
+
+        // Set star ratings
+        starValues.management = interview.fields.RatingManagement || 0;
+        starValues.compensation = interview.fields.RatingCompensation || 0;
+        starValues.culture = interview.fields.RatingCulture || 0;
+        starValues.growth = interview.fields.RatingGrowth || 0;
+        starValues.workLife = interview.fields.RatingWorkLife || 0;
+
+        // Show delete button for existing
+        document.getElementById('btnDeleteInterview').style.display = '';
+
+        // Disable form if completed and not manager
+        const isComplete = interview.fields.Status === 'Complete';
+        const formInputs = document.querySelectorAll('#exitForm input:not([type="radio"]):not([type="checkbox"]), #exitForm select, #exitForm textarea');
+        formInputs.forEach(el => { el.disabled = isComplete && !amManager; });
+        document.getElementById('btnSaveDraft').style.display = isComplete ? 'none' : '';
+        document.getElementById('btnCompleteInterview').textContent = isComplete ? 'Update Interview' : 'Complete Interview';
+      } else {
+        editingInterviewId = null;
+        document.getElementById('exitEmployeeName').value = '';
+        document.getElementById('exitEmployeeEmail').value = '';
+        document.getElementById('exitInterviewDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('exitInterviewer').value = me.displayName;
+        document.getElementById('exitReason').value = '';
+        document.getElementById('exitReasonDetails').value = '';
+        document.getElementById('exitWentWell').value = '';
+        document.getElementById('exitImprove').value = '';
+        document.getElementById('exitRecommendations').value = '';
+        document.getElementById('exitConfidential').checked = true;
+        document.querySelectorAll('input[name="wouldReturn"]').forEach(r => { r.checked = false; });
+        document.getElementById('btnDeleteInterview').style.display = 'none';
+        document.getElementById('btnSaveDraft').style.display = '';
+        document.getElementById('btnCompleteInterview').textContent = 'Complete Interview';
+
+        // Enable all form fields
+        const formInputs = document.querySelectorAll('#exitForm input:not([type="radio"]):not([type="checkbox"]), #exitForm select, #exitForm textarea');
+        formInputs.forEach(el => {
+          if (el.id !== 'exitInterviewer') el.disabled = false;
+        });
+      }
+
+      // Render star ratings
+      USI.renderStars(document.getElementById('starsManagement'), starValues.management, true, v => { starValues.management = v; });
+      USI.renderStars(document.getElementById('starsCompensation'), starValues.compensation, true, v => { starValues.compensation = v; });
+      USI.renderStars(document.getElementById('starsCulture'), starValues.culture, true, v => { starValues.culture = v; });
+      USI.renderStars(document.getElementById('starsGrowth'), starValues.growth, true, v => { starValues.growth = v; });
+      USI.renderStars(document.getElementById('starsWorkLife'), starValues.workLife, true, v => { starValues.workLife = v; });
+    }
+
+    function hideExitForm() {
+      document.getElementById('exitFormView').style.display = 'none';
+      document.getElementById('exitListView').style.display = '';
+      editingInterviewId = null;
+    }
+
+    function gatherInterviewData(status) {
+      const wouldReturnEl = document.querySelector('input[name="wouldReturn"]:checked');
+      return {
+        Title: document.getElementById('exitEmployeeName').value.trim() + ' - Exit Interview',
+        EmployeeName: document.getElementById('exitEmployeeName').value.trim(),
+        EmployeeEmail: document.getElementById('exitEmployeeEmail').value.trim(),
+        InterviewDate: document.getElementById('exitInterviewDate').value,
+        InterviewerName: me.displayName,
+        InterviewerEmail: me.mail || me.userPrincipalName,
+        ReasonForLeaving: document.getElementById('exitReason').value,
+        ReasonDetails: document.getElementById('exitReasonDetails').value,
+        RatingManagement: starValues.management,
+        RatingCompensation: starValues.compensation,
+        RatingCulture: starValues.culture,
+        RatingGrowth: starValues.growth,
+        RatingWorkLife: starValues.workLife,
+        WhatWentWell: document.getElementById('exitWentWell').value,
+        WhatCouldImprove: document.getElementById('exitImprove').value,
+        Recommendations: document.getElementById('exitRecommendations').value,
+        WouldReturn: wouldReturnEl ? wouldReturnEl.value : '',
+        IsConfidential: document.getElementById('exitConfidential').checked,
+        Status: status,
+        CompletedDate: status === 'Complete' ? new Date().toISOString() : null
+      };
+    }
+
+    async function saveInterview(status) {
+      const data = gatherInterviewData(status);
+
+      if (!data.EmployeeName || !data.EmployeeEmail) {
+        USI.toast('Please enter employee name and email', 'error');
+        return;
+      }
+
+      try {
+        if (editingInterviewId) {
+          await USI.updateListItem('USI_ExitInterviews', editingInterviewId, data);
+        } else {
+          await USI.createListItem('USI_ExitInterviews', data);
+        }
+        await loadExitInterviews();
+        hideExitForm();
+        USI.toast(status === 'Draft' ? 'Draft saved' : 'Interview completed', 'success');
+      } catch (err) {
+        console.error('Error saving interview:', err);
+        USI.toast('Failed to save interview', 'error');
+      }
+    }
+
+    async function deleteInterview() {
+      if (!editingInterviewId) return;
+      const confirmed = await USI.confirm('Delete this exit interview? This cannot be undone.');
+      if (!confirmed) return;
+
+      try {
+        await USI.deleteListItem('USI_ExitInterviews', editingInterviewId);
+        await loadExitInterviews();
+        hideExitForm();
+        USI.toast('Interview deleted', 'success');
+      } catch (err) {
+        console.error('Error deleting interview:', err);
+        USI.toast('Failed to delete interview', 'error');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════
+    // Exit Interview — List Rendering
+    // ══════════════════════════════════════════════════════
+
+    function renderExitInterviews() {
+      const container = document.getElementById('exitGrid');
+      const emptyEl = document.getElementById('exitEmpty');
+      const loadingEl = document.getElementById('exitLoading');
+      const searchTerm = document.getElementById('exitSearch').value.toLowerCase();
+
+      loadingEl.style.display = 'none';
+
+      let filtered = exitInterviews;
+      if (searchTerm) {
+        filtered = filtered.filter(i =>
+          (i.fields.EmployeeName || '').toLowerCase().includes(searchTerm) ||
+          (i.fields.EmployeeEmail || '').toLowerCase().includes(searchTerm) ||
+          (i.fields.ReasonForLeaving || '').toLowerCase().includes(searchTerm)
+        );
+      }
+
+      // If confidential and not manager, filter out
+      if (!amManager) {
+        filtered = filtered.filter(i => !i.fields.IsConfidential);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyEl.style.display = '';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      container.innerHTML = filtered.map(interview => {
+        const f = interview.fields;
+        const ratings = [f.RatingManagement, f.RatingCompensation, f.RatingCulture, f.RatingGrowth, f.RatingWorkLife].filter(r => r > 0);
+        const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : '-';
+        const statusPill = f.Status === 'Complete'
+          ? '<span class="pill pill-success">Complete</span>'
+          : '<span class="pill pill-warning">Draft</span>';
+        const confidentialPill = f.IsConfidential
+          ? '<span class="pill pill-neutral" title="Confidential">Confidential</span>'
+          : '';
+
+        return `
+          <div class="card interview-card expandable" onclick="this.classList.toggle('expanded')">
+            <div class="expandable-header">
+              <span class="expand-arrow">&#9654;</span>
+              <div style="flex:1">
+                <div class="interview-card-header">
+                  <div>
+                    <div class="interview-card-name">${USI.escapeHtml(f.EmployeeName || 'Unknown')}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    ${confidentialPill}
+                    ${statusPill}
+                    <div class="interview-rating">
+                      <span style="color:#f59e0b">&#9733;</span>
+                      <span class="interview-rating-value">${avgRating}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="interview-card-meta">
+                  <span>${USI.formatDate(f.InterviewDate)}</span>
+                  <span>&bull;</span>
+                  <span>Reason: ${USI.escapeHtml(f.ReasonForLeaving || 'Not specified')}</span>
+                  <span>&bull;</span>
+                  <span>Interviewer: ${USI.escapeHtml(f.InterviewerName || '')}</span>
+                </div>
+              </div>
+            </div>
+            <div class="expandable-body">
+              <div class="interview-expanded">
+                <div class="interview-ratings-grid" style="margin-bottom:16px">
+                  <div class="interview-rating-row">
+                    <span>Management & Leadership</span>
+                    <span style="font-weight:600;color:var(--primary)">${f.RatingManagement || '-'}/5</span>
+                  </div>
+                  <div class="interview-rating-row">
+                    <span>Compensation & Benefits</span>
+                    <span style="font-weight:600;color:var(--primary)">${f.RatingCompensation || '-'}/5</span>
+                  </div>
+                  <div class="interview-rating-row">
+                    <span>Company Culture</span>
+                    <span style="font-weight:600;color:var(--primary)">${f.RatingCulture || '-'}/5</span>
+                  </div>
+                  <div class="interview-rating-row">
+                    <span>Career Growth & Development</span>
+                    <span style="font-weight:600;color:var(--primary)">${f.RatingGrowth || '-'}/5</span>
+                  </div>
+                  <div class="interview-rating-row">
+                    <span>Work-Life Balance</span>
+                    <span style="font-weight:600;color:var(--primary)">${f.RatingWorkLife || '-'}/5</span>
+                  </div>
+                </div>
+
+                <div class="interview-field">
+                  <div class="interview-field-label">Reason Details</div>
+                  <div class="interview-field-value">${USI.escapeHtml(f.ReasonDetails || '')}</div>
+                </div>
+                <div class="interview-field">
+                  <div class="interview-field-label">What Went Well</div>
+                  <div class="interview-field-value">${USI.escapeHtml(f.WhatWentWell || '')}</div>
+                </div>
+                <div class="interview-field">
+                  <div class="interview-field-label">What Could Be Improved</div>
+                  <div class="interview-field-value">${USI.escapeHtml(f.WhatCouldImprove || '')}</div>
+                </div>
+                <div class="interview-field">
+                  <div class="interview-field-label">Recommendations</div>
+                  <div class="interview-field-value">${USI.escapeHtml(f.Recommendations || '')}</div>
+                </div>
+                <div class="interview-field">
+                  <div class="interview-field-label">Would Consider Returning</div>
+                  <div class="interview-field-value">${USI.escapeHtml(f.WouldReturn || 'Not answered')}</div>
+                </div>
+
+                ${amManager ? `
+                  <div style="margin-top:16px;display:flex;gap:8px">
+                    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showExitForm(exitInterviews.find(i=>i.id==='${interview.id}'))">Edit</button>
+                    <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();window.print()">Print</button>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ══════════════════════════════════════════════════════
+    // Data Loading
+    // ══════════════════════════════════════════════════════
+
+    async function loadOnboarding() {
+      try {
+        onboardItems = await USI.getListItems('USI_Onboarding');
+        renderBoard({
+          items: onboardItems,
+          containerId: 'onboardGrid',
+          emptyId: 'onboardEmpty',
+          loadingId: 'onboardLoading',
+          filterStatusId: 'onboardFilterStatus',
+          searchId: 'onboardSearch',
+          dateField: 'StartDate',
+          categories: ONBOARD_CATEGORIES,
+          listName: 'USI_Onboarding'
+        });
+      } catch (err) {
+        console.error('Error loading onboarding:', err);
+        document.getElementById('onboardLoading').style.display = 'none';
+        USI.toast('Failed to load onboarding data', 'error');
+      }
+    }
+
+    async function loadOffboarding() {
+      try {
+        offboardItems = await USI.getListItems('USI_Offboarding');
+        renderBoard({
+          items: offboardItems,
+          containerId: 'offboardGrid',
+          emptyId: 'offboardEmpty',
+          loadingId: 'offboardLoading',
+          filterStatusId: 'offboardFilterStatus',
+          searchId: 'offboardSearch',
+          dateField: 'LastDay',
+          categories: OFFBOARD_CATEGORIES,
+          listName: 'USI_Offboarding'
+        });
+      } catch (err) {
+        console.error('Error loading offboarding:', err);
+        document.getElementById('offboardLoading').style.display = 'none';
+        USI.toast('Failed to load offboarding data', 'error');
+      }
+    }
+
+    async function loadExitInterviews() {
+      try {
+        exitInterviews = await USI.getListItems('USI_ExitInterviews');
+        renderExitInterviews();
+      } catch (err) {
+        console.error('Error loading exit interviews:', err);
+        document.getElementById('exitLoading').style.display = 'none';
+        USI.toast('Failed to load exit interviews', 'error');
+      }
+    }
+
+    async function loadAllData() {
+      await Promise.all([loadOnboarding(), loadOffboarding(), loadExitInterviews()]);
+    }
+
+    // ══════════════════════════════════════════════════════
+    // Initialization
+    // ══════════════════════════════════════════════════════
+
+    USI.init({ managerEmails: MANAGER_EMAILS });
+
+    USI.boot('onboarding', async (user) => {
+      me = user;
+      amManager = USI.isManager(me.mail);
+
+      // Show manager-only buttons
+      if (amManager) {
+        document.getElementById('btnNewOnboarding').style.display = '';
+        document.getElementById('btnNewOffboarding').style.display = '';
+        document.getElementById('btnNewExitInterview').style.display = '';
+      }
+
+      // Initialize tabs
+      USI.initTabs(document.getElementById('mainTabBar').parentElement);
+
+      // Render nav
+      USI.renderNav('onboarding');
+
+      // Ensure SharePoint lists exist
+      const siteId = await USI.getSiteId();
+
+      await Promise.all([
+        USI.ensureList('USI_Onboarding', [
+          USI.textCol('EmployeeEmail'), USI.textCol('EmployeeName'),
+          USI.choiceCol('Category', ['IT Setup','HR Paperwork','Benefits','Training','Equipment','Access/Permissions']),
+          USI.choiceCol('AssigneeType', ['HR','IT','Manager']),
+          USI.textCol('AssigneeEmail'), USI.textCol('AssigneeName'),
+          USI.dateCol('DueDate'),
+          USI.choiceCol('Status', ['Pending','In Progress','Complete','Blocked']),
+          USI.multilineCol('Notes'),
+          USI.textCol('TemplateName'),
+          USI.dateCol('StartDate'),
+          USI.dateTimeCol('CompletedDate')
+        ]),
+        USI.ensureList('USI_Offboarding', [
+          USI.textCol('EmployeeEmail'), USI.textCol('EmployeeName'),
+          USI.choiceCol('Category', ['IT Deprovisioning','Equipment Return','Knowledge Transfer','Final Pay','Benefits/COBRA']),
+          USI.choiceCol('AssigneeType', ['HR','IT','Manager']),
+          USI.textCol('AssigneeEmail'), USI.textCol('AssigneeName'),
+          USI.dateCol('DueDate'),
+          USI.choiceCol('Status', ['Pending','In Progress','Complete','Blocked']),
+          USI.multilineCol('Notes'),
+          USI.textCol('TemplateName'),
+          USI.dateCol('LastDay'),
+          USI.dateTimeCol('CompletedDate')
+        ]),
+        USI.ensureList('USI_ExitInterviews', [
+          USI.textCol('EmployeeEmail'), USI.textCol('EmployeeName'),
+          USI.choiceCol('ReasonForLeaving', ['New Opportunity','Compensation','Management','Culture','Personal','Relocation','Career Change','Retirement','Other']),
+          USI.multilineCol('ReasonDetails'),
+          USI.numberCol('RatingManagement'), USI.numberCol('RatingCompensation'),
+          USI.numberCol('RatingCulture'), USI.numberCol('RatingGrowth'),
+          USI.numberCol('RatingWorkLife'),
+          USI.multilineCol('WhatWentWell'), USI.multilineCol('WhatCouldImprove'),
+          USI.multilineCol('Recommendations'),
+          USI.choiceCol('WouldReturn', ['Yes','No','Maybe']),
+          USI.boolCol('IsConfidential'),
+          USI.dateCol('InterviewDate'),
+          USI.textCol('InterviewerEmail'), USI.textCol('InterviewerName'),
+          USI.choiceCol('Status', ['Draft','Complete']),
+          USI.dateTimeCol('CompletedDate')
+        ])
+      ]);
+
+      // Load all data
+      await loadAllData();
+
+      // ── Event Listeners ──
+
+      // Onboarding
+      document.getElementById('btnNewOnboarding').addEventListener('click', showNewOnboardingModal);
+      document.getElementById('onboardFilterStatus').addEventListener('change', () => renderBoard({
+        items: onboardItems, containerId: 'onboardGrid', emptyId: 'onboardEmpty',
+        loadingId: 'onboardLoading', filterStatusId: 'onboardFilterStatus',
+        searchId: 'onboardSearch', dateField: 'StartDate',
+        categories: ONBOARD_CATEGORIES, listName: 'USI_Onboarding'
+      }));
+      document.getElementById('onboardSearch').addEventListener('input', USI.debounce(() => renderBoard({
+        items: onboardItems, containerId: 'onboardGrid', emptyId: 'onboardEmpty',
+        loadingId: 'onboardLoading', filterStatusId: 'onboardFilterStatus',
+        searchId: 'onboardSearch', dateField: 'StartDate',
+        categories: ONBOARD_CATEGORIES, listName: 'USI_Onboarding'
+      }), 300));
+
+      // Offboarding
+      document.getElementById('btnNewOffboarding').addEventListener('click', showNewOffboardingModal);
+      document.getElementById('offboardFilterStatus').addEventListener('change', () => renderBoard({
+        items: offboardItems, containerId: 'offboardGrid', emptyId: 'offboardEmpty',
+        loadingId: 'offboardLoading', filterStatusId: 'offboardFilterStatus',
+        searchId: 'offboardSearch', dateField: 'LastDay',
+        categories: OFFBOARD_CATEGORIES, listName: 'USI_Offboarding'
+      }));
+      document.getElementById('offboardSearch').addEventListener('input', USI.debounce(() => renderBoard({
+        items: offboardItems, containerId: 'offboardGrid', emptyId: 'offboardEmpty',
+        loadingId: 'offboardLoading', filterStatusId: 'offboardFilterStatus',
+        searchId: 'offboardSearch', dateField: 'LastDay',
+        categories: OFFBOARD_CATEGORIES, listName: 'USI_Offboarding'
+      }), 300));
+
+      // Exit Interview
+      document.getElementById('btnNewExitInterview').addEventListener('click', () => showExitForm(null));
+      document.getElementById('btnBackToList').addEventListener('click', hideExitForm);
+      document.getElementById('btnSaveDraft').addEventListener('click', () => saveInterview('Draft'));
+      document.getElementById('btnCompleteInterview').addEventListener('click', () => saveInterview('Complete'));
+      document.getElementById('btnDeleteInterview').addEventListener('click', deleteInterview);
+      document.getElementById('exitSearch').addEventListener('input', USI.debounce(renderExitInterviews, 300));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Performance | USI People</title>
+  <link rel="stylesheet" href="shared/styles.css">
+  <style>
+    /* ── Goal Cards ── */
+    .goal-card { transition: box-shadow 0.15s; }
+    .goal-card:hover { box-shadow: var(--shadow-md); }
+    .goal-card-header { display: flex; align-items: flex-start; gap: 10px; }
+    .goal-card-title { font-size: 15px; font-weight: 600; flex: 1; }
+    .goal-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .goal-progress { margin-top: 12px; }
+    .goal-progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .goal-card .expandable-body { padding-top: 16px; }
+
+    /* ── SMART Breakdown ── */
+    .smart-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+    .smart-item { display: flex; gap: 8px; font-size: 13px; }
+    .smart-letter {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--primary-light); color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 12px; flex-shrink: 0;
+    }
+    .smart-text { flex: 1; color: var(--text); line-height: 1.5; padding-top: 2px; }
+    .smart-text:empty::after { content: 'Not specified'; color: var(--text-light); font-style: italic; }
+
+    /* ── Rock Cards ── */
+    .rock-card { transition: box-shadow 0.15s; }
+    .rock-card:hover { box-shadow: var(--shadow-md); }
+    .rock-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .rock-card-title { font-size: 15px; font-weight: 600; }
+    .rock-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .rock-desc { font-size: 13px; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
+    .rock-desc.truncated { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .rock-aligned { font-size: 12px; color: var(--text-muted); margin-top: 10px; display: flex; align-items: center; gap: 4px; }
+    .rock-aligned-count { font-weight: 600; color: var(--primary); }
+
+    /* ── Status Dots ── */
+    .status-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    }
+    .status-dot.on-track, .status-dot.complete { background: var(--success); }
+    .status-dot.at-risk, .status-dot.behind { background: var(--warning); }
+    .status-dot.not-started { background: var(--text-light); }
+
+    /* ── Review Panel ── */
+    .review-container { max-width: 800px; }
+    .review-status-banner {
+      padding: 16px 20px; border-radius: var(--radius-sm);
+      margin-bottom: 20px; font-size: 13px; display: flex;
+      align-items: center; gap: 10px;
+    }
+    .review-status-banner.info { background: var(--info-bg); color: #1e40af; }
+    .review-status-banner.success { background: var(--success-bg); color: #166534; }
+    .review-status-banner.warning { background: var(--warning-bg); color: #92400e; }
+    .review-section { margin-bottom: 24px; }
+    .review-section-title {
+      font-size: 14px; font-weight: 600; margin-bottom: 8px;
+      color: var(--text);
+    }
+    .review-readonly {
+      background: var(--bg); border-radius: var(--radius-sm);
+      padding: 14px 16px; font-size: 13px; color: var(--text);
+      line-height: 1.6; white-space: pre-wrap; min-height: 60px;
+    }
+    .review-readonly:empty::after { content: 'No response provided'; color: var(--text-light); font-style: italic; }
+
+    /* ── Manager Ratings Display ── */
+    .rating-display { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .rating-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg); border-radius: var(--radius-sm); }
+    .rating-item-label { font-size: 13px; font-weight: 500; }
+    .rating-overall {
+      padding: 16px 20px; background: var(--primary-light); border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+    }
+    .rating-overall-label { font-size: 16px; font-weight: 600; color: var(--primary); }
+    .rating-overall-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+    .rating-overall-text { font-size: 13px; color: var(--primary); margin-left: 8px; }
+
+    /* ── Team Panel ── */
+    .team-card { cursor: pointer; transition: box-shadow 0.15s; }
+    .team-card:hover { box-shadow: var(--shadow-md); }
+    .team-card-header { display: flex; align-items: center; justify-content: space-between; }
+    .team-card-name { font-size: 15px; font-weight: 600; }
+    .team-card-email { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .team-card-statuses { display: flex; gap: 8px; margin-top: 10px; }
+    .team-expanded { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .team-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .team-col-title { font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.03em; }
+
+    /* ── Star Rating Row ── */
+    .star-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .star-row-label { font-size: 13px; font-weight: 500; min-width: 130px; }
+
+    /* ── Range Slider ── */
+    .range-group { display: flex; align-items: center; gap: 12px; }
+    .range-group input[type="range"] { flex: 1; accent-color: var(--primary); }
+    .range-value { font-size: 13px; font-weight: 600; color: var(--primary); min-width: 36px; text-align: right; }
+
+    /* ── View All Toggle ── */
+    .toggle-row { display: flex; align-items: center; gap: 8px; }
+    .toggle-switch {
+      position: relative; width: 36px; height: 20px;
+      background: #d1d5db; border-radius: 10px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .toggle-switch.active { background: var(--primary); }
+    .toggle-switch::after {
+      content: ''; position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      background: #fff; border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle-switch.active::after { transform: translateX(16px); }
+    .toggle-label { font-size: 13px; color: var(--text-muted); user-select: none; }
+
+    @media (max-width: 768px) {
+      .team-columns { grid-template-columns: 1fr; }
+      .rating-display { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="loginView" class="view active login-view">
+    <div class="login-card">
+      <div class="login-logo">USI People</div>
+      <div class="login-subtitle">Performance Management</div>
+      <button class="btn-microsoft" onclick="USI.login()">
+        <svg viewBox="0 0 21 21" width="20" height="20"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+        Sign in with Microsoft
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingView" class="view loading-view">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading performance data...</div>
+  </div>
+
+  <!-- App -->
+  <div id="appView" class="view">
+    <div class="app-container">
+
+      <!-- Tab Bar -->
+      <div class="tab-bar" id="mainTabBar">
+        <div class="tab active" data-tab="panelGoals">SMART Goals</div>
+        <div class="tab" data-tab="panelRocks">EOS Rocks</div>
+        <div class="tab" data-tab="panelReview">My Review</div>
+        <div class="tab" data-tab="panelTeam" id="tabTeam" style="display:none">Team</div>
+      </div>
+
+      <!-- ═══════════════ Tab 1: SMART Goals ═══════════════ -->
+      <div id="panelGoals" class="tab-panel active">
+        <div class="toolbar">
+          <select class="filter-select" id="goalFilterStatus">
+            <option value="">All Statuses</option>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="At Risk">At Risk</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <select class="filter-select" id="goalFilterPulse">
+            <option value="">All Pulses</option>
+            <option value="On Track">On Track</option>
+            <option value="Needs Attention">Needs Attention</option>
+            <option value="Blocked">Blocked</option>
+          </select>
+          <input type="text" class="search-input" id="goalSearch" placeholder="Search goals...">
+          <div class="toolbar-spacer"></div>
+          <div class="toggle-row" id="goalViewAllToggle" style="display:none">
+            <div class="toggle-switch" id="goalViewAllSwitch"></div>
+            <span class="toggle-label">View All</span>
+          </div>
+          <button class="btn btn-primary" id="btnAddGoal">+ New Goal</button>
+        </div>
+        <div id="goalsGrid" class="card-grid"></div>
+        <div id="goalsEmpty" class="empty-state" style="display:none">
+          <div class="empty-state-icon">&#127919;</div>
+          <div class="empty-state-title">No goals yet</div>
+          <div class="empty-state-text">Create your first SMART goal to start tracking your performance objectives.</div>
+        </div>
+        <div id="goalsLoading" class="empty-state">
+          <div class="spinner" style="margin:0 auto 12px"></div>
+          <div class="empty-state-text">Loading goals...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ Tab 2: EOS Rocks ═══════════════ -->
+      <div id="panelRocks" class="tab-panel">
+        <div class="toolbar">
+          <select class="filter-select" id="rockFilterQuarter"></select>
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-primary" id="btnAddRock" style="display:none">+ New Rock</button>
+        </div>
+        <div id="rocksGrid" class="card-grid"></div>
+        <div id="rocksEmpty" class="empty-state" style="display:none">
+          <div class="empty-state-icon">&#127967;</div>
+          <div class="empty-state-title">No rocks for this quarter</div>
+          <div class="empty-state-text">EOS Rocks represent the key quarterly initiatives for the company.</div>
+        </div>
+        <div id="rocksLoading" class="empty-state">
+          <div class="spinner" style="margin:0 auto 12px"></div>
+          <div class="empty-state-text">Loading rocks...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ Tab 3: My Review ═══════════════ -->
+      <div id="panelReview" class="tab-panel">
+        <div class="toolbar">
+          <select class="filter-select" id="reviewPeriodSelect">
+            <option value="Mid-Year 2024">Mid-Year 2024</option>
+            <option value="Annual 2024">Annual 2024</option>
+            <option value="Mid-Year 2025">Mid-Year 2025</option>
+            <option value="Annual 2025">Annual 2025</option>
+            <option value="Mid-Year 2026">Mid-Year 2026</option>
+            <option value="Annual 2026">Annual 2026</option>
+          </select>
+        </div>
+        <div id="reviewContent" class="review-container"></div>
+        <div id="reviewLoading" class="empty-state">
+          <div class="spinner" style="margin:0 auto 12px"></div>
+          <div class="empty-state-text">Loading review...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ Tab 4: Team (Managers Only) ═══════════════ -->
+      <div id="panelTeam" class="tab-panel">
+        <div class="toolbar">
+          <select class="filter-select" id="teamPeriodSelect">
+            <option value="Mid-Year 2024">Mid-Year 2024</option>
+            <option value="Annual 2024">Annual 2024</option>
+            <option value="Mid-Year 2025">Mid-Year 2025</option>
+            <option value="Annual 2025">Annual 2025</option>
+            <option value="Mid-Year 2026">Mid-Year 2026</option>
+            <option value="Annual 2026">Annual 2026</option>
+          </select>
+        </div>
+        <div id="teamList" class="card-list"></div>
+        <div id="teamEmpty" class="empty-state" style="display:none">
+          <div class="empty-state-icon">&#128101;</div>
+          <div class="empty-state-title">No reviews for this period</div>
+          <div class="empty-state-text">Employee reviews will appear here once they are submitted.</div>
+        </div>
+        <div id="teamLoading" class="empty-state">
+          <div class="spinner" style="margin:0 auto 12px"></div>
+          <div class="empty-state-text">Loading team reviews...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="shared/auth.js"></script>
+  <script src="shared/ui.js"></script>
+  <script>
+    const MANAGER_EMAILS = ['CWall@usicomputer.com', 'Aaron@usicomputer.com'];
+
+    // ── State ──
+    let me = null;
+    let amManager = false;
+    let goals = [];
+    let rocks = [];
+    let allGoals = [];
+    let viewAllGoals = false;
+
+    // ── List Definitions ──
+    const GOALS_LIST = 'USI_Goals';
+    const ROCKS_LIST = 'USI_Rocks';
+    const REVIEWS_LIST = 'USI_PerformanceReviews';
+
+    const GOALS_COLUMNS = [
+      USI.textCol('EmployeeEmail'), USI.textCol('EmployeeName'),
+      USI.textCol('Category'), USI.textCol('LinkedRockId'), USI.textCol('LinkedRockTitle'),
+      USI.textCol('SMART_S'), USI.textCol('SMART_M'), USI.textCol('SMART_A'), USI.textCol('SMART_R'), USI.textCol('SMART_T'),
+      USI.dateCol('TargetDate'),
+      USI.choiceCol('Status', ['Not Started','In Progress','At Risk','Completed']),
+      USI.numberCol('ProgressPercent'),
+      USI.choiceCol('WeeklyPulse', ['On Track','Needs Attention','Blocked']),
+      USI.multilineCol('Comments')
+    ];
+
+    const ROCKS_COLUMNS = [
+      USI.choiceCol('Quarter', ['Q1 2024','Q2 2024','Q3 2024','Q4 2024','Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Q2 2026','Q3 2026','Q4 2026']),
+      USI.choiceCol('Department', ['Engineering','Sales','Marketing','HR','Finance','Operations']),
+      USI.textCol('OwnerEmail'), USI.textCol('OwnerName'),
+      USI.multilineCol('Description'),
+      USI.choiceCol('Status', ['Not Started','On Track','At Risk','Behind','Complete'])
+    ];
+
+    const REVIEWS_COLUMNS = [
+      USI.textCol('EmployeeEmail'), USI.textCol('EmployeeName'),
+      USI.choiceCol('ReviewPeriod', ['Mid-Year 2024','Annual 2024','Mid-Year 2025','Annual 2025','Mid-Year 2026','Annual 2026']),
+      USI.multilineCol('SelfAccomplishments'), USI.multilineCol('SelfStrengths'),
+      USI.multilineCol('SelfGrowthAreas'), USI.multilineCol('SelfGoalsAssessment'),
+      USI.multilineCol('SelfDevelopmentGoals'),
+      USI.choiceCol('SelfStatus', ['Draft','Submitted']),
+      USI.dateCol('SelfSubmittedDate'),
+      USI.textCol('ManagerEmail'), USI.textCol('ManagerName'),
+      USI.numberCol('RatingQuality'), USI.numberCol('RatingProductivity'),
+      USI.numberCol('RatingCommunication'), USI.numberCol('RatingTeamwork'),
+      USI.numberCol('RatingInitiative'), USI.numberCol('RatingOverall'),
+      USI.multilineCol('ManagerNarrative'),
+      USI.choiceCol('ManagerStatus', ['Not Started','Draft','Complete']),
+      USI.dateCol('ManagerCompletedDate'),
+      USI.boolCol('EmployeeAcknowledged'),
+      USI.dateCol('AcknowledgedDate')
+    ];
+
+    // ── Helpers ──
+    function getCurrentQuarter() {
+      const now = new Date();
+      const q = Math.ceil((now.getMonth() + 1) / 3);
+      return `Q${q} ${now.getFullYear()}`;
+    }
+
+    function progressColor(pct) {
+      if (pct >= 75) return 'success';
+      if (pct >= 40) return '';
+      if (pct >= 20) return 'warning';
+      return 'error';
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function parseComments(str) {
+      if (!str) return [];
+      try { return JSON.parse(str); } catch { return []; }
+    }
+
+    function stringifyComments(arr) {
+      return JSON.stringify(arr);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // ██  TAB 1: SMART GOALS
+    // ══════════════════════════════════════════════════════════
+
+    async function loadGoals() {
+      document.getElementById('goalsLoading').style.display = '';
+      document.getElementById('goalsGrid').innerHTML = '';
+      document.getElementById('goalsEmpty').style.display = 'none';
+      try {
+        const items = await USI.getListItems(GOALS_LIST);
+        allGoals = items.map(i => ({ id: i.id, ...i.fields }));
+        if (viewAllGoals && amManager) {
+          goals = allGoals;
+        } else {
+          goals = allGoals.filter(g => g.EmployeeEmail && g.EmployeeEmail.toLowerCase() === me.mail.toLowerCase());
+        }
+      } catch (e) {
+        console.error('Failed to load goals:', e);
+        USI.toast('Failed to load goals', 'error');
+        goals = [];
+        allGoals = [];
+      }
+      document.getElementById('goalsLoading').style.display = 'none';
+      renderGoals();
+    }
+
+    function renderGoals() {
+      const statusFilter = document.getElementById('goalFilterStatus').value;
+      const pulseFilter = document.getElementById('goalFilterPulse').value;
+      const searchTerm = document.getElementById('goalSearch').value.toLowerCase().trim();
+
+      let filtered = goals;
+      if (statusFilter) filtered = filtered.filter(g => g.Status === statusFilter);
+      if (pulseFilter) filtered = filtered.filter(g => g.WeeklyPulse === pulseFilter);
+      if (searchTerm) filtered = filtered.filter(g =>
+        (g.Title || '').toLowerCase().includes(searchTerm) ||
+        (g.EmployeeName || '').toLowerCase().includes(searchTerm) ||
+        (g.LinkedRockTitle || '').toLowerCase().includes(searchTerm)
+      );
+
+      const grid = document.getElementById('goalsGrid');
+      const empty = document.getElementById('goalsEmpty');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = '';
+        return;
+      }
+      empty.style.display = 'none';
+
+      grid.innerHTML = filtered.map(g => {
+        const pct = g.ProgressPercent || 0;
+        const pulse = g.WeeklyPulse || 'Not Started';
+        const status = g.Status || 'Not Started';
+        const comments = parseComments(g.Comments);
+        const isOwnGoal = g.EmployeeEmail && g.EmployeeEmail.toLowerCase() === me.mail.toLowerCase();
+
+        return `
+        <div class="card goal-card expandable" data-goal-id="${g.id}">
+          <div class="expandable-header" onclick="toggleExpand(this)">
+            <span class="expand-arrow">&#9654;</span>
+            <div style="flex:1">
+              <div class="goal-card-header">
+                <div class="goal-card-title">${USI.escapeHtml(g.Title || 'Untitled Goal')}</div>
+                <span class="pulse-dot ${USI.pulseClass(pulse)}" title="${USI.escapeHtml(pulse)}"></span>
+              </div>
+              ${viewAllGoals && amManager ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">${USI.escapeHtml(g.EmployeeName || g.EmployeeEmail || '')}</div>` : ''}
+              <div class="goal-card-meta">
+                ${g.LinkedRockTitle ? `<span class="pill pill-primary">${USI.escapeHtml(g.LinkedRockTitle)}</span>` : ''}
+                <span class="pill ${USI.statusPillClass(status)}">${USI.escapeHtml(status)}</span>
+                ${g.TargetDate ? `<span style="font-size:12px;color:var(--text-muted)">${USI.formatDate(g.TargetDate)}</span>` : ''}
+              </div>
+              <div class="goal-progress">
+                <div class="goal-progress-label">
+                  <span>Progress</span>
+                  <span>${pct}%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill ${progressColor(pct)}" style="width:${pct}%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="expandable-body">
+            <div style="padding-top:16px">
+              ${g.Category ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Category: <strong>${USI.escapeHtml(g.Category)}</strong></div>` : ''}
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">SMART Breakdown</div>
+              <div class="smart-grid">
+                <div class="smart-item"><div class="smart-letter">S</div><div class="smart-text">${USI.escapeHtml(g.SMART_S || '')}</div></div>
+                <div class="smart-item"><div class="smart-letter">M</div><div class="smart-text">${USI.escapeHtml(g.SMART_M || '')}</div></div>
+                <div class="smart-item"><div class="smart-letter">A</div><div class="smart-text">${USI.escapeHtml(g.SMART_A || '')}</div></div>
+                <div class="smart-item"><div class="smart-letter">R</div><div class="smart-text">${USI.escapeHtml(g.SMART_R || '')}</div></div>
+                <div class="smart-item"><div class="smart-letter">T</div><div class="smart-text">${USI.escapeHtml(g.SMART_T || '')}</div></div>
+              </div>
+
+              ${isOwnGoal || amManager ? `
+              <div style="margin-top:16px">
+                <button class="btn btn-secondary btn-sm" onclick="openGoalModal(${g.id})">Edit Goal</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteGoal(${g.id})" style="margin-left:6px">Delete</button>
+              </div>` : ''}
+
+              <!-- Comments -->
+              <div class="comment-thread">
+                <div style="font-size:13px;font-weight:600;margin-bottom:10px">Comments (${comments.length})</div>
+                <div id="comments-${g.id}">
+                  ${comments.map(c => `
+                    <div class="comment">
+                      <div class="comment-avatar">${getInitials(c.author)}</div>
+                      <div class="comment-body">
+                        <div class="comment-meta">${USI.escapeHtml(c.author)} &middot; ${USI.relativeTime(c.date)}</div>
+                        <div class="comment-text">${USI.escapeHtml(c.text)}</div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="comment-input-row">
+                  <input type="text" class="form-input" placeholder="Add a comment..." id="commentInput-${g.id}" onkeydown="if(event.key==='Enter')addComment(${g.id})">
+                  <button class="btn btn-primary btn-sm" onclick="addComment(${g.id})">Post</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleExpand(headerEl) {
+      const card = headerEl.closest('.expandable');
+      card.classList.toggle('expanded');
+    }
+
+    async function addComment(goalId) {
+      const input = document.getElementById(`commentInput-${goalId}`);
+      const text = input.value.trim();
+      if (!text) return;
+
+      const goal = (viewAllGoals ? allGoals : goals).find(g => g.id == goalId);
+      if (!goal) return;
+
+      const comments = parseComments(goal.Comments);
+      comments.push({
+        id: USI.generateId(),
+        author: me.displayName,
+        authorEmail: me.mail,
+        date: new Date().toISOString(),
+        text: text
+      });
+
+      try {
+        await USI.updateListItem(GOALS_LIST, goalId, { Comments: stringifyComments(comments) });
+        goal.Comments = stringifyComments(comments);
+        input.value = '';
+        renderGoals();
+        USI.toast('Comment added', 'success');
+      } catch (e) {
+        console.error('Failed to add comment:', e);
+        USI.toast('Failed to add comment', 'error');
+      }
+    }
+
+    async function openGoalModal(goalId) {
+      const goal = goalId ? allGoals.find(g => g.id == goalId) : null;
+      const isEdit = !!goal;
+      const title = isEdit ? 'Edit Goal' : 'New SMART Goal';
+
+      const rockOptions = rocks.map(r =>
+        `<option value="${r.id}" ${goal && goal.LinkedRockId == r.id ? 'selected' : ''}>${USI.escapeHtml(r.Title || 'Untitled')} (${USI.escapeHtml(r.Quarter || '')})</option>`
+      ).join('');
+
+      const html = `
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-input" id="goalTitle" value="${USI.escapeHtml(goal?.Title || '')}">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="goalCategory">
+              <option value="">Select...</option>
+              ${['Professional','Personal','Team','Strategic'].map(c => `<option value="${c}" ${goal?.Category === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Linked Rock</label>
+            <select class="form-select" id="goalLinkedRock">
+              <option value="">None</option>
+              ${rockOptions}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Target Date</label>
+            <input type="date" class="form-input" id="goalTargetDate" value="${goal?.TargetDate ? goal.TargetDate.split('T')[0] : ''}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="goalStatus">
+              ${['Not Started','In Progress','At Risk','Completed'].map(s => `<option value="${s}" ${goal?.Status === s ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Progress %</label>
+            <div class="range-group">
+              <input type="range" min="0" max="100" value="${goal?.ProgressPercent || 0}" id="goalProgress" oninput="document.getElementById('goalProgressVal').textContent=this.value+'%'">
+              <span class="range-value" id="goalProgressVal">${goal?.ProgressPercent || 0}%</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Weekly Pulse</label>
+            <select class="form-select" id="goalPulse">
+              ${['On Track','Needs Attention','Blocked'].map(p => `<option value="${p}" ${goal?.WeeklyPulse === p ? 'selected' : ''}>${p}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin:8px 0 12px;color:var(--primary)">SMART Breakdown</div>
+        <div class="form-group">
+          <label class="form-label">S - Specific</label>
+          <textarea class="form-textarea" id="goalSmartS" rows="2" placeholder="What exactly do you want to accomplish? Be specific about the outcome.">${USI.escapeHtml(goal?.SMART_S || '')}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">M - Measurable</label>
+          <textarea class="form-textarea" id="goalSmartM" rows="2" placeholder="How will you measure success? What metrics or indicators will you use?">${USI.escapeHtml(goal?.SMART_M || '')}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">A - Achievable</label>
+          <textarea class="form-textarea" id="goalSmartA" rows="2" placeholder="Is this goal realistic? What resources or skills do you need?">${USI.escapeHtml(goal?.SMART_A || '')}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">R - Relevant</label>
+          <textarea class="form-textarea" id="goalSmartR" rows="2" placeholder="How does this goal align with broader objectives and your role?">${USI.escapeHtml(goal?.SMART_R || '')}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">T - Time-bound</label>
+          <textarea class="form-textarea" id="goalSmartT" rows="2" placeholder="What is your deadline? What are the key milestones along the way?">${USI.escapeHtml(goal?.SMART_T || '')}</textarea>
+        </div>
+      `;
+
+      await USI.modal(title, html, [
+        { label: 'Cancel', class: 'btn-secondary', value: null },
+        {
+          label: isEdit ? 'Update Goal' : 'Create Goal',
+          class: 'btn-primary',
+          onClick: async (overlay) => {
+            const titleVal = overlay.querySelector('#goalTitle').value.trim();
+            if (!titleVal) { USI.toast('Title is required', 'error'); return false; }
+
+            const linkedRockSelect = overlay.querySelector('#goalLinkedRock');
+            const linkedRockId = linkedRockSelect.value;
+            const linkedRockTitle = linkedRockId ? linkedRockSelect.options[linkedRockSelect.selectedIndex].text.replace(/\s*\(.*\)$/, '') : '';
+
+            const fields = {
+              Title: titleVal,
+              EmployeeEmail: goal?.EmployeeEmail || me.mail,
+              EmployeeName: goal?.EmployeeName || me.displayName,
+              Category: overlay.querySelector('#goalCategory').value,
+              LinkedRockId: linkedRockId,
+              LinkedRockTitle: linkedRockTitle,
+              SMART_S: overlay.querySelector('#goalSmartS').value,
+              SMART_M: overlay.querySelector('#goalSmartM').value,
+              SMART_A: overlay.querySelector('#goalSmartA').value,
+              SMART_R: overlay.querySelector('#goalSmartR').value,
+              SMART_T: overlay.querySelector('#goalSmartT').value,
+              TargetDate: overlay.querySelector('#goalTargetDate').value || null,
+              Status: overlay.querySelector('#goalStatus').value,
+              ProgressPercent: parseInt(overlay.querySelector('#goalProgress').value),
+              WeeklyPulse: overlay.querySelector('#goalPulse').value
+            };
+
+            try {
+              const btns = overlay.querySelectorAll('.modal-footer .btn');
+              btns.forEach(b => b.disabled = true);
+              if (isEdit) {
+                await USI.updateListItem(GOALS_LIST, goalId, fields);
+                USI.toast('Goal updated', 'success');
+              } else {
+                await USI.createListItem(GOALS_LIST, fields);
+                USI.toast('Goal created', 'success');
+              }
+              await loadGoals();
+            } catch (e) {
+              console.error('Failed to save goal:', e);
+              USI.toast('Failed to save goal', 'error');
+              return false;
+            }
+          }
+        }
+      ]);
+    }
+
+    async function deleteGoal(goalId) {
+      const confirmed = await USI.confirm('Are you sure you want to delete this goal? This action cannot be undone.');
+      if (!confirmed) return;
+      try {
+        await USI.deleteListItem(GOALS_LIST, goalId);
+        USI.toast('Goal deleted', 'success');
+        await loadGoals();
+      } catch (e) {
+        console.error('Failed to delete goal:', e);
+        USI.toast('Failed to delete goal', 'error');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // ██  TAB 2: EOS ROCKS
+    // ══════════════════════════════════════════════════════════
+
+    async function loadRocks() {
+      document.getElementById('rocksLoading').style.display = '';
+      document.getElementById('rocksGrid').innerHTML = '';
+      document.getElementById('rocksEmpty').style.display = 'none';
+      try {
+        const items = await USI.getListItems(ROCKS_LIST);
+        rocks = items.map(i => ({ id: i.id, ...i.fields }));
+      } catch (e) {
+        console.error('Failed to load rocks:', e);
+        USI.toast('Failed to load rocks', 'error');
+        rocks = [];
+      }
+      document.getElementById('rocksLoading').style.display = 'none';
+      renderRocks();
+    }
+
+    function renderRocks() {
+      const quarterFilter = document.getElementById('rockFilterQuarter').value;
+      let filtered = rocks;
+      if (quarterFilter) filtered = filtered.filter(r => r.Quarter === quarterFilter);
+
+      const grid = document.getElementById('rocksGrid');
+      const empty = document.getElementById('rocksEmpty');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = '';
+        return;
+      }
+      empty.style.display = 'none';
+
+      grid.innerHTML = filtered.map(r => {
+        const status = r.Status || 'Not Started';
+        const alignedCount = allGoals.filter(g => g.LinkedRockId == r.id).length;
+
+        return `
+        <div class="card rock-card">
+          <div class="rock-card-header">
+            <div>
+              <div class="rock-card-title">${USI.escapeHtml(r.Title || 'Untitled Rock')}</div>
+              <div class="rock-card-meta">
+                <span class="pill pill-info">${USI.escapeHtml(r.Department || '')}</span>
+                <span class="status-dot ${USI.pulseClass(status)}" title="${USI.escapeHtml(status)}"></span>
+                <span style="font-size:12px;color:var(--text-muted)">${USI.escapeHtml(status)}</span>
+              </div>
+            </div>
+            ${amManager ? `<button class="btn btn-ghost btn-sm" onclick="openRockModal(${r.id})">Edit</button>` : ''}
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:8px">Owner: ${USI.escapeHtml(r.OwnerName || r.OwnerEmail || 'Unassigned')}</div>
+          <div class="rock-desc truncated">${USI.escapeHtml(r.Description || '')}</div>
+          <div class="rock-aligned">
+            <span class="rock-aligned-count">${alignedCount}</span> goal${alignedCount !== 1 ? 's' : ''} aligned
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function openRockModal(rockId) {
+      const rock = rockId ? rocks.find(r => r.id == rockId) : null;
+      const isEdit = !!rock;
+      const title = isEdit ? 'Edit Rock' : 'New EOS Rock';
+
+      const quarters = ['Q1 2024','Q2 2024','Q3 2024','Q4 2024','Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Q2 2026','Q3 2026','Q4 2026'];
+      const departments = ['Engineering','Sales','Marketing','HR','Finance','Operations'];
+      const statuses = ['Not Started','On Track','At Risk','Behind','Complete'];
+
+      const html = `
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-input" id="rockTitle" value="${USI.escapeHtml(rock?.Title || '')}">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Quarter</label>
+            <select class="form-select" id="rockQuarter">
+              ${quarters.map(q => `<option value="${q}" ${rock?.Quarter === q ? 'selected' : ''}>${q}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <select class="form-select" id="rockDepartment">
+              ${departments.map(d => `<option value="${d}" ${rock?.Department === d ? 'selected' : ''}>${d}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Owner Name</label>
+            <input type="text" class="form-input" id="rockOwnerName" value="${USI.escapeHtml(rock?.OwnerName || '')}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Owner Email</label>
+            <input type="email" class="form-input" id="rockOwnerEmail" value="${USI.escapeHtml(rock?.OwnerEmail || '')}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="rockDescription" rows="4">${USI.escapeHtml(rock?.Description || '')}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="rockStatus">
+            ${statuses.map(s => `<option value="${s}" ${rock?.Status === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+        </div>
+      `;
+
+      await USI.modal(title, html, [
+        { label: 'Cancel', class: 'btn-secondary', value: null },
+        {
+          label: isEdit ? 'Update Rock' : 'Create Rock',
+          class: 'btn-primary',
+          onClick: async (overlay) => {
+            const titleVal = overlay.querySelector('#rockTitle').value.trim();
+            if (!titleVal) { USI.toast('Title is required', 'error'); return false; }
+
+            const fields = {
+              Title: titleVal,
+              Quarter: overlay.querySelector('#rockQuarter').value,
+              Department: overlay.querySelector('#rockDepartment').value,
+              OwnerName: overlay.querySelector('#rockOwnerName').value,
+              OwnerEmail: overlay.querySelector('#rockOwnerEmail').value,
+              Description: overlay.querySelector('#rockDescription').value,
+              Status: overlay.querySelector('#rockStatus').value
+            };
+
+            try {
+              const btns = overlay.querySelectorAll('.modal-footer .btn');
+              btns.forEach(b => b.disabled = true);
+              if (isEdit) {
+                await USI.updateListItem(ROCKS_LIST, rockId, fields);
+                USI.toast('Rock updated', 'success');
+              } else {
+                await USI.createListItem(ROCKS_LIST, fields);
+                USI.toast('Rock created', 'success');
+              }
+              await loadRocks();
+            } catch (e) {
+              console.error('Failed to save rock:', e);
+              USI.toast('Failed to save rock', 'error');
+              return false;
+            }
+          }
+        }
+      ]);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // ██  TAB 3: MY REVIEW
+    // ══════════════════════════════════════════════════════════
+
+    async function loadMyReview() {
+      const period = document.getElementById('reviewPeriodSelect').value;
+      const content = document.getElementById('reviewContent');
+      const loading = document.getElementById('reviewLoading');
+
+      loading.style.display = '';
+      content.innerHTML = '';
+
+      try {
+        const items = await USI.getListItems(REVIEWS_LIST);
+        const allReviews = items.map(i => ({ id: i.id, ...i.fields }));
+        const review = allReviews.find(r =>
+          r.ReviewPeriod === period &&
+          r.EmployeeEmail && r.EmployeeEmail.toLowerCase() === me.mail.toLowerCase()
+        );
+        loading.style.display = 'none';
+        renderMyReview(review, period);
+      } catch (e) {
+        console.error('Failed to load review:', e);
+        loading.style.display = 'none';
+        content.innerHTML = '<div class="empty-state"><div class="empty-state-title">Failed to load review</div></div>';
+      }
+    }
+
+    function renderMyReview(review, period) {
+      const content = document.getElementById('reviewContent');
+
+      // State: No review yet
+      if (!review) {
+        content.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128221;</div>
+            <div class="empty-state-title">No review for ${USI.escapeHtml(period)}</div>
+            <div class="empty-state-text">Start your self-assessment for this review period.</div>
+            <button class="btn btn-primary" onclick="startReview('${USI.escapeHtml(period)}')">Start Review</button>
+          </div>`;
+        return;
+      }
+
+      const selfStatus = review.SelfStatus || 'Draft';
+      const managerStatus = review.ManagerStatus || 'Not Started';
+      const acknowledged = review.EmployeeAcknowledged;
+
+      // State: Draft
+      if (selfStatus === 'Draft') {
+        content.innerHTML = `
+          <div class="review-status-banner warning">
+            <strong>Draft</strong> &mdash; Your self-assessment is in progress. Submit when ready.
+          </div>
+          ${renderSelfAssessmentForm(review, true)}
+          <div class="btn-group" style="margin-top:20px">
+            <button class="btn btn-secondary" onclick="saveSelfAssessment(${review.id}, false)">Save Draft</button>
+            <button class="btn btn-primary" onclick="saveSelfAssessment(${review.id}, true)">Submit Review</button>
+          </div>`;
+        return;
+      }
+
+      // State: Submitted, awaiting manager
+      if (selfStatus === 'Submitted' && managerStatus !== 'Complete') {
+        content.innerHTML = `
+          <div class="review-status-banner info">
+            <strong>Submitted</strong> &mdash; Awaiting manager review. Submitted ${USI.formatDate(review.SelfSubmittedDate)}.
+          </div>
+          ${renderSelfAssessmentReadOnly(review)}`;
+        return;
+      }
+
+      // State: Manager Complete, needs acknowledgment
+      if (managerStatus === 'Complete' && !acknowledged) {
+        content.innerHTML = `
+          <div class="review-status-banner success">
+            <strong>Manager Review Complete</strong> &mdash; Review your manager's feedback and acknowledge.
+          </div>
+          ${renderSelfAssessmentReadOnly(review)}
+          <div style="margin-top:24px">
+            <div style="font-size:16px;font-weight:600;margin-bottom:16px">Manager Feedback</div>
+            ${renderManagerRatingsReadOnly(review)}
+            <div class="review-section">
+              <div class="review-section-title">Manager Narrative</div>
+              <div class="review-readonly">${USI.escapeHtml(review.ManagerNarrative || '')}</div>
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="acknowledgeReview(${review.id})">Acknowledge Review</button>
+          </div>`;
+        return;
+      }
+
+      // State: Acknowledged
+      if (acknowledged) {
+        content.innerHTML = `
+          <div class="review-status-banner success">
+            <strong>Review Complete</strong> &mdash; Acknowledged ${USI.formatDate(review.AcknowledgedDate)}.
+          </div>
+          ${renderSelfAssessmentReadOnly(review)}
+          <div style="margin-top:24px">
+            <div style="font-size:16px;font-weight:600;margin-bottom:16px">Manager Feedback</div>
+            ${renderManagerRatingsReadOnly(review)}
+            <div class="review-section">
+              <div class="review-section-title">Manager Narrative</div>
+              <div class="review-readonly">${USI.escapeHtml(review.ManagerNarrative || '')}</div>
+            </div>
+          </div>`;
+        return;
+      }
+    }
+
+    function renderSelfAssessmentForm(review, editable) {
+      const fields = [
+        { key: 'SelfAccomplishments', label: 'Key Accomplishments', placeholder: 'Describe your key achievements and contributions this period...' },
+        { key: 'SelfStrengths', label: 'Strengths', placeholder: 'What strengths have you demonstrated? What are you most proud of?' },
+        { key: 'SelfGrowthAreas', label: 'Areas for Growth', placeholder: 'Where do you see opportunities for improvement?' },
+        { key: 'SelfGoalsAssessment', label: 'Goals Assessment', placeholder: 'How did you perform against your goals? What was achieved vs. planned?' },
+        { key: 'SelfDevelopmentGoals', label: 'Development Goals for Next Period', placeholder: 'What skills or areas do you want to develop next?' }
+      ];
+
+      return fields.map(f => `
+        <div class="review-section">
+          <div class="review-section-title">${f.label}</div>
+          <textarea class="form-textarea" id="review_${f.key}" rows="4" placeholder="${f.placeholder}" ${!editable ? 'disabled' : ''}>${USI.escapeHtml(review[f.key] || '')}</textarea>
+        </div>
+      `).join('');
+    }
+
+    function renderSelfAssessmentReadOnly(review) {
+      const fields = [
+        { key: 'SelfAccomplishments', label: 'Key Accomplishments' },
+        { key: 'SelfStrengths', label: 'Strengths' },
+        { key: 'SelfGrowthAreas', label: 'Areas for Growth' },
+        { key: 'SelfGoalsAssessment', label: 'Goals Assessment' },
+        { key: 'SelfDevelopmentGoals', label: 'Development Goals for Next Period' }
+      ];
+
+      return fields.map(f => `
+        <div class="review-section">
+          <div class="review-section-title">${f.label}</div>
+          <div class="review-readonly">${USI.escapeHtml(review[f.key] || '')}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderManagerRatingsReadOnly(review) {
+      const categories = [
+        { key: 'RatingQuality', label: 'Quality of Work' },
+        { key: 'RatingProductivity', label: 'Productivity' },
+        { key: 'RatingCommunication', label: 'Communication' },
+        { key: 'RatingTeamwork', label: 'Teamwork' },
+        { key: 'RatingInitiative', label: 'Initiative' }
+      ];
+
+      const overall = review.RatingOverall || 0;
+      const overallLabel = USI.ratingLabel(overall);
+
+      return `
+        <div class="rating-overall">
+          <div>
+            <div class="rating-overall-label">Overall Rating</div>
+            <span class="rating-overall-text">${USI.escapeHtml(overallLabel)}</span>
+          </div>
+          <div class="rating-overall-value">${overall.toFixed(1)}</div>
+        </div>
+        <div class="rating-display">
+          ${categories.map(c => `
+            <div class="rating-item">
+              <span class="rating-item-label">${c.label}</span>
+              <div class="star-rating">
+                ${[1,2,3,4,5].map(i => `<span class="star ${i <= (review[c.key] || 0) ? 'filled' : ''}">\u2605</span>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    async function startReview(period) {
+      try {
+        await USI.createListItem(REVIEWS_LIST, {
+          EmployeeEmail: me.mail,
+          EmployeeName: me.displayName,
+          ReviewPeriod: period,
+          SelfStatus: 'Draft',
+          ManagerStatus: 'Not Started',
+          EmployeeAcknowledged: false
+        });
+        USI.toast('Review started', 'success');
+        await loadMyReview();
+      } catch (e) {
+        console.error('Failed to start review:', e);
+        USI.toast('Failed to start review', 'error');
+      }
+    }
+
+    async function saveSelfAssessment(reviewId, submit) {
+      if (submit) {
+        const confirmed = await USI.confirm('Submit your self-assessment? You will not be able to edit it after submission.');
+        if (!confirmed) return;
+      }
+
+      const fields = {
+        SelfAccomplishments: document.getElementById('review_SelfAccomplishments').value,
+        SelfStrengths: document.getElementById('review_SelfStrengths').value,
+        SelfGrowthAreas: document.getElementById('review_SelfGrowthAreas').value,
+        SelfGoalsAssessment: document.getElementById('review_SelfGoalsAssessment').value,
+        SelfDevelopmentGoals: document.getElementById('review_SelfDevelopmentGoals').value,
+      };
+
+      if (submit) {
+        fields.SelfStatus = 'Submitted';
+        fields.SelfSubmittedDate = new Date().toISOString();
+      }
+
+      try {
+        await USI.updateListItem(REVIEWS_LIST, reviewId, fields);
+
+        if (submit) {
+          // Email manager
+          const managerEmail = MANAGER_EMAILS[0];
+          const period = document.getElementById('reviewPeriodSelect').value;
+          try {
+            await USI.sendMail(
+              managerEmail,
+              'Aaron@usicomputer.com',
+              `Performance Review Submitted - ${me.displayName} (${period})`,
+              `<p><strong>${USI.escapeHtml(me.displayName)}</strong> has submitted their self-assessment for the <strong>${USI.escapeHtml(period)}</strong> review period.</p>
+               <p>Please log in to <a href="${window.location.href}">USI People</a> to complete the manager review.</p>`
+            );
+          } catch (mailErr) {
+            console.warn('Email notification failed:', mailErr);
+          }
+          USI.toast('Review submitted', 'success');
+        } else {
+          USI.toast('Draft saved', 'success');
+        }
+
+        await loadMyReview();
+      } catch (e) {
+        console.error('Failed to save review:', e);
+        USI.toast('Failed to save review', 'error');
+      }
+    }
+
+    async function acknowledgeReview(reviewId) {
+      const confirmed = await USI.confirm('Acknowledge this review? This confirms you have read your manager\'s feedback.');
+      if (!confirmed) return;
+
+      try {
+        await USI.updateListItem(REVIEWS_LIST, reviewId, {
+          EmployeeAcknowledged: true,
+          AcknowledgedDate: new Date().toISOString()
+        });
+        USI.toast('Review acknowledged', 'success');
+        await loadMyReview();
+      } catch (e) {
+        console.error('Failed to acknowledge review:', e);
+        USI.toast('Failed to acknowledge review', 'error');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // ██  TAB 4: TEAM (MANAGERS ONLY)
+    // ══════════════════════════════════════════════════════════
+
+    let teamReviews = [];
+    let expandedTeamCards = new Set();
+
+    async function loadTeamReviews() {
+      if (!amManager) return;
+      const loading = document.getElementById('teamLoading');
+      const list = document.getElementById('teamList');
+      const empty = document.getElementById('teamEmpty');
+
+      loading.style.display = '';
+      list.innerHTML = '';
+      empty.style.display = 'none';
+
+      try {
+        const items = await USI.getListItems(REVIEWS_LIST);
+        teamReviews = items.map(i => ({ id: i.id, ...i.fields }));
+      } catch (e) {
+        console.error('Failed to load team reviews:', e);
+        USI.toast('Failed to load team reviews', 'error');
+        teamReviews = [];
+      }
+
+      loading.style.display = 'none';
+      renderTeamReviews();
+    }
+
+    function renderTeamReviews() {
+      const period = document.getElementById('teamPeriodSelect').value;
+      const filtered = teamReviews.filter(r => r.ReviewPeriod === period);
+
+      const list = document.getElementById('teamList');
+      const empty = document.getElementById('teamEmpty');
+
+      if (filtered.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = '';
+        return;
+      }
+      empty.style.display = 'none';
+
+      list.innerHTML = filtered.map(r => {
+        const selfStatus = r.SelfStatus || 'Not Started';
+        const managerStatus = r.ManagerStatus || 'Not Started';
+        const isExpanded = expandedTeamCards.has(r.id);
+
+        return `
+        <div class="card team-card expandable ${isExpanded ? 'expanded' : ''}" data-review-id="${r.id}">
+          <div class="expandable-header" onclick="toggleTeamCard(${r.id})">
+            <span class="expand-arrow">&#9654;</span>
+            <div style="flex:1">
+              <div class="team-card-header">
+                <div>
+                  <div class="team-card-name">${USI.escapeHtml(r.EmployeeName || 'Unknown')}</div>
+                  <div class="team-card-email">${USI.escapeHtml(r.EmployeeEmail || '')}</div>
+                </div>
+              </div>
+              <div class="team-card-statuses">
+                <span class="pill ${USI.statusPillClass(selfStatus)}">Self: ${USI.escapeHtml(selfStatus)}</span>
+                <span class="pill ${USI.statusPillClass(managerStatus)}">Manager: ${USI.escapeHtml(managerStatus)}</span>
+                ${r.EmployeeAcknowledged ? '<span class="pill pill-success">Acknowledged</span>' : ''}
+              </div>
+            </div>
+          </div>
+          <div class="expandable-body">
+            <div class="team-expanded">
+              ${isExpanded ? renderTeamExpandedContent(r) : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleTeamCard(reviewId) {
+      if (expandedTeamCards.has(reviewId)) {
+        expandedTeamCards.delete(reviewId);
+      } else {
+        expandedTeamCards.add(reviewId);
+      }
+      renderTeamReviews();
+    }
+
+    function renderTeamExpandedContent(review) {
+      const selfStatus = review.SelfStatus || 'Not Started';
+      const managerStatus = review.ManagerStatus || 'Not Started';
+      const isManagerComplete = managerStatus === 'Complete';
+
+      // Left side: self-assessment (read-only)
+      let leftHtml = '<div class="team-col-title">Self-Assessment</div>';
+      if (selfStatus === 'Draft' || selfStatus === 'Not Started') {
+        leftHtml += '<div style="color:var(--text-muted);font-size:13px;font-style:italic">Employee has not yet submitted their self-assessment.</div>';
+      } else {
+        leftHtml += renderSelfAssessmentReadOnly(review);
+      }
+
+      // Right side: manager rating form
+      let rightHtml = '<div class="team-col-title">Manager Review</div>';
+
+      if (selfStatus !== 'Submitted') {
+        rightHtml += '<div style="color:var(--text-muted);font-size:13px;font-style:italic">Self-assessment must be submitted before manager review can begin.</div>';
+      } else if (isManagerComplete) {
+        rightHtml += renderManagerRatingsReadOnly(review);
+        rightHtml += `
+          <div class="review-section">
+            <div class="review-section-title">Manager Narrative</div>
+            <div class="review-readonly">${USI.escapeHtml(review.ManagerNarrative || '')}</div>
+          </div>`;
+      } else {
+        // Editable manager form
+        const categories = [
+          { key: 'RatingQuality', label: 'Quality of Work' },
+          { key: 'RatingProductivity', label: 'Productivity' },
+          { key: 'RatingCommunication', label: 'Communication' },
+          { key: 'RatingTeamwork', label: 'Teamwork' },
+          { key: 'RatingInitiative', label: 'Initiative' }
+        ];
+
+        rightHtml += categories.map(c => `
+          <div class="star-row">
+            <span class="star-row-label">${c.label}</span>
+            <div id="stars_${review.id}_${c.key}"></div>
+          </div>
+        `).join('');
+
+        // Overall display
+        const currentOverall = calcOverall(review, categories);
+        rightHtml += `
+          <div class="rating-overall" id="overallDisplay_${review.id}">
+            <div>
+              <div class="rating-overall-label">Overall Rating</div>
+              <span class="rating-overall-text" id="overallLabel_${review.id}">${USI.escapeHtml(USI.ratingLabel(currentOverall))}</span>
+            </div>
+            <div class="rating-overall-value" id="overallValue_${review.id}">${currentOverall.toFixed(1)}</div>
+          </div>
+        `;
+
+        rightHtml += `
+          <div class="review-section">
+            <div class="review-section-title">Manager Narrative</div>
+            <textarea class="form-textarea" id="narrative_${review.id}" rows="4" placeholder="Provide feedback, recommendations, and development guidance...">${USI.escapeHtml(review.ManagerNarrative || '')}</textarea>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="saveManagerReview(${review.id}, false)">Save Draft</button>
+            <button class="btn btn-primary" onclick="saveManagerReview(${review.id}, true)">Complete Review</button>
+          </div>
+        `;
+
+        // Schedule star rendering
+        setTimeout(() => {
+          categories.forEach(c => {
+            const el = document.getElementById(`stars_${review.id}_${c.key}`);
+            if (el) {
+              USI.renderStars(el, review[c.key] || 0, true, (val) => {
+                review[c.key] = val;
+                updateOverallDisplay(review.id, review, categories);
+              });
+            }
+          });
+        }, 0);
+      }
+
+      return `
+        <div class="team-columns">
+          <div>${leftHtml}</div>
+          <div>${rightHtml}</div>
+        </div>`;
+    }
+
+    function calcOverall(review, categories) {
+      const vals = categories.map(c => review[c.key] || 0).filter(v => v > 0);
+      if (vals.length === 0) return 0;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    }
+
+    function updateOverallDisplay(reviewId, review, categories) {
+      const overall = calcOverall(review, categories);
+      const valEl = document.getElementById(`overallValue_${reviewId}`);
+      const labelEl = document.getElementById(`overallLabel_${reviewId}`);
+      if (valEl) valEl.textContent = overall.toFixed(1);
+      if (labelEl) labelEl.textContent = USI.ratingLabel(overall);
+    }
+
+    async function saveManagerReview(reviewId, complete) {
+      const review = teamReviews.find(r => r.id == reviewId);
+      if (!review) return;
+
+      if (complete) {
+        const categories = ['RatingQuality','RatingProductivity','RatingCommunication','RatingTeamwork','RatingInitiative'];
+        const allRated = categories.every(c => review[c] && review[c] > 0);
+        if (!allRated) {
+          USI.toast('Please provide all star ratings before completing the review', 'error');
+          return;
+        }
+        const confirmed = await USI.confirm('Complete this review? The employee will be notified and can view your feedback.');
+        if (!confirmed) return;
+      }
+
+      const categories = [
+        { key: 'RatingQuality' }, { key: 'RatingProductivity' },
+        { key: 'RatingCommunication' }, { key: 'RatingTeamwork' }, { key: 'RatingInitiative' }
+      ];
+
+      const vals = categories.map(c => review[c.key] || 0).filter(v => v > 0);
+      const overall = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+
+      const narrativeEl = document.getElementById(`narrative_${reviewId}`);
+      const narrative = narrativeEl ? narrativeEl.value : (review.ManagerNarrative || '');
+
+      const fields = {
+        RatingQuality: review.RatingQuality || 0,
+        RatingProductivity: review.RatingProductivity || 0,
+        RatingCommunication: review.RatingCommunication || 0,
+        RatingTeamwork: review.RatingTeamwork || 0,
+        RatingInitiative: review.RatingInitiative || 0,
+        RatingOverall: Math.round(overall * 10) / 10,
+        ManagerNarrative: narrative,
+        ManagerEmail: me.mail,
+        ManagerName: me.displayName,
+        ManagerStatus: complete ? 'Complete' : 'Draft'
+      };
+
+      if (complete) {
+        fields.ManagerCompletedDate = new Date().toISOString();
+      }
+
+      try {
+        await USI.updateListItem(REVIEWS_LIST, reviewId, fields);
+
+        if (complete) {
+          // Email employee
+          try {
+            await USI.sendMail(
+              review.EmployeeEmail,
+              'Aaron@usicomputer.com',
+              `Performance Review Complete - ${review.ReviewPeriod}`,
+              `<p>Your manager, <strong>${USI.escapeHtml(me.displayName)}</strong>, has completed their review for the <strong>${USI.escapeHtml(review.ReviewPeriod)}</strong> period.</p>
+               <p>Please log in to <a href="${window.location.href}">USI People</a> to view your feedback and acknowledge the review.</p>`
+            );
+          } catch (mailErr) {
+            console.warn('Email notification failed:', mailErr);
+          }
+          USI.toast('Review completed and employee notified', 'success');
+        } else {
+          USI.toast('Manager draft saved', 'success');
+        }
+
+        await loadTeamReviews();
+      } catch (e) {
+        console.error('Failed to save manager review:', e);
+        USI.toast('Failed to save review', 'error');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // ██  INITIALIZATION
+    // ══════════════════════════════════════════════════════════
+
+    USI.init({ managerEmails: MANAGER_EMAILS });
+
+    USI.boot('performance', async (user) => {
+      me = user;
+      amManager = USI.isManager(me.mail);
+
+      // Show manager-only elements
+      if (amManager) {
+        document.getElementById('tabTeam').style.display = '';
+        document.getElementById('btnAddRock').style.display = '';
+        document.getElementById('goalViewAllToggle').style.display = '';
+      }
+
+      // Populate quarter filter
+      const quarterSelect = document.getElementById('rockFilterQuarter');
+      const quarters = ['Q1 2024','Q2 2024','Q3 2024','Q4 2024','Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Q2 2026','Q3 2026','Q4 2026'];
+      const currentQ = getCurrentQuarter();
+      quarterSelect.innerHTML = `<option value="">All Quarters</option>` +
+        quarters.map(q => `<option value="${q}" ${q === currentQ ? 'selected' : ''}>${q}</option>`).join('');
+
+      // Set default review period
+      const now = new Date();
+      const month = now.getMonth();
+      const year = now.getFullYear();
+      let defaultPeriod;
+      if (month < 6) {
+        defaultPeriod = `Mid-Year ${year}`;
+      } else {
+        defaultPeriod = `Annual ${year}`;
+      }
+      const reviewPeriodSelect = document.getElementById('reviewPeriodSelect');
+      const teamPeriodSelect = document.getElementById('teamPeriodSelect');
+      if (reviewPeriodSelect.querySelector(`option[value="${defaultPeriod}"]`)) {
+        reviewPeriodSelect.value = defaultPeriod;
+      }
+      if (teamPeriodSelect.querySelector(`option[value="${defaultPeriod}"]`)) {
+        teamPeriodSelect.value = defaultPeriod;
+      }
+
+      // Ensure SharePoint lists
+      await Promise.all([
+        USI.ensureList(GOALS_LIST, GOALS_COLUMNS),
+        USI.ensureList(ROCKS_LIST, ROCKS_COLUMNS),
+        USI.ensureList(REVIEWS_LIST, REVIEWS_COLUMNS)
+      ]);
+
+      // Load initial data
+      await loadRocks();
+      await loadGoals();
+
+      // Init tab system
+      const tabBar = document.getElementById('mainTabBar');
+      USI.initTabs(document.querySelector('.app-container'));
+
+      tabBar.addEventListener('tabchange', (e) => {
+        const panel = e.detail;
+        if (panel === 'panelReview') loadMyReview();
+        if (panel === 'panelTeam' && amManager) loadTeamReviews();
+      });
+
+      // ── Event Listeners ──
+
+      // Goal filters
+      document.getElementById('goalFilterStatus').addEventListener('change', renderGoals);
+      document.getElementById('goalFilterPulse').addEventListener('change', renderGoals);
+      document.getElementById('goalSearch').addEventListener('input', USI.debounce(renderGoals, 300));
+
+      // New goal button
+      document.getElementById('btnAddGoal').addEventListener('click', () => openGoalModal(null));
+
+      // View All toggle
+      document.getElementById('goalViewAllSwitch').addEventListener('click', function() {
+        viewAllGoals = !viewAllGoals;
+        this.classList.toggle('active', viewAllGoals);
+        if (viewAllGoals) {
+          goals = allGoals;
+        } else {
+          goals = allGoals.filter(g => g.EmployeeEmail && g.EmployeeEmail.toLowerCase() === me.mail.toLowerCase());
+        }
+        renderGoals();
+      });
+
+      // Rock filter
+      document.getElementById('rockFilterQuarter').addEventListener('change', renderRocks);
+
+      // New rock button
+      document.getElementById('btnAddRock').addEventListener('click', () => openRockModal(null));
+
+      // Review period selector
+      document.getElementById('reviewPeriodSelect').addEventListener('change', loadMyReview);
+
+      // Team period selector
+      document.getElementById('teamPeriodSelect').addEventListener('change', () => {
+        expandedTeamCards.clear();
+        loadTeamReviews();
+      });
+    });
+  </script>
+</body>
+</html>
