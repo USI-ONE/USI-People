@@ -616,7 +616,26 @@
     }
 
     // ── Toggle Task Status ──
+    // Track expanded cards so they stay open across re-renders
+    function getExpandedCards() {
+      const expanded = [];
+      document.querySelectorAll('.board-card.expandable.expanded').forEach(el => {
+        const key = el.dataset.group;
+        if (key) expanded.push(key);
+      });
+      return expanded;
+    }
+
+    function restoreExpandedCards(keys) {
+      document.querySelectorAll('.board-card.expandable').forEach(el => {
+        if (keys.includes(el.dataset.group)) {
+          el.classList.add('expanded');
+        }
+      });
+    }
+
     async function toggleTaskStatus(listName, itemId, checked) {
+      const expandedKeys = getExpandedCards();
       try {
         const status = checked ? 'Complete' : 'Pending';
         const updates = { Status: status };
@@ -627,11 +646,13 @@
         }
         await USI.updateListItem(listName, itemId, updates);
         await loadAllData();
+        restoreExpandedCards(expandedKeys);
         USI.toast(checked ? 'Task completed' : 'Task reopened', 'success');
       } catch (err) {
         console.error('Error updating task:', err);
         USI.toast('Failed to update task', 'error');
         await loadAllData();
+        restoreExpandedCards(expandedKeys);
       }
     }
 
