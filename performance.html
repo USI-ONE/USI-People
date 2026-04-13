@@ -201,76 +201,218 @@
       .rating-display { grid-template-columns: 1fr; }
     }
 
-    /* ── PIP Cards ── */
+    /* ── PIP List Cards ── */
     .pip-card { cursor: pointer; transition: box-shadow 0.15s; }
     .pip-card:hover { box-shadow: var(--shadow-md); }
     .pip-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
     .pip-card-name { font-size: 15px; font-weight: 600; }
     .pip-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-    .pip-card-latest { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
-    .pip-days-left { font-weight: 600; }
+    .pip-card-dates { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .pip-card-days { text-align: right; }
+    .pip-card-days-num { font-size: 20px; font-weight: 700; }
+    .pip-card-days-label { font-size: 11px; color: var(--text-muted); }
 
-    /* ── PIP Worksheet ── */
-    .pip-worksheet { max-width: 900px; margin: 0 auto; }
-    .pip-section { margin-bottom: 28px; }
-    .pip-section-title {
-      font-size: 14px; font-weight: 600; color: var(--primary);
-      text-transform: uppercase; letter-spacing: 0.03em;
-      padding-bottom: 8px; border-bottom: 2px solid var(--primary-light);
-      margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+    /* ── PIP Notice Level Pills ── */
+    .pill-notice-first { background: #fef3c7; color: #92400e; }
+    .pill-notice-second { background: #ffedd5; color: #c2410c; }
+    .pill-notice-final { background: #fee2e2; color: #991b1b; }
+
+    /* ── PIP Document ── */
+    .pip-document { max-width: 900px; margin: 0 auto; font-size: 14px; line-height: 1.6; color: var(--text); }
+    .pip-doc-header {
+      background: #1e293b; color: #fff; padding: 18px 28px;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .pip-quick-btns { display: flex; gap: 8px; margin-top: 6px; }
-    .pip-quick-btns .btn { padding: 4px 12px; font-size: 12px; }
+    .pip-doc-header-company { font-size: 16px; font-weight: 700; letter-spacing: 0.03em; }
+    .pip-doc-header-badge {
+      background: rgba(255,255,255,0.15); padding: 4px 14px;
+      border-radius: 100px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .pip-doc-title {
+      text-align: center; font-size: 18px; font-weight: 700;
+      padding: 20px 28px 4px; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .pip-doc-notice-level {
+      text-align: center; font-size: 14px; font-weight: 600;
+      color: var(--primary); margin-bottom: 20px;
+    }
+    .pip-doc-meta {
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      margin: 0 28px 28px; overflow: hidden;
+    }
+    .pip-doc-meta table { width: 100%; border-collapse: collapse; }
+    .pip-doc-meta td {
+      padding: 8px 14px; font-size: 13px; border-bottom: 1px solid var(--border);
+    }
+    .pip-doc-meta td:first-child {
+      font-weight: 600; width: 200px; background: var(--bg);
+      color: var(--text-muted); white-space: nowrap;
+    }
+    .pip-doc-meta tr:last-child td { border-bottom: none; }
+    .pip-doc-meta .form-input,
+    .pip-doc-meta .form-select { margin-bottom: 0; font-size: 13px; padding: 4px 8px; }
 
-    /* ── PIP Timeline (Check-ins) ── */
-    .pip-timeline { position: relative; }
-    .pip-checkin-entry {
+    .pip-doc-body { padding: 0 28px; }
+
+    /* Section headings */
+    .pip-sec { margin-bottom: 28px; }
+    .pip-sec-heading {
+      font-size: 15px; font-weight: 700; color: #1e293b;
+      padding-bottom: 6px; border-bottom: 2px solid var(--primary-light);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .pip-sec-heading .sec-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .pip-sec .form-textarea { font-size: 13px; line-height: 1.6; }
+    .pip-sec .readonly-block {
+      background: var(--bg); border-radius: var(--radius-sm);
+      padding: 14px 16px; font-size: 13px; color: var(--text);
+      line-height: 1.7; white-space: pre-wrap; min-height: 50px;
+    }
+    .pip-sec .readonly-block:empty::after { content: 'Not specified'; color: var(--text-light); font-style: italic; }
+
+    /* Toggle for optional sections */
+    .pip-optional-toggle {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text-muted); margin-bottom: 14px;
+    }
+    .pip-optional-toggle input[type="checkbox"] { accent-color: var(--primary); }
+
+    /* Improvement Goals as card rows */
+    .pip-goal-card {
+      background: var(--bg); border-radius: var(--radius-sm);
+      padding: 16px; margin-bottom: 12px;
+      border: 1px solid var(--border);
+    }
+    .pip-goal-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px;
+    }
+    .pip-goal-card-header .form-input { flex: 1; font-weight: 600; font-size: 14px; margin-bottom: 0; }
+    .pip-goal-card-row { display: flex; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+    .pip-goal-card-row .form-group { margin-bottom: 0; }
+    .pip-goal-card-row .form-textarea { min-height: 60px; resize: vertical; font-size: 13px; }
+    .pip-goal-card-row .form-input { font-size: 13px; }
+
+    /* Goals table (read-only / print) */
+    .pip-goals-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .pip-goals-table th {
+      background: #1e293b; color: #fff; padding: 10px 12px;
+      text-align: left; font-weight: 600; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .pip-goals-table td {
+      padding: 10px 12px; border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .pip-goals-table tr:nth-child(even) td { background: var(--bg); }
+    .pip-goals-table .form-input,
+    .pip-goals-table .form-textarea { margin-bottom: 0; font-size: 13px; padding: 4px 8px; }
+    .pip-goals-table .form-textarea { min-height: 60px; resize: vertical; }
+    .pip-goals-table .btn-danger { padding: 4px 8px; font-size: 11px; }
+
+    /* Check-In Schedule */
+    .pip-checkin-row {
       display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px;
       background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 8px;
     }
-    .pip-checkin-dot {
-      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+    .pip-checkin-row .checkin-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--primary-light); color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 12px; flex-shrink: 0;
     }
-    .pip-checkin-dot.meeting-expectations { background: var(--success); }
-    .pip-checkin-dot.improving { background: #facc15; }
-    .pip-checkin-dot.not-improving { background: var(--warning); }
-    .pip-checkin-dot.regressing { background: var(--error); }
-    .pip-checkin-content { flex: 1; }
-    .pip-checkin-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-    .pip-checkin-notes { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-    .pip-checkin-by { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+    .pip-checkin-row .checkin-body { flex: 1; }
+    .pip-checkin-row .form-input { margin-bottom: 0; font-size: 13px; padding: 4px 8px; }
+    .pip-checkin-row .form-textarea { margin-bottom: 0; font-size: 13px; padding: 4px 8px; min-height: 40px; }
+    .pip-checkin-row .btn-danger { padding: 4px 8px; font-size: 11px; flex-shrink: 0; margin-top: 4px; }
 
-    /* ── PIP Signature ── */
-    .pip-signature {
-      padding: 16px 20px; border-radius: var(--radius-sm);
-      border-left: 4px solid var(--border); background: var(--bg);
-      margin-bottom: 16px;
+    /* Check-in log entries */
+    .pip-checkin-log-entry {
+      padding: 12px 14px; background: var(--bg); border-radius: var(--radius-sm);
+      margin-bottom: 8px; border-left: 3px solid var(--primary-light);
     }
-    .pip-signature.signed {
-      border-left-color: var(--success); background: var(--success-bg);
+    .pip-checkin-log-entry.completed { border-left-color: var(--success); }
+    .pip-checkin-log-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      font-size: 13px; font-weight: 600; margin-bottom: 4px;
     }
-    .pip-signature-title {
-      font-size: 14px; font-weight: 600; margin-bottom: 8px;
+    .pip-checkin-log-notes { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .pip-checkin-log-status { font-size: 12px; }
+
+    /* Signature Blocks */
+    .pip-signature-block {
+      padding: 18px 20px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: #fff;
+      margin-bottom: 16px; position: relative;
+    }
+    .pip-signature-block.signed {
+      border-color: var(--success); background: var(--success-bg);
+    }
+    .pip-signature-block-role {
+      font-size: 14px; font-weight: 700; margin-bottom: 6px;
       display: flex; align-items: center; gap: 8px;
     }
-    .pip-signature-title .checkmark { color: var(--success); font-size: 18px; }
-    .pip-signature-disclaimer {
-      font-size: 12px; color: var(--text-muted); line-height: 1.5;
-      margin-bottom: 12px; font-style: italic;
+    .pip-signature-block-role .checkmark { color: var(--success); font-size: 18px; }
+    .pip-signature-block-disclaimer {
+      font-size: 12px; color: var(--text-muted); line-height: 1.6;
+      margin-bottom: 14px; font-style: italic;
     }
-    .pip-signature-details {
-      font-size: 13px; color: var(--text); display: flex; gap: 20px; flex-wrap: wrap;
+    .pip-signature-line {
+      border-top: 1px solid #333; width: 300px; padding-top: 6px;
+      display: flex; gap: 24px; font-size: 13px; color: var(--text);
     }
-    .pip-signature-details strong { font-weight: 600; }
+    .pip-signature-line strong { font-weight: 600; }
     .pip-signature-input-row {
       display: flex; gap: 10px; align-items: flex-end; margin-top: 10px;
     }
     .pip-signature-input-row .form-input { flex: 1; max-width: 300px; }
 
-    /* ── PIP Completion Section ── */
-    .pip-completion {
-      padding: 20px; border-radius: var(--radius-sm);
-      background: var(--bg); border: 1px solid var(--border);
+    /* Confidential Footer */
+    .pip-confidential-footer {
+      text-align: center; font-size: 12px; color: var(--text-muted);
+      font-style: italic; padding: 20px 28px; margin-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── PIP Print Styles ── */
+    @media print {
+      body * { visibility: hidden; }
+      .pip-document, .pip-document * { visibility: visible; }
+      .pip-document {
+        position: absolute; left: 0; top: 0; width: 100%;
+        max-width: 100%; margin: 0; padding: 0;
+      }
+      .pip-doc-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pip-goals-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pip-signature-block.signed { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pip-doc-meta td:first-child { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pip-sec-heading .sec-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pip-checkin-row .checkin-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pip-checkin-log-entry { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .btn, .btn-primary, .btn-secondary, .btn-danger, .btn-ghost,
+      .pip-optional-toggle, .pip-goal-card .btn-danger,
+      .pip-goals-table .btn-danger,
+      .pip-signature-input-row, #pipPrintBtn, .ws-exit-actions,
+      .tab-bar, .toolbar { display: none !important; }
+      .form-input, .form-textarea, .form-select {
+        border: none !important; background: transparent !important;
+        padding: 0 !important; font-size: 13px !important;
+        box-shadow: none !important;
+      }
+      .pip-doc-body { padding: 0 20px; }
+      .pip-sec { page-break-inside: avoid; }
+      .pip-goals-table { page-break-inside: auto; }
+      .pip-goals-table tr { page-break-inside: avoid; }
+      .pip-signature-block { page-break-inside: avoid; }
+      .pip-goal-card { page-break-inside: avoid; }
+      .pip-checkin-row { page-break-inside: avoid; }
     }
   </style>
 </head>
@@ -548,9 +690,13 @@
               <option value="">All Statuses</option>
               <option value="Draft">Draft</option>
               <option value="Active" selected>Active</option>
-              <option value="Improving">Improving</option>
-              <option value="Completed Successfully">Completed Successfully</option>
-              <option value="Closed - Not Met">Closed - Not Met</option>
+              <option value="Complete">Complete</option>
+            </select>
+            <select class="filter-select" id="pipFilterNotice">
+              <option value="">All Notice Levels</option>
+              <option value="First Written Notice">First Written Notice</option>
+              <option value="Second Written Notice">Second Written Notice</option>
+              <option value="Final Written Notice">Final Written Notice</option>
             </select>
             <input type="text" class="search-input" id="pipSearch" placeholder="Search PIPs...">
             <div class="toolbar-spacer"></div>
@@ -569,10 +715,12 @@
         </div>
 
         <div id="pipDetailView" style="display:none">
-          <div style="margin-bottom:20px">
+          <div style="margin-bottom:20px; display: flex; align-items: center; gap: 12px;">
             <button class="btn btn-ghost" id="btnBackToPIPs">&larr; Back to PIPs</button>
+            <div class="toolbar-spacer"></div>
+            <button class="btn btn-secondary" id="pipPrintBtn" onclick="window.print()">Print / PDF</button>
           </div>
-          <div class="pip-worksheet" id="pipWorksheet"></div>
+          <div class="pip-document" id="pipDocument"></div>
         </div>
       </div>
 
@@ -2034,43 +2182,80 @@
     }
 
     // ══════════════════════════════════════════════════════════
-    // ██  TAB 5: PERFORMANCE IMPROVEMENT PLANS (PIPs)
+    // ██  TAB 5: WRITTEN WARNING & PERFORMANCE IMPROVEMENT PLANS
     // ══════════════════════════════════════════════════════════
 
     const PIPS_LIST = 'USI_PIPs';
+    const PIPS_COLUMNS = [
+      USI.textCol('Title'), USI.textCol('NoticeLevel'),
+      USI.textCol('EmployeeEmail'), USI.textCol('EmployeeName'),
+      USI.textCol('Position'), USI.textCol('Department'),
+      USI.dateCol('DocumentDate'), USI.dateCol('ReviewDate'),
+      USI.textCol('ReviewPeriod'), USI.textCol('IssuedBy'),
+      USI.choiceCol('Status', ['Draft','Active','Complete']),
+      USI.multilineCol('Purpose'), USI.multilineCol('BackgroundAccommodations'),
+      USI.boolCol('ShowBackground'),
+      USI.multilineCol('PerformanceConcerns'), USI.multilineCol('TeamImpact'),
+      USI.multilineCol('ImprovementGoals'), USI.multilineCol('CheckIns'),
+      USI.multilineCol('SupportResources'), USI.multilineCol('Consequences'),
+      USI.textCol('EmployeeSignature'), USI.dateCol('EmployeeSignatureDate'),
+      USI.textCol('SupervisorSignature'), USI.dateCol('SupervisorSignatureDate'),
+      USI.textCol('ExecutiveSignature'), USI.dateCol('ExecutiveSignatureDate'),
+      USI.boolCol('ShowExecutiveSignature'),
+      USI.textCol('CompletionStatus'), USI.dateCol('CompletionDate'),
+      USI.multilineCol('CompletionNotes')
+    ];
+
     let pips = [];
     let pipEditingId = null;
+    let pipGoals = [];
     let pipCheckIns = [];
-    let pipCheckInFormVisible = false;
     let pipIsReadOnly = false;
 
-    // ── PIP Status Helpers ──
+    // ── PIP Helpers ──
+    function pipNoticePillClass(level) {
+      switch (level) {
+        case 'First Written Notice': return 'pill-notice-first';
+        case 'Second Written Notice': return 'pill-notice-second';
+        case 'Final Written Notice': return 'pill-notice-final';
+        default: return '';
+      }
+    }
+
     function pipStatusPillClass(status) {
       switch (status) {
         case 'Active': return 'pill-error';
-        case 'Improving': return 'pill-warning';
-        case 'Completed Successfully': return 'pill-success';
-        case 'Closed - Not Met': return '';
+        case 'Complete': return 'pill-success';
         case 'Draft': return 'pill-info';
         default: return '';
       }
     }
 
-    function pipCheckInDotClass(status) {
-      switch (status) {
-        case 'Meeting Expectations': return 'meeting-expectations';
-        case 'Improving': return 'improving';
-        case 'Not Improving': return 'not-improving';
-        case 'Regressing': return 'regressing';
-        default: return '';
-      }
+    function pipDaysRemaining(reviewDate) {
+      if (!reviewDate) return null;
+      const end = new Date(reviewDate + 'T00:00:00');
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      return Math.ceil((end - now) / (1000 * 60 * 60 * 24));
     }
 
-    function pipDaysRemaining(endDate) {
-      if (!endDate) return null;
-      const end = new Date(endDate);
-      const now = new Date();
-      return Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    function pipCalcReviewDate(docDate, periodDays) {
+      if (!docDate || !periodDays) return '';
+      const d = new Date(docDate + 'T00:00:00');
+      d.setDate(d.getDate() + parseInt(periodDays));
+      return d.toISOString().split('T')[0];
+    }
+
+    function pipBoilerplatePurpose(name) {
+      return `This document constitutes a Written Warning issued to ${name} regarding ongoing concerns related to [brief description]. This warning is issued following prior conversations addressing the same performance concerns. Those conversations have not resulted in the sustained improvement that is required.\n\nThis document also establishes a formal Performance Improvement Plan (PIP) with specific, measurable expectations and a defined review timeline. The intent of this plan is not punitive \u2014 it is to give ${name} every reasonable opportunity to succeed in his/her role and to make clear precisely what success looks like going forward.\n\nFailure to meet the expectations outlined in this plan within the review period may result in further disciplinary action, up to and including termination of employment.`;
+    }
+
+    function pipBoilerplateSupport(name) {
+      return `USI remains committed to ${name}'s success and will provide the following support during this review period:\n\n\u2022 Direct supervisor is available for daily priority-setting guidance as needed.\n\u2022 ${name} may request a brief daily check-in (5\u201310 minutes) to align priorities if helpful.\n\u2022 Executive department owner is available for any questions regarding this document or the review process.`;
+    }
+
+    function pipBoilerplateConsequences(name) {
+      return `If ${name} does not demonstrate clear, consistent, and measurable improvement against the goals outlined above within the review period, USI reserves the right to take disciplinary action. This may include, but is not limited to:\n\n\u2022 Extension of this Performance Improvement Plan with increased monitoring requirements.\n\u2022 Modification or withdrawal of current accommodations.\n\u2022 Additional written warning.\n\u2022 Termination of employment.`;
     }
 
     // ── Load PIPs ──
@@ -2081,17 +2266,14 @@
       try {
         const items = await USI.getListItems(PIPS_LIST);
         const allPIPs = items.map(i => ({ id: i.id, ...i.fields }));
-        // Filter by access: managers see their reports, HR sees all, employees see own
         if (amHRAdmin) {
           pips = allPIPs;
         } else if (amManager || USI.isExecutive(me.mail)) {
           pips = USI.filterByAccess(allPIPs, me.mail, 'EmployeeEmail');
-          // Also include PIPs where current user is the manager
-          const managerPIPs = allPIPs.filter(p => p.ManagerEmail && p.ManagerEmail.toLowerCase() === me.mail.toLowerCase());
+          const issuedPIPs = allPIPs.filter(p => p.IssuedBy && p.IssuedBy.toLowerCase().includes(me.mail.toLowerCase()));
           const pipIds = new Set(pips.map(p => p.id));
-          managerPIPs.forEach(p => { if (!pipIds.has(p.id)) pips.push(p); });
+          issuedPIPs.forEach(p => { if (!pipIds.has(p.id)) pips.push(p); });
         } else {
-          // Regular employee: only see own PIPs
           pips = allPIPs.filter(p => p.EmployeeEmail && p.EmployeeEmail.toLowerCase() === me.mail.toLowerCase());
         }
       } catch (e) {
@@ -2106,14 +2288,16 @@
     // ── Render PIP List ──
     function renderPIPs() {
       const statusFilter = document.getElementById('pipFilterStatus').value;
+      const noticeFilter = document.getElementById('pipFilterNotice').value;
       const searchTerm = document.getElementById('pipSearch').value.toLowerCase().trim();
 
       let filtered = pips;
       if (statusFilter) filtered = filtered.filter(p => p.Status === statusFilter);
+      if (noticeFilter) filtered = filtered.filter(p => p.NoticeLevel === noticeFilter);
       if (searchTerm) filtered = filtered.filter(p =>
         (p.EmployeeName || '').toLowerCase().includes(searchTerm) ||
-        (p.ManagerName || '').toLowerCase().includes(searchTerm) ||
-        (p.Reason || '').toLowerCase().includes(searchTerm)
+        (p.Title || '').toLowerCase().includes(searchTerm) ||
+        (p.Department || '').toLowerCase().includes(searchTerm)
       );
 
       const grid = document.getElementById('pipsGrid');
@@ -2128,11 +2312,10 @@
 
       grid.innerHTML = filtered.map(p => {
         const status = p.Status || 'Draft';
-        const days = pipDaysRemaining(p.EndDate);
-        const checkIns = parseJSON(p.CheckIns);
-        const latestCheckIn = checkIns.length > 0 ? checkIns.sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0] : null;
-        const startStr = p.StartDate ? new Date(p.StartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-        const endStr = p.EndDate ? new Date(p.EndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        const notice = p.NoticeLevel || '';
+        const days = pipDaysRemaining(p.ReviewDate);
+        const docDateStr = p.DocumentDate ? new Date(p.DocumentDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        const reviewDateStr = p.ReviewDate ? new Date(p.ReviewDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
         return `
         <div class="card pip-card" onclick="openPIPDetail('${p.id}')">
@@ -2140,29 +2323,22 @@
             <div>
               <div class="pip-card-name">${USI.escapeHtml(p.EmployeeName || 'Unknown Employee')}</div>
               <div class="pip-card-meta">
+                ${notice ? `<span class="pill ${pipNoticePillClass(notice)}">${USI.escapeHtml(notice)}</span>` : ''}
                 <span class="pill ${pipStatusPillClass(status)}">${USI.escapeHtml(status)}</span>
-                ${startStr && endStr ? `<span style="font-size:12px;color:var(--text-muted)">${USI.escapeHtml(startStr)} &mdash; ${USI.escapeHtml(endStr)}</span>` : ''}
               </div>
             </div>
-            ${days !== null && (status === 'Active' || status === 'Improving') ? `
-              <div style="text-align:right">
-                <div class="pip-days-left" style="color:${days <= 7 ? 'var(--error)' : days <= 14 ? 'var(--warning)' : 'var(--primary)'}">${days > 0 ? days : 0}</div>
-                <div style="font-size:11px;color:var(--text-muted)">days left</div>
+            ${days !== null && status === 'Active' ? `
+              <div class="pip-card-days">
+                <div class="pip-card-days-num" style="color:${days <= 7 ? 'var(--error)' : days <= 14 ? 'var(--warning)' : 'var(--primary)'}">${days > 0 ? days : 0}</div>
+                <div class="pip-card-days-label">days left</div>
               </div>
             ` : ''}
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Manager: ${USI.escapeHtml(p.ManagerName || '')}</div>
-          ${latestCheckIn ? `
-            <div class="pip-card-latest">
-              Latest check-in: ${USI.escapeHtml(new Date(latestCheckIn.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))}
-              &mdash; ${USI.escapeHtml(latestCheckIn.status || '')}
-            </div>
-          ` : ''}
-          ${p.EmployeeAcknowledged && p.ManagerAcknowledged ? `
-            <div style="font-size:11px;color:var(--success);margin-top:6px;display:flex;align-items:center;gap:4px">
-              <span>&#10003;</span> Fully acknowledged
-            </div>
-          ` : ''}
+          <div class="pip-card-dates">
+            ${docDateStr ? `Doc: ${USI.escapeHtml(docDateStr)}` : ''}
+            ${reviewDateStr ? ` &mdash; Review: ${USI.escapeHtml(reviewDateStr)}` : ''}
+          </div>
+          ${p.Position ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">${USI.escapeHtml(p.Position)} &middot; ${USI.escapeHtml(p.Department || '')}</div>` : ''}
         </div>`;
       }).join('');
     }
@@ -2171,41 +2347,39 @@
     function openPIPDetail(pipId) {
       const pip = pipId ? pips.find(p => p.id == pipId) : null;
       pipEditingId = pip ? pip.id : null;
+      pipGoals = pip ? parseJSON(pip.ImprovementGoals) : [];
       pipCheckIns = pip ? parseJSON(pip.CheckIns) : [];
-      pipCheckInFormVisible = false;
 
       const isOwnPIP = pip && pip.EmployeeEmail && pip.EmployeeEmail.toLowerCase() === me.mail.toLowerCase();
-      const isCreator = pip && pip.ManagerEmail && pip.ManagerEmail.toLowerCase() === me.mail.toLowerCase();
-      // Read-only for employees viewing their own PIP (they can only acknowledge)
       pipIsReadOnly = !amManager && !amHRAdmin && !USI.isExecutive(me.mail);
-      // Also read-only for managers who are NOT the PIP creator and NOT HR
-      if (pip && amManager && !isCreator && !amHRAdmin) {
-        pipIsReadOnly = true;
-      }
 
       document.getElementById('pipListView').style.display = 'none';
       document.getElementById('pipDetailView').style.display = '';
 
-      renderPIPWorksheet(pip);
+      renderPIPDocument(pip);
     }
 
     function closePIPDetail() {
       document.getElementById('pipDetailView').style.display = 'none';
       document.getElementById('pipListView').style.display = '';
       pipEditingId = null;
+      pipGoals = [];
       pipCheckIns = [];
-      pipCheckInFormVisible = false;
       pipIsReadOnly = false;
     }
 
-    function renderPIPWorksheet(pip) {
-      const ws = document.getElementById('pipWorksheet');
+    // ── Render Full PIP Document ──
+    function renderPIPDocument(pip) {
+      const doc = document.getElementById('pipDocument');
       const isNew = !pip;
       const isOwnPIP = pip && pip.EmployeeEmail && pip.EmployeeEmail.toLowerCase() === me.mail.toLowerCase();
       const readOnly = pipIsReadOnly;
       const disabled = readOnly ? 'disabled' : '';
 
-      // Build employee dropdown options
+      const currentNotice = pip ? (pip.NoticeLevel || 'First Written Notice') : 'First Written Notice';
+      const currentStatus = pip ? (pip.Status || 'Draft') : 'Draft';
+
+      // Build employee dropdown
       let employeeOptions = '';
       if (isNew) {
         const team = USI.getTeamForSelector(me.mail);
@@ -2213,379 +2387,575 @@
           team.map(p => `<option value="${USI.escapeHtml(p.email)}">${USI.escapeHtml(p.name)} (${USI.escapeHtml(p.email)})</option>`).join('');
       }
 
-      // Status options
-      const statuses = ['Draft', 'Active', 'Improving', 'Completed Successfully', 'Closed - Not Met'];
-      const currentStatus = pip ? (pip.Status || 'Draft') : 'Draft';
-      const isClosing = currentStatus === 'Completed Successfully' || currentStatus === 'Closed - Not Met';
+      // Department options
+      const depts = USI.getDepartments();
+      const currentDept = pip ? (pip.Department || '') : '';
 
       let html = '';
 
-      // ── Section 1: PIP Overview ──
+      // ══ Document Header ══
       html += `
-        <div class="pip-section">
-          <div class="pip-section-title">PIP Overview</div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Employee</label>
-              ${isNew ?
-                `<select class="form-select" id="pipEmployee" ${disabled}>${employeeOptions}</select>` :
-                `<input type="text" class="form-input" value="${USI.escapeHtml(pip.EmployeeName || '')}" disabled>`
-              }
-            </div>
-            <div class="form-group">
-              <label class="form-label">Manager</label>
-              <input type="text" class="form-input" id="pipManager" value="${USI.escapeHtml(pip ? (pip.ManagerName || '') : me.displayName)}" disabled>
-            </div>
-          </div>
-          <div class="form-row-3">
-            <div class="form-group">
-              <label class="form-label">Start Date</label>
-              <input type="date" class="form-input" id="pipStartDate" value="${pip ? (pip.StartDate || '') : new Date().toISOString().split('T')[0]}" ${disabled}>
-              ${!readOnly ? `
-              <div class="pip-quick-btns">
-                <button class="btn btn-secondary" type="button" onclick="setPIPDuration(30)">30 Day</button>
-                <button class="btn btn-secondary" type="button" onclick="setPIPDuration(60)">60 Day</button>
-                <button class="btn btn-secondary" type="button" onclick="setPIPDuration(90)">90 Day</button>
-              </div>` : ''}
-            </div>
-            <div class="form-group">
-              <label class="form-label">End Date</label>
-              <input type="date" class="form-input" id="pipEndDate" value="${pip ? (pip.EndDate || '') : ''}" ${disabled}>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Status</label>
-              <select class="form-select" id="pipStatus" ${disabled}>
-                ${statuses.map(s => `<option value="${s}" ${currentStatus === s ? 'selected' : ''}>${s}</option>`).join('')}
-              </select>
-            </div>
-          </div>
+        <div class="pip-doc-header">
+          <div class="pip-doc-header-company">UNIVERSAL SYSTEMS INC.</div>
+          <div class="pip-doc-header-badge">Confidential &mdash; Personnel Action Document</div>
+        </div>
+        <div class="pip-doc-title">Written Warning and Performance Improvement Plan</div>
+        <div class="pip-doc-notice-level">
+          ${readOnly ? USI.escapeHtml(currentNotice) : `
+            <select class="form-select" id="pipNoticeLevel" style="display:inline-block;width:auto;text-align:center;font-weight:600;color:var(--primary);border:none;font-size:14px;" ${disabled}>
+              <option value="First Written Notice" ${currentNotice === 'First Written Notice' ? 'selected' : ''}>First Written Notice</option>
+              <option value="Second Written Notice" ${currentNotice === 'Second Written Notice' ? 'selected' : ''}>Second Written Notice</option>
+              <option value="Final Written Notice" ${currentNotice === 'Final Written Notice' ? 'selected' : ''}>Final Written Notice</option>
+            </select>
+          `}
         </div>`;
 
-      // ── Section 2: Plan Details ──
+      // ══ Section 1: Employee Information ══
       html += `
-        <div class="pip-section">
-          <div class="pip-section-title">Plan Details</div>
-          <div class="form-group">
-            <label class="form-label">Reason for PIP</label>
-            <textarea class="form-textarea" id="pipReason" rows="3" placeholder="Describe the specific performance deficiencies that led to this PIP..." ${disabled}>${USI.escapeHtml(pip ? (pip.Reason || '') : '')}</textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Expectations &amp; Goals</label>
-            <textarea class="form-textarea" id="pipExpectations" rows="4" placeholder="List the measurable objectives the employee must meet to successfully complete this PIP..." ${disabled}>${USI.escapeHtml(pip ? (pip.ExpectationsAndGoals || '') : '')}</textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Support Provided</label>
-            <textarea class="form-textarea" id="pipSupport" rows="3" placeholder="Describe what the company will provide: training, mentoring, adjusted workload, etc..." ${disabled}>${USI.escapeHtml(pip ? (pip.SupportProvided || '') : '')}</textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Consequences if Not Met</label>
-            <textarea class="form-textarea" id="pipConsequences" rows="2" placeholder="Describe consequences if goals are not met within the timeframe..." ${disabled}>${USI.escapeHtml(pip ? (pip.ConsequencesIfNotMet || '') : '')}</textarea>
-          </div>
+        <div class="pip-doc-meta">
+          <table>
+            <tr>
+              <td>Employee Name</td>
+              <td>${isNew
+                ? `<select class="form-select" id="pipEmployee" ${disabled} onchange="pipOnEmployeeChange(this)">${employeeOptions}</select>`
+                : (readOnly ? USI.escapeHtml(pip.EmployeeName || '') : `<input type="text" class="form-input" value="${USI.escapeHtml(pip.EmployeeName || '')}" disabled>`)
+              }</td>
+            </tr>
+            <tr>
+              <td>Position / Title</td>
+              <td>${readOnly && pip ? USI.escapeHtml(pip.Position || '') : `<input type="text" class="form-input" id="pipPosition" value="${USI.escapeHtml(pip ? (pip.Position || '') : '')}" placeholder="e.g., Systems Administrator" ${disabled}>`}</td>
+            </tr>
+            <tr>
+              <td>Department</td>
+              <td>${readOnly && pip ? USI.escapeHtml(pip.Department || '') : `
+                <select class="form-select" id="pipDepartment" ${disabled}>
+                  <option value="">Select...</option>
+                  ${depts.map(d => `<option value="${d}" ${d === currentDept ? 'selected' : ''}>${d}</option>`).join('')}
+                </select>
+              `}</td>
+            </tr>
+            <tr>
+              <td>Document Date</td>
+              <td>${readOnly && pip ? USI.escapeHtml(pip.DocumentDate ? new Date(pip.DocumentDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '') : `<input type="date" class="form-input" id="pipDocumentDate" value="${pip ? (pip.DocumentDate || '') : new Date().toISOString().split('T')[0]}" ${disabled} onchange="pipRecalcReviewDate()">`}</td>
+            </tr>
+            <tr>
+              <td>Review Period</td>
+              <td>${readOnly && pip ? USI.escapeHtml(pip.ReviewPeriod ? pip.ReviewPeriod + ' Days' : '') : `
+                <select class="form-select" id="pipReviewPeriod" ${disabled} onchange="pipRecalcReviewDate()">
+                  <option value="">Select...</option>
+                  <option value="30" ${pip && pip.ReviewPeriod === '30' ? 'selected' : ''}>30 Days</option>
+                  <option value="60" ${pip && pip.ReviewPeriod === '60' ? 'selected' : ''}>60 Days</option>
+                  <option value="90" ${pip && pip.ReviewPeriod === '90' ? 'selected' : ''}>90 Days</option>
+                </select>
+              `}</td>
+            </tr>
+            <tr>
+              <td>Document Review Date</td>
+              <td>${readOnly && pip ? USI.escapeHtml(pip.ReviewDate ? new Date(pip.ReviewDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '') : `<input type="date" class="form-input" id="pipReviewDate" value="${pip ? (pip.ReviewDate || '') : ''}" ${disabled}>`}</td>
+            </tr>
+            <tr>
+              <td>Issued By</td>
+              <td>${readOnly && pip ? USI.escapeHtml(pip.IssuedBy || '') : `<input type="text" class="form-input" id="pipIssuedBy" value="${USI.escapeHtml(pip ? (pip.IssuedBy || '') : me.displayName)}" placeholder="e.g., Human Resources / Direct Supervisor" ${disabled}>`}</td>
+            </tr>
+            <tr>
+              <td>Status</td>
+              <td>${readOnly && pip ? `<span class="pill ${pipStatusPillClass(currentStatus)}">${USI.escapeHtml(currentStatus)}</span>` : `
+                <select class="form-select" id="pipStatus" ${disabled}>
+                  <option value="Draft" ${currentStatus === 'Draft' ? 'selected' : ''}>Draft</option>
+                  <option value="Active" ${currentStatus === 'Active' ? 'selected' : ''}>Active</option>
+                  <option value="Complete" ${currentStatus === 'Complete' ? 'selected' : ''}>Complete</option>
+                </select>
+              `}</td>
+            </tr>
+          </table>
         </div>`;
 
-      // ── Section 3: Check-In Log ──
+      // ══ Section 2: Purpose ══
       html += `
-        <div class="pip-section">
-          <div class="pip-section-title">Check-In Log ${!readOnly ? `<button class="btn btn-sm btn-secondary" id="btnAddPIPCheckIn" style="margin-left:12px">+ Add Check-In</button>` : ''}</div>
-          <div class="pip-timeline" id="pipCheckInList"></div>
-        </div>`;
-
-      // ── Section 4: Acknowledgment & Signatures ──
-      const mgrAck = pip ? pip.ManagerAcknowledged : false;
-      const empAck = pip ? pip.EmployeeAcknowledged : false;
-
-      html += `
-        <div class="pip-section">
-          <div class="pip-section-title">Acknowledgment &amp; Signatures</div>
-
-          <!-- Manager Acknowledgment -->
-          <div class="pip-signature ${mgrAck ? 'signed' : ''}" id="pipMgrSignature">
-            <div class="pip-signature-title">
-              ${mgrAck ? '<span class="checkmark">&#10003;</span>' : ''}
-              Manager Acknowledgment
-            </div>
-            <div class="pip-signature-disclaimer">
-              I acknowledge that I have discussed this Performance Improvement Plan with the employee and have provided them a copy of this document.
-            </div>
-            ${mgrAck ? `
-              <div class="pip-signature-details">
-                <span><strong>Signed by:</strong> ${USI.escapeHtml(pip.ManagerSignature || pip.ManagerName || '')}</span>
-                <span><strong>Date:</strong> ${pip.ManagerAcknowledgedDate ? new Date(pip.ManagerAcknowledgedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</span>
-              </div>
-            ` : `
-              ${!readOnly && pipEditingId ? `
-              <div class="pip-signature-input-row">
-                <input type="text" class="form-input" id="pipMgrSignatureInput" placeholder="Type your full name as signature">
-                <button class="btn btn-primary btn-sm" onclick="acknowledgePIP('manager')">Acknowledge</button>
-              </div>` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Not yet acknowledged</div>`}
+        <div class="pip-doc-body">
+          <div class="pip-sec">
+            <div class="pip-sec-heading"><span class="sec-num">2</span> Purpose of This Document</div>
+            ${readOnly ? `<div class="readonly-block">${USI.escapeHtml(pip ? (pip.Purpose || '') : '')}</div>` : `
+              <textarea class="form-textarea" id="pipPurpose" rows="8" ${disabled}>${USI.escapeHtml(pip ? (pip.Purpose || '') : '')}</textarea>
             `}
-          </div>
+          </div>`;
 
-          <!-- Employee Acknowledgment -->
-          <div class="pip-signature ${empAck ? 'signed' : ''}" id="pipEmpSignature">
-            <div class="pip-signature-title">
-              ${empAck ? '<span class="checkmark">&#10003;</span>' : ''}
-              Employee Acknowledgment
+      // ══ Section 3: Background & Special Accommodations (optional) ══
+      const showBg = pip ? pip.ShowBackground : false;
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading"><span class="sec-num">3</span> Background and Special Accommodations</div>
+            ${!readOnly ? `
+              <label class="pip-optional-toggle">
+                <input type="checkbox" id="pipShowBackground" ${showBg ? 'checked' : ''} onchange="document.getElementById('pipBackgroundWrap').style.display=this.checked?'':'none'">
+                Include this section
+              </label>
+            ` : ''}
+            <div id="pipBackgroundWrap" style="${showBg || (readOnly && pip && pip.BackgroundAccommodations) ? '' : 'display:none'}">
+              ${readOnly ? `<div class="readonly-block">${USI.escapeHtml(pip ? (pip.BackgroundAccommodations || '') : '')}</div>` : `
+                <textarea class="form-textarea" id="pipBackground" rows="5" placeholder="Document any accommodations, modified schedules, prior conversations, etc." ${disabled}>${USI.escapeHtml(pip ? (pip.BackgroundAccommodations || '') : '')}</textarea>
+              `}
             </div>
-            <div class="pip-signature-disclaimer">
-              I acknowledge receipt of this Performance Improvement Plan. My signature does not indicate agreement with the assessment but confirms that I have received and reviewed this document.
-            </div>
-            ${empAck ? `
-              <div class="pip-signature-details">
-                <span><strong>Signed by:</strong> ${USI.escapeHtml(pip.EmployeeSignature || pip.EmployeeName || '')}</span>
-                <span><strong>Date:</strong> ${pip.EmployeeAcknowledgedDate ? new Date(pip.EmployeeAcknowledgedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</span>
-              </div>
-            ` : `
-              ${isOwnPIP && pipEditingId ? `
-              <div class="pip-signature-input-row">
-                <input type="text" class="form-input" id="pipEmpSignatureInput" placeholder="Type your full name as signature">
-                <button class="btn btn-primary btn-sm" onclick="acknowledgePIP('employee')">Acknowledge</button>
-              </div>` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Not yet acknowledged</div>`}
+          </div>`;
+
+      // ══ Section 4: Performance Concerns ══
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading"><span class="sec-num">4</span> Description of Performance Concerns</div>
+            ${readOnly ? `<div class="readonly-block">${USI.escapeHtml(pip ? (pip.PerformanceConcerns || '') : '')}</div>` : `
+              <textarea class="form-textarea" id="pipConcerns" rows="10" placeholder="Describe specific performance concerns with examples. Use sub-headings like 3.1, 3.2, etc." ${disabled}>${USI.escapeHtml(pip ? (pip.PerformanceConcerns || '') : '')}</textarea>
             `}
-          </div>
-        </div>`;
+          </div>`;
 
-      // ── Section 5: Completion (only when closing) ──
-      if (isClosing || (pip && pip.CompletionStatus)) {
-        html += `
-          <div class="pip-section">
-            <div class="pip-section-title">Completion</div>
-            <div class="pip-completion">
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Completion Status</label>
-                  <select class="form-select" id="pipCompletionStatus" ${disabled}>
-                    <option value="">Select...</option>
-                    <option value="Completed Successfully" ${pip && pip.CompletionStatus === 'Completed Successfully' ? 'selected' : ''}>Completed Successfully</option>
-                    <option value="Closed - Not Met" ${pip && pip.CompletionStatus === 'Closed - Not Met' ? 'selected' : ''}>Closed - Not Met</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Completion Date</label>
-                  <input type="date" class="form-input" id="pipCompletionDate" value="${pip && pip.CompletionDate ? pip.CompletionDate.split('T')[0] : new Date().toISOString().split('T')[0]}" ${disabled}>
-                </div>
+      // ══ Section 5: Team Impact ══
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading"><span class="sec-num">5</span> Team Impact</div>
+            ${readOnly ? `<div class="readonly-block">${USI.escapeHtml(pip ? (pip.TeamImpact || '') : '')}</div>` : `
+              <textarea class="form-textarea" id="pipTeamImpact" rows="5" placeholder="Describe how the performance issues affect the team, clients, and operations." ${disabled}>${USI.escapeHtml(pip ? (pip.TeamImpact || '') : '')}</textarea>
+            `}
+          </div>`;
+
+      // ══ Section 6: Performance Improvement Plan Table ══
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading">
+              <span class="sec-num">6</span> Performance Improvement Plan
+              ${!readOnly ? `<button class="btn btn-sm btn-secondary" onclick="pipAddGoal()" style="margin-left:auto">+ Add Goal</button>` : ''}
+            </div>
+            <div id="pipGoalsList"></div>
+          </div>`;
+
+      // ══ Section 7: Review and Check-In Schedule ══
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading">
+              <span class="sec-num">7</span> Review and Check-In Schedule
+              ${!readOnly ? `<button class="btn btn-sm btn-secondary" onclick="pipAddCheckIn()" style="margin-left:auto">+ Add Check-In</button>` : ''}
+            </div>
+            <div id="pipCheckInSchedule"></div>
+            ${pipCheckIns.some(c => c.completedDate) ? `
+              <div style="margin-top:16px;font-size:13px;font-weight:600;margin-bottom:8px">Completed Check-In Log</div>
+              <div id="pipCheckInLog"></div>
+            ` : ''}
+          </div>`;
+
+      // ══ Section 8: Support and Resources ══
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading"><span class="sec-num">8</span> Support and Resources</div>
+            ${readOnly ? `<div class="readonly-block">${USI.escapeHtml(pip ? (pip.SupportResources || '') : '')}</div>` : `
+              <textarea class="form-textarea" id="pipSupport" rows="5" ${disabled}>${USI.escapeHtml(pip ? (pip.SupportResources || '') : '')}</textarea>
+            `}
+          </div>`;
+
+      // ══ Section 9: Consequences of Non-Compliance ══
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading"><span class="sec-num">9</span> Consequences of Non-Compliance</div>
+            ${readOnly ? `<div class="readonly-block">${USI.escapeHtml(pip ? (pip.Consequences || '') : '')}</div>` : `
+              <textarea class="form-textarea" id="pipConsequences" rows="5" ${disabled}>${USI.escapeHtml(pip ? (pip.Consequences || '') : '')}</textarea>
+            `}
+          </div>`;
+
+      // ══ Section 10: Acknowledgment & Signatures ══
+      const empSig = pip ? pip.EmployeeSignature : '';
+      const empSigDate = pip ? pip.EmployeeSignatureDate : null;
+      const supSig = pip ? pip.SupervisorSignature : '';
+      const supSigDate = pip ? pip.SupervisorSignatureDate : null;
+      const execSig = pip ? pip.ExecutiveSignature : '';
+      const execSigDate = pip ? pip.ExecutiveSignatureDate : null;
+      const showExec = pip ? pip.ShowExecutiveSignature : false;
+
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading"><span class="sec-num">10</span> Acknowledgment &amp; Signatures</div>
+
+            <!-- Employee Signature -->
+            <div class="pip-signature-block ${empSig ? 'signed' : ''}">
+              <div class="pip-signature-block-role">
+                ${empSig ? '<span class="checkmark">&#10003;</span>' : ''}
+                Employee
               </div>
-              <div class="form-group">
-                <label class="form-label">Completion Notes</label>
-                <textarea class="form-textarea" id="pipCompletionNotes" rows="3" placeholder="Summarize the outcome of this PIP..." ${disabled}>${USI.escapeHtml(pip && pip.CompletionNotes ? pip.CompletionNotes : '')}</textarea>
+              <div class="pip-signature-block-disclaimer">
+                I have received, read, and understand this Written Warning and Performance Improvement Plan. My signature does not necessarily indicate agreement with all statements contained herein &mdash; it confirms receipt and acknowledgment of the document.
+              </div>
+              ${empSig ? `
+                <div class="pip-signature-line">
+                  <span><strong>${USI.escapeHtml(empSig)}</strong></span>
+                  <span>${empSigDate ? new Date(empSigDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</span>
+                </div>
+              ` : `
+                ${(isOwnPIP && pipEditingId) ? `
+                <div class="pip-signature-input-row">
+                  <input type="text" class="form-input" id="pipEmpSigInput" placeholder="Type your full name to acknowledge">
+                  <button class="btn btn-primary btn-sm" onclick="pipSign('employee')">Acknowledge</button>
+                </div>
+                ` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Awaiting employee acknowledgment</div>`}
+              `}
+            </div>
+
+            <!-- Supervisor / HR Representative Signature -->
+            <div class="pip-signature-block ${supSig ? 'signed' : ''}">
+              <div class="pip-signature-block-role">
+                ${supSig ? '<span class="checkmark">&#10003;</span>' : ''}
+                Supervisor / HR Representative
+              </div>
+              <div class="pip-signature-block-disclaimer">
+                This document has been prepared in good faith, reviewed for accuracy, and delivered to the employee in a respectful and professional manner.
+              </div>
+              ${supSig ? `
+                <div class="pip-signature-line">
+                  <span><strong>${USI.escapeHtml(supSig)}</strong></span>
+                  <span>${supSigDate ? new Date(supSigDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</span>
+                </div>
+              ` : `
+                ${(!readOnly && pipEditingId) ? `
+                <div class="pip-signature-input-row">
+                  <input type="text" class="form-input" id="pipSupSigInput" placeholder="Type your full name to acknowledge">
+                  <button class="btn btn-primary btn-sm" onclick="pipSign('supervisor')">Acknowledge</button>
+                </div>
+                ` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Awaiting supervisor acknowledgment</div>`}
+              `}
+            </div>
+
+            <!-- Executive Signature (optional) -->
+            ${!readOnly ? `
+              <label class="pip-optional-toggle">
+                <input type="checkbox" id="pipShowExecSig" ${showExec ? 'checked' : ''} onchange="document.getElementById('pipExecSigBlock').style.display=this.checked?'':'none'">
+                Include Executive signature line
+              </label>
+            ` : ''}
+            <div id="pipExecSigBlock" style="${showExec || (readOnly && execSig) ? '' : 'display:none'}">
+              <div class="pip-signature-block ${execSig ? 'signed' : ''}">
+                <div class="pip-signature-block-role">
+                  ${execSig ? '<span class="checkmark">&#10003;</span>' : ''}
+                  Executive
+                </div>
+                <div class="pip-signature-block-disclaimer">
+                  This document has been reviewed and approved at the executive level.
+                </div>
+                ${execSig ? `
+                  <div class="pip-signature-line">
+                    <span><strong>${USI.escapeHtml(execSig)}</strong></span>
+                    <span>${execSigDate ? new Date(execSigDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</span>
+                  </div>
+                ` : `
+                  ${(!readOnly && pipEditingId) ? `
+                  <div class="pip-signature-input-row">
+                    <input type="text" class="form-input" id="pipExecSigInput" placeholder="Type your full name to acknowledge">
+                    <button class="btn btn-primary btn-sm" onclick="pipSign('executive')">Acknowledge</button>
+                  </div>
+                  ` : `<div style="font-size:12px;color:var(--text-muted);font-style:italic">Awaiting executive acknowledgment</div>`}
+                `}
               </div>
             </div>
           </div>`;
-      }
 
-      // ── Save / Delete Actions ──
+      // ══ Confidential Footer ══
+      html += `
+        </div><!-- .pip-doc-body -->
+        <div class="pip-confidential-footer">
+          This document is confidential and is to be retained in the employee's personnel file. &mdash; Universal Systems Inc. | Salt Lake City, UT
+        </div>`;
+
+      // ══ Save / Delete Actions ══
       if (!readOnly) {
         html += `
           <div class="ws-exit-actions">
-            <button class="btn btn-primary" id="btnPIPSave">Save PIP</button>
-            ${pipEditingId ? `<button class="btn btn-danger" id="btnPIPDelete" style="margin-left:auto">Delete PIP</button>` : ''}
+            <button class="btn btn-secondary" id="btnPIPSaveDraft" onclick="savePIP('Draft')">Save Draft</button>
+            <button class="btn btn-primary" id="btnPIPSaveActivate" onclick="savePIP('${currentStatus === 'Draft' ? 'Active' : currentStatus}')">
+              ${currentStatus === 'Draft' ? 'Save & Activate' : 'Save'}
+            </button>
+            ${pipEditingId ? `<button class="btn btn-danger" id="btnPIPDelete" style="margin-left:auto" onclick="deletePIP()">Delete PIP</button>` : ''}
           </div>`;
       }
 
-      ws.innerHTML = html;
+      doc.innerHTML = html;
 
-      // Render check-ins
+      // Render dynamic sub-sections
+      renderPIPGoals();
       renderPIPCheckIns();
+    }
 
-      // Wire up buttons after rendering
-      if (!readOnly) {
-        const addCheckInBtn = document.getElementById('btnAddPIPCheckIn');
-        if (addCheckInBtn) addCheckInBtn.addEventListener('click', addPIPCheckIn);
+    // ── Employee Selection Auto-fill ──
+    function pipOnEmployeeChange(selectEl) {
+      const email = selectEl.value;
+      if (!email) return;
+      const person = USI.orgFind(email);
+      if (!person) return;
 
-        const saveBtn = document.getElementById('btnPIPSave');
-        if (saveBtn) saveBtn.addEventListener('click', savePIP);
+      const name = person.name || email;
 
-        const deleteBtn = document.getElementById('btnPIPDelete');
-        if (deleteBtn) deleteBtn.addEventListener('click', deletePIP);
+      // Auto-fill boilerplate if Purpose is empty
+      const purposeEl = document.getElementById('pipPurpose');
+      if (purposeEl && !purposeEl.value.trim()) {
+        purposeEl.value = pipBoilerplatePurpose(name);
       }
-
-      // Show/hide completion section based on status change
-      const statusSelect = document.getElementById('pipStatus');
-      if (statusSelect && !readOnly) {
-        statusSelect.addEventListener('change', function() {
-          const pip_data = pipEditingId ? pips.find(p => p.id == pipEditingId) : null;
-          // Re-render to show/hide completion section
-          const fakeP = pip_data ? { ...pip_data } : {};
-          fakeP.Status = this.value;
-          // Store form values before re-render
-          const formState = capturePIPFormState();
-          renderPIPWorksheet(Object.assign(fakeP, formState));
-        });
+      const supportEl = document.getElementById('pipSupport');
+      if (supportEl && !supportEl.value.trim()) {
+        supportEl.value = pipBoilerplateSupport(name);
+      }
+      const consequencesEl = document.getElementById('pipConsequences');
+      if (consequencesEl && !consequencesEl.value.trim()) {
+        consequencesEl.value = pipBoilerplateConsequences(name);
       }
     }
 
-    function capturePIPFormState() {
-      const state = {};
-      const el = (id) => document.getElementById(id);
-      if (el('pipStartDate')) state.StartDate = el('pipStartDate').value;
-      if (el('pipEndDate')) state.EndDate = el('pipEndDate').value;
-      if (el('pipStatus')) state.Status = el('pipStatus').value;
-      if (el('pipReason')) state.Reason = el('pipReason').value;
-      if (el('pipExpectations')) state.ExpectationsAndGoals = el('pipExpectations').value;
-      if (el('pipSupport')) state.SupportProvided = el('pipSupport').value;
-      if (el('pipConsequences')) state.ConsequencesIfNotMet = el('pipConsequences').value;
-      if (el('pipCompletionStatus')) state.CompletionStatus = el('pipCompletionStatus').value;
-      if (el('pipCompletionDate')) state.CompletionDate = el('pipCompletionDate').value;
-      if (el('pipCompletionNotes')) state.CompletionNotes = el('pipCompletionNotes').value;
-      state.CheckIns = JSON.stringify(pipCheckIns);
-      return state;
+    // ── Review Date Calc ──
+    function pipRecalcReviewDate() {
+      const docDateEl = document.getElementById('pipDocumentDate');
+      const periodEl = document.getElementById('pipReviewPeriod');
+      const reviewDateEl = document.getElementById('pipReviewDate');
+      if (docDateEl && periodEl && reviewDateEl && docDateEl.value && periodEl.value) {
+        reviewDateEl.value = pipCalcReviewDate(docDateEl.value, periodEl.value);
+      }
     }
 
-    function setPIPDuration(days) {
-      const startInput = document.getElementById('pipStartDate');
-      if (!startInput.value) startInput.value = new Date().toISOString().split('T')[0];
-      const start = new Date(startInput.value);
-      const end = new Date(start);
-      end.setDate(end.getDate() + days);
-      document.getElementById('pipEndDate').value = end.toISOString().split('T')[0];
-    }
-
-    // ── Check-In Log ──
-    function renderPIPCheckIns() {
-      const listEl = document.getElementById('pipCheckInList');
+    // ══ Improvement Goals ══
+    function renderPIPGoals() {
+      const listEl = document.getElementById('pipGoalsList');
       if (!listEl) return;
+      const readOnly = pipIsReadOnly;
 
-      let html = '';
-
-      // Inline add form
-      if (pipCheckInFormVisible && !pipIsReadOnly) {
-        html += `
-          <div class="pulse-inline-form" id="pipCheckInForm">
-            <div class="form-row">
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">Date</label>
-                <input type="date" class="form-input" id="pipCheckInDate" value="${new Date().toISOString().split('T')[0]}">
-              </div>
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">Status</label>
-                <select class="form-select" id="pipCheckInStatus">
-                  <option value="Meeting Expectations">Meeting Expectations</option>
-                  <option value="Improving">Improving</option>
-                  <option value="Not Improving">Not Improving</option>
-                  <option value="Regressing">Regressing</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group" style="margin-top:10px;margin-bottom:10px">
-              <label class="form-label">Notes</label>
-              <textarea class="form-textarea" id="pipCheckInNotes" rows="2" placeholder="Describe progress, areas of concern, and next steps..."></textarea>
-            </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-primary btn-sm" onclick="savePIPCheckIn()">Save Check-In</button>
-              <button class="btn btn-secondary btn-sm" onclick="pipCheckInFormVisible=false;renderPIPCheckIns()">Cancel</button>
-            </div>
-          </div>`;
-      }
-
-      if (pipCheckIns.length === 0 && !pipCheckInFormVisible) {
-        listEl.innerHTML = html + '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No check-ins recorded yet</div>';
+      if (pipGoals.length === 0) {
+        listEl.innerHTML = readOnly
+          ? '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No improvement goals defined</div>'
+          : '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No improvement goals yet. Click "+ Add Goal" to add one.</div>';
         return;
       }
 
-      // Sort newest first
-      const sorted = [...pipCheckIns].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      if (readOnly) {
+        // Render as a table for read-only / print
+        listEl.innerHTML = `
+          <table class="pip-goals-table">
+            <thead>
+              <tr>
+                <th style="width:22%">Improvement Goal</th>
+                <th style="width:40%">Success Measure / Action Required</th>
+                <th style="width:18%">Target Date</th>
+                <th style="width:20%">Owner</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${pipGoals.map(g => `
+                <tr>
+                  <td><strong>${USI.escapeHtml(g.goal || '')}</strong></td>
+                  <td style="white-space:pre-wrap">${USI.escapeHtml(g.measure || '')}</td>
+                  <td>${USI.escapeHtml(g.targetDate || '')}</td>
+                  <td>${USI.escapeHtml(g.owner || '')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>`;
+        return;
+      }
 
-      html += sorted.map(c => {
-        const dotClass = pipCheckInDotClass(c.status);
-        const dateStr = c.date ? new Date(c.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-        const addedByName = c.addedBy ? USI.orgName(c.addedBy) : '';
-        return `
-        <div class="pip-checkin-entry">
-          <div class="pip-checkin-dot ${dotClass}"></div>
-          <div class="pip-checkin-content">
-            <div class="pip-checkin-header">
-              <span>${USI.escapeHtml(c.status || '')}</span>
-              <span style="font-weight:400;color:var(--text-muted)">${USI.escapeHtml(dateStr)}</span>
-            </div>
-            <div class="pip-checkin-notes">${USI.escapeHtml(c.notes || '')}</div>
-            ${addedByName ? `<div class="pip-checkin-by">Added by ${USI.escapeHtml(addedByName)}</div>` : ''}
+      // Editable cards
+      listEl.innerHTML = pipGoals.map((g, idx) => `
+        <div class="pip-goal-card" data-goal-idx="${idx}">
+          <div class="pip-goal-card-header">
+            <input type="text" class="form-input" value="${USI.escapeHtml(g.goal || '')}" placeholder="Improvement Goal Title" onchange="pipGoals[${idx}].goal=this.value">
+            <button class="btn btn-danger btn-sm" onclick="pipRemoveGoal(${idx})">&times;</button>
           </div>
+          <div class="pip-goal-card-row">
+            <div class="form-group" style="flex:3;min-width:200px">
+              <label class="form-label" style="font-size:11px">Success Measure / Action Required</label>
+              <textarea class="form-textarea" rows="3" placeholder="Describe what success looks like and what actions are required..." onchange="pipGoals[${idx}].measure=this.value">${USI.escapeHtml(g.measure || '')}</textarea>
+            </div>
+          </div>
+          <div class="pip-goal-card-row">
+            <div class="form-group" style="flex:1;min-width:140px">
+              <label class="form-label" style="font-size:11px">Target Date</label>
+              <input type="text" class="form-input" value="${USI.escapeHtml(g.targetDate || '')}" placeholder="e.g., Immediate / Daily" onchange="pipGoals[${idx}].targetDate=this.value">
+            </div>
+            <div class="form-group" style="flex:1;min-width:140px">
+              <label class="form-label" style="font-size:11px">Owner</label>
+              <input type="text" class="form-input" value="${USI.escapeHtml(g.owner || '')}" placeholder="e.g., Employee / Supervisor" onchange="pipGoals[${idx}].owner=this.value">
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function pipAddGoal() {
+      pipGoals.push({ id: USI.generateId(), goal: '', measure: '', targetDate: '', owner: '' });
+      renderPIPGoals();
+    }
+
+    function pipRemoveGoal(idx) {
+      pipGoals.splice(idx, 1);
+      renderPIPGoals();
+    }
+
+    // ══ Check-In Schedule ══
+    function renderPIPCheckIns() {
+      const scheduleEl = document.getElementById('pipCheckInSchedule');
+      if (!scheduleEl) return;
+      const readOnly = pipIsReadOnly;
+
+      if (pipCheckIns.length === 0) {
+        scheduleEl.innerHTML = readOnly
+          ? '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No check-ins scheduled</div>'
+          : '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No check-ins scheduled yet. Click "+ Add Check-In" to schedule one.</div>';
+        // Also clear log
+        const logEl = document.getElementById('pipCheckInLog');
+        if (logEl) logEl.innerHTML = '';
+        return;
+      }
+
+      // Schedule items
+      scheduleEl.innerHTML = pipCheckIns.map((c, idx) => {
+        const isCompleted = !!c.completedDate;
+        return `
+        <div class="pip-checkin-row" data-ci-idx="${idx}">
+          <div class="checkin-num">${idx + 1}</div>
+          <div class="checkin-body">
+            ${readOnly ? `
+              <div style="font-weight:600;font-size:13px;margin-bottom:4px">${USI.escapeHtml(c.name || 'Check-In ' + (idx + 1))}</div>
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px">${USI.escapeHtml(c.description || '')}</div>
+              <div style="font-size:12px;color:var(--text-muted)">
+                Scheduled: ${c.scheduledDate ? new Date(c.scheduledDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD'}
+                ${isCompleted ? ` &mdash; <span style="color:var(--success)">Completed ${new Date(c.completedDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>` : ''}
+              </div>
+            ` : `
+              <div style="display:flex;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+                <input type="text" class="form-input" style="flex:2;min-width:150px" value="${USI.escapeHtml(c.name || '')}" placeholder="e.g., 15-Day Check-In" onchange="pipCheckIns[${idx}].name=this.value">
+                <input type="date" class="form-input" style="flex:1;min-width:130px" value="${c.scheduledDate || ''}" onchange="pipCheckIns[${idx}].scheduledDate=this.value">
+              </div>
+              <textarea class="form-textarea" rows="2" placeholder="Description of what will be assessed..." onchange="pipCheckIns[${idx}].description=this.value">${USI.escapeHtml(c.description || '')}</textarea>
+              ${isCompleted ? `
+                <div class="pip-checkin-log-entry completed" style="margin-top:8px">
+                  <div class="pip-checkin-log-header">
+                    <span>Completed: ${new Date(c.completedDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span class="pip-checkin-log-status pill ${c.status === 'On Track' ? 'pill-success' : c.status === 'Needs Improvement' ? 'pill-warning' : 'pill-error'}">${USI.escapeHtml(c.status || '')}</span>
+                  </div>
+                  <div class="pip-checkin-log-notes">${USI.escapeHtml(c.notes || '')}</div>
+                </div>
+              ` : `
+                <div style="margin-top:8px;padding:10px 12px;background:#fff;border:1px dashed var(--border);border-radius:var(--radius-sm)">
+                  <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Log Completion</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+                    <input type="date" class="form-input" style="flex:1;min-width:130px" id="pipCI_date_${idx}" value="${new Date().toISOString().split('T')[0]}">
+                    <select class="form-select" style="flex:1;min-width:130px" id="pipCI_status_${idx}">
+                      <option value="">Status...</option>
+                      <option value="On Track">On Track</option>
+                      <option value="Needs Improvement">Needs Improvement</option>
+                      <option value="Not Meeting Expectations">Not Meeting Expectations</option>
+                    </select>
+                  </div>
+                  <textarea class="form-textarea" rows="2" id="pipCI_notes_${idx}" placeholder="Check-in notes..."></textarea>
+                  <button class="btn btn-primary btn-sm" style="margin-top:6px" onclick="pipCompleteCheckIn(${idx})">Log Check-In</button>
+                </div>
+              `}
+            `}
+          </div>
+          ${!readOnly ? `<button class="btn btn-danger btn-sm" onclick="pipRemoveCheckIn(${idx})" style="margin-top:4px">&times;</button>` : ''}
         </div>`;
       }).join('');
-
-      listEl.innerHTML = html;
     }
 
-    function addPIPCheckIn() {
-      pipCheckInFormVisible = true;
-      renderPIPCheckIns();
-    }
-
-    function savePIPCheckIn() {
-      const date = document.getElementById('pipCheckInDate').value;
-      const status = document.getElementById('pipCheckInStatus').value;
-      const notes = document.getElementById('pipCheckInNotes').value.trim();
-
-      if (!date) { USI.toast('Date is required', 'error'); return; }
-      if (!status) { USI.toast('Status is required', 'error'); return; }
-
+    function pipAddCheckIn() {
       pipCheckIns.push({
         id: USI.generateId(),
-        date: date,
-        status: status,
-        notes: notes,
-        addedBy: me.mail
+        name: '',
+        description: '',
+        scheduledDate: '',
+        completedDate: null,
+        notes: '',
+        status: ''
       });
-
-      pipCheckInFormVisible = false;
       renderPIPCheckIns();
     }
 
-    // ── Acknowledge PIP ──
-    async function acknowledgePIP(role) {
+    function pipRemoveCheckIn(idx) {
+      pipCheckIns.splice(idx, 1);
+      renderPIPCheckIns();
+    }
+
+    function pipCompleteCheckIn(idx) {
+      const dateEl = document.getElementById(`pipCI_date_${idx}`);
+      const statusEl = document.getElementById(`pipCI_status_${idx}`);
+      const notesEl = document.getElementById(`pipCI_notes_${idx}`);
+
+      if (!dateEl || !dateEl.value) { USI.toast('Date is required', 'error'); return; }
+      if (!statusEl || !statusEl.value) { USI.toast('Status is required', 'error'); return; }
+
+      pipCheckIns[idx].completedDate = dateEl.value;
+      pipCheckIns[idx].status = statusEl.value;
+      pipCheckIns[idx].notes = notesEl ? notesEl.value : '';
+      renderPIPCheckIns();
+    }
+
+    // ══ Signatures ══
+    async function pipSign(role) {
       if (!pipEditingId) {
-        USI.toast('Please save the PIP first before acknowledging', 'error');
+        USI.toast('Please save the PIP first before signing', 'error');
         return;
       }
 
       const pip = pips.find(p => p.id == pipEditingId);
       if (!pip) return;
 
-      if (role === 'manager') {
-        const sigInput = document.getElementById('pipMgrSignatureInput');
-        const signature = sigInput ? sigInput.value.trim() : '';
-        if (!signature) { USI.toast('Please type your name as a signature', 'error'); return; }
+      let inputId, fields;
+      if (role === 'employee') {
+        inputId = 'pipEmpSigInput';
+        fields = { EmployeeSignature: '', EmployeeSignatureDate: new Date().toISOString() };
+      } else if (role === 'supervisor') {
+        inputId = 'pipSupSigInput';
+        fields = { SupervisorSignature: '', SupervisorSignatureDate: new Date().toISOString() };
+      } else {
+        inputId = 'pipExecSigInput';
+        fields = { ExecutiveSignature: '', ExecutiveSignatureDate: new Date().toISOString() };
+      }
 
-        try {
-          await USI.updateListItem(PIPS_LIST, pipEditingId, {
-            ManagerAcknowledged: true,
-            ManagerAcknowledgedDate: new Date().toISOString(),
-            ManagerSignature: signature
-          });
-          pip.ManagerAcknowledged = true;
-          pip.ManagerAcknowledgedDate = new Date().toISOString();
-          pip.ManagerSignature = signature;
-          USI.toast('Manager acknowledgment recorded', 'success');
-          renderPIPWorksheet(pip);
-        } catch (e) {
-          console.error('Failed to acknowledge PIP:', e);
-          USI.toast('Failed to record acknowledgment', 'error');
-        }
-      } else if (role === 'employee') {
-        const sigInput = document.getElementById('pipEmpSignatureInput');
-        const signature = sigInput ? sigInput.value.trim() : '';
-        if (!signature) { USI.toast('Please type your name as a signature', 'error'); return; }
+      const sigInput = document.getElementById(inputId);
+      const signature = sigInput ? sigInput.value.trim() : '';
+      if (!signature) { USI.toast('Please type your name as a signature', 'error'); return; }
 
-        try {
-          await USI.updateListItem(PIPS_LIST, pipEditingId, {
-            EmployeeAcknowledged: true,
-            EmployeeAcknowledgedDate: new Date().toISOString(),
-            EmployeeSignature: signature
-          });
-          pip.EmployeeAcknowledged = true;
-          pip.EmployeeAcknowledgedDate = new Date().toISOString();
-          pip.EmployeeSignature = signature;
-          USI.toast('Employee acknowledgment recorded', 'success');
-          renderPIPWorksheet(pip);
-        } catch (e) {
-          console.error('Failed to acknowledge PIP:', e);
-          USI.toast('Failed to record acknowledgment', 'error');
-        }
+      // Set the signature value in fields
+      const sigKey = Object.keys(fields).find(k => k.endsWith('Signature') && !k.endsWith('Date'));
+      fields[sigKey] = signature;
+
+      try {
+        await USI.updateListItem(PIPS_LIST, pipEditingId, fields);
+        // Update local state
+        Object.assign(pip, fields);
+        USI.toast('Acknowledgment recorded', 'success');
+        renderPIPDocument(pip);
+      } catch (e) {
+        console.error('Failed to sign PIP:', e);
+        USI.toast('Failed to record acknowledgment', 'error');
       }
     }
 
-    // ── Save PIP ──
-    async function savePIP() {
+    // ══ Capture Form State ══
+    function capturePIPFormState() {
+      const state = {};
+      const el = (id) => document.getElementById(id);
+      if (el('pipNoticeLevel')) state.NoticeLevel = el('pipNoticeLevel').value;
+      if (el('pipPosition')) state.Position = el('pipPosition').value;
+      if (el('pipDepartment')) state.Department = el('pipDepartment').value;
+      if (el('pipDocumentDate')) state.DocumentDate = el('pipDocumentDate').value;
+      if (el('pipReviewDate')) state.ReviewDate = el('pipReviewDate').value;
+      if (el('pipReviewPeriod')) state.ReviewPeriod = el('pipReviewPeriod').value;
+      if (el('pipIssuedBy')) state.IssuedBy = el('pipIssuedBy').value;
+      if (el('pipStatus')) state.Status = el('pipStatus').value;
+      if (el('pipPurpose')) state.Purpose = el('pipPurpose').value;
+      if (el('pipShowBackground')) state.ShowBackground = el('pipShowBackground').checked;
+      if (el('pipBackground')) state.BackgroundAccommodations = el('pipBackground').value;
+      if (el('pipConcerns')) state.PerformanceConcerns = el('pipConcerns').value;
+      if (el('pipTeamImpact')) state.TeamImpact = el('pipTeamImpact').value;
+      if (el('pipSupport')) state.SupportResources = el('pipSupport').value;
+      if (el('pipConsequences')) state.Consequences = el('pipConsequences').value;
+      if (el('pipShowExecSig')) state.ShowExecutiveSignature = el('pipShowExecSig').checked;
+      state.ImprovementGoals = JSON.stringify(pipGoals);
+      state.CheckIns = JSON.stringify(pipCheckIns);
+      return state;
+    }
+
+    // ══ Save PIP ══
+    async function savePIP(statusOverride) {
       const isNew = !pipEditingId;
       let employeeEmail, employeeName;
 
@@ -2604,48 +2974,44 @@
         employeeName = pip.EmployeeName;
       }
 
-      const startDate = document.getElementById('pipStartDate').value;
-      const endDate = document.getElementById('pipEndDate').value;
-      const status = document.getElementById('pipStatus').value;
-
-      if (!startDate) { USI.toast('Start date is required', 'error'); return; }
-      if (!endDate) { USI.toast('End date is required', 'error'); return; }
+      const formState = capturePIPFormState();
+      const noticeLevel = formState.NoticeLevel || 'First Written Notice';
 
       const fields = {
-        Title: `Performance Improvement Plan - ${employeeName}`,
+        Title: `Written Warning - ${employeeName}`,
+        NoticeLevel: noticeLevel,
         EmployeeEmail: employeeEmail,
         EmployeeName: employeeName,
-        ManagerEmail: isNew ? me.mail : (pips.find(p => p.id == pipEditingId)?.ManagerEmail || me.mail),
-        ManagerName: isNew ? me.displayName : (pips.find(p => p.id == pipEditingId)?.ManagerName || me.displayName),
-        StartDate: startDate,
-        EndDate: endDate,
-        Status: status,
-        Reason: document.getElementById('pipReason').value,
-        ExpectationsAndGoals: document.getElementById('pipExpectations').value,
-        SupportProvided: document.getElementById('pipSupport').value,
-        ConsequencesIfNotMet: document.getElementById('pipConsequences').value,
-        CheckIns: JSON.stringify(pipCheckIns)
+        Position: formState.Position || '',
+        Department: formState.Department || '',
+        DocumentDate: formState.DocumentDate || null,
+        ReviewDate: formState.ReviewDate || null,
+        ReviewPeriod: formState.ReviewPeriod || '',
+        IssuedBy: formState.IssuedBy || '',
+        Status: statusOverride || formState.Status || 'Draft',
+        Purpose: formState.Purpose || '',
+        ShowBackground: formState.ShowBackground || false,
+        BackgroundAccommodations: formState.BackgroundAccommodations || '',
+        PerformanceConcerns: formState.PerformanceConcerns || '',
+        TeamImpact: formState.TeamImpact || '',
+        ImprovementGoals: formState.ImprovementGoals || '[]',
+        CheckIns: formState.CheckIns || '[]',
+        SupportResources: formState.SupportResources || '',
+        Consequences: formState.Consequences || '',
+        ShowExecutiveSignature: formState.ShowExecutiveSignature || false
       };
 
-      // Completion fields
-      const completionStatusEl = document.getElementById('pipCompletionStatus');
-      if (completionStatusEl) {
-        fields.CompletionStatus = completionStatusEl.value;
-        fields.CompletionDate = document.getElementById('pipCompletionDate').value || null;
-        fields.CompletionNotes = document.getElementById('pipCompletionNotes').value;
-      }
-
       try {
-        const saveBtn = document.getElementById('btnPIPSave');
-        if (saveBtn) saveBtn.disabled = true;
+        const saveBtns = document.querySelectorAll('#btnPIPSaveDraft, #btnPIPSaveActivate');
+        saveBtns.forEach(b => b.disabled = true);
 
         if (isNew) {
-          fields.EmployeeAcknowledged = false;
-          fields.EmployeeAcknowledgedDate = null;
           fields.EmployeeSignature = '';
-          fields.ManagerAcknowledged = false;
-          fields.ManagerAcknowledgedDate = null;
-          fields.ManagerSignature = '';
+          fields.EmployeeSignatureDate = null;
+          fields.SupervisorSignature = '';
+          fields.SupervisorSignatureDate = null;
+          fields.ExecutiveSignature = '';
+          fields.ExecutiveSignatureDate = null;
           fields.CompletionStatus = '';
           fields.CompletionDate = null;
           fields.CompletionNotes = '';
@@ -2653,7 +3019,7 @@
           USI.toast('PIP created', 'success');
         } else {
           await USI.updateListItem(PIPS_LIST, pipEditingId, fields);
-          USI.toast('PIP updated', 'success');
+          USI.toast('PIP saved', 'success');
         }
 
         await loadPIPs();
@@ -2662,12 +3028,12 @@
         console.error('Failed to save PIP:', e);
         USI.toast('Failed to save PIP', 'error');
       } finally {
-        const saveBtn = document.getElementById('btnPIPSave');
-        if (saveBtn) saveBtn.disabled = false;
+        const saveBtns = document.querySelectorAll('#btnPIPSaveDraft, #btnPIPSaveActivate');
+        saveBtns.forEach(b => b.disabled = false);
       }
     }
 
-    // ── Delete PIP ──
+    // ══ Delete PIP ══
     async function deletePIP() {
       if (!pipEditingId) return;
       const confirmed = await USI.confirm('Are you sure you want to delete this PIP? This action cannot be undone.');
@@ -2743,7 +3109,7 @@
         USI.ensureList(GOALS_LIST, GOALS_COLUMNS),
         USI.ensureList(ROCKS_LIST, ROCKS_COLUMNS),
         USI.ensureList(REVIEWS_LIST, REVIEWS_COLUMNS),
-        USI.ensureList(PIPS_LIST, [])
+        USI.ensureList(PIPS_LIST, PIPS_COLUMNS)
       ]);
 
       // Load initial data (batch — one API call for both lists)
@@ -2819,6 +3185,7 @@
 
       // PIP event listeners
       document.getElementById('pipFilterStatus').addEventListener('change', renderPIPs);
+      document.getElementById('pipFilterNotice').addEventListener('change', renderPIPs);
       document.getElementById('pipSearch').addEventListener('input', USI.debounce(renderPIPs, 300));
       document.getElementById('btnAddPIP').addEventListener('click', () => openPIPDetail(null));
       document.getElementById('btnBackToPIPs').addEventListener('click', closePIPDetail);
@@ -2830,7 +3197,7 @@
           const myPIP = pipItems.find(i =>
             i.fields.EmployeeEmail &&
             i.fields.EmployeeEmail.toLowerCase() === me.mail.toLowerCase() &&
-            (i.fields.Status === 'Active' || i.fields.Status === 'Improving' || i.fields.Status === 'Draft')
+            (i.fields.Status === 'Active' || i.fields.Status === 'Draft')
           );
           if (myPIP) {
             document.getElementById('tabPIPs').style.display = '';
