@@ -189,21 +189,26 @@ const USI = (() => {
     throw new Error(`List "${listName}" not found. Please create it manually in SharePoint at the HR site.`);
   }
 
-  async function getListItems(listName, filter, orderby, top) {
+  async function getListItems(listName) {
     const siteId = await getSiteId();
     const listId = _listIds[listName] || await ensureList(listName, []);
-    // Fetch all items (no server-side filter/sort — custom columns may not exist yet)
-    let url = `/sites/${siteId}/lists/${listId}/items?$expand=fields&$top=200`;
-
-    let allItems = [];
-    let response = await graph('GET', url);
-    allItems = allItems.concat(response.value || []);
-    while (response['@odata.nextLink']) {
-      const nextUrl = response['@odata.nextLink'].replace('https://graph.microsoft.com/v1.0', '');
-      response = await graph('GET', nextUrl);
+    const url = `/sites/${siteId}/lists/${listId}/items?$expand=fields&$top=200`;
+    console.log(`[USI] Loading items from "${listName}"...`);
+    try {
+      let allItems = [];
+      let response = await graph('GET', url);
       allItems = allItems.concat(response.value || []);
+      while (response['@odata.nextLink']) {
+        const nextUrl = response['@odata.nextLink'].replace('https://graph.microsoft.com/v1.0', '');
+        response = await graph('GET', nextUrl);
+        allItems = allItems.concat(response.value || []);
+      }
+      console.log(`[USI] Loaded ${allItems.length} items from "${listName}"`);
+      return allItems;
+    } catch (e) {
+      console.error(`[USI] Failed to load items from "${listName}":`, e.message);
+      return [];
     }
-    return allItems;
   }
 
   async function createListItem(listName, fields) {
