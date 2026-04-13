@@ -38,6 +38,83 @@
     .rock-desc.truncated { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .rock-aligned { font-size: 12px; color: var(--text-muted); margin-top: 10px; display: flex; align-items: center; gap: 4px; }
     .rock-aligned-count { font-weight: 600; color: var(--primary); }
+    .rock-extra { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: var(--text-muted); }
+    .rock-extra .progress-bar { width: 60px; height: 6px; display: inline-block; vertical-align: middle; }
+    .rock-extra .progress-fill { height: 100%; }
+    .rock-pulse-inline { display: inline-flex; align-items: center; gap: 4px; }
+    .rock-days-left { font-weight: 600; color: var(--primary); }
+
+    /* ── Rock Worksheet ── */
+    .rock-worksheet { max-width: 900px; margin: 0 auto; }
+    .rock-ws-section { margin-bottom: 28px; }
+    .rock-ws-section-title {
+      font-size: 14px; font-weight: 600; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 0.03em;
+      padding-bottom: 8px; border-bottom: 2px solid var(--primary-light);
+      margin-bottom: 16px; display: flex; align-items: center;
+    }
+    .smart-field { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
+    .smart-field .smart-letter { width: 32px; height: 32px; font-size: 14px; margin-top: 4px; }
+    .smart-field textarea { flex: 1; }
+    .smart-field .smart-helper { font-size: 11px; color: var(--text-light); margin-bottom: 4px; }
+    .milestone-row {
+      display: flex; gap: 10px; align-items: center; padding: 10px 12px;
+      background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .milestone-row .form-input, .milestone-row .form-select { margin-bottom: 0; font-size: 13px; padding: 6px 8px; }
+    .milestone-row .milestone-check { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+    .milestone-row .milestone-title { flex: 2; min-width: 120px; }
+    .milestone-row .milestone-due { width: 130px; flex-shrink: 0; }
+    .milestone-row .milestone-assign { flex: 1; min-width: 120px; }
+    .milestone-row .milestone-notes { flex: 2; min-width: 120px; }
+    .milestone-row .btn-danger { padding: 4px 8px; font-size: 11px; flex-shrink: 0; }
+    .milestone-progress-bar { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
+    .milestone-progress-bar .progress-bar { flex: 1; max-width: 300px; }
+    .kpi-row {
+      display: flex; gap: 10px; align-items: center; padding: 10px 12px;
+      background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .kpi-row .form-input, .kpi-row .form-select { margin-bottom: 0; font-size: 13px; padding: 6px 8px; }
+    .kpi-row .kpi-name { flex: 2; min-width: 120px; }
+    .kpi-row .kpi-target, .kpi-row .kpi-current { width: 80px; flex-shrink: 0; }
+    .kpi-row .kpi-unit { width: 80px; flex-shrink: 0; }
+    .kpi-row .kpi-freq { width: 110px; flex-shrink: 0; }
+    .kpi-row .btn-danger { padding: 4px 8px; font-size: 11px; flex-shrink: 0; }
+    .kpi-progress-mini { display: inline-flex; align-items: center; gap: 6px; min-width: 80px; }
+    .kpi-progress-mini .progress-bar { width: 50px; height: 6px; }
+    .kpi-progress-mini .progress-fill { height: 100%; }
+    .kpi-progress-mini span { font-size: 11px; font-weight: 600; }
+    .pulse-entry {
+      display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px;
+      background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 8px;
+    }
+    .pulse-dot-lg {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+    }
+    .pulse-dot-lg.on-track { background: var(--success); }
+    .pulse-dot-lg.off-track { background: var(--error); }
+    .pulse-dot-lg.at-risk { background: var(--warning); }
+    .pulse-entry-content { flex: 1; }
+    .pulse-entry-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .pulse-entry-notes { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .pulse-inline-form { padding: 12px 14px; background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 12px; }
+    .pulse-inline-form .form-row { margin-bottom: 10px; }
+    .linked-goal-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .linked-goal-item .goal-title-link { flex: 1; font-weight: 500; }
+    .linked-goal-item .goal-owner { color: var(--text-muted); min-width: 100px; }
+    .linked-goal-item .goal-pct { font-weight: 600; min-width: 40px; text-align: right; }
+    .ws-exit-actions { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+    @media (max-width: 768px) {
+      .milestone-row, .kpi-row { flex-direction: column; align-items: stretch; }
+      .milestone-row .milestone-due, .kpi-row .kpi-target, .kpi-row .kpi-current, .kpi-row .kpi-unit, .kpi-row .kpi-freq { width: 100%; }
+    }
 
     /* ── Status Dots ── */
     .status-dot {
@@ -195,20 +272,161 @@
 
       <!-- ═══════════════ Tab 2: EOS Rocks ═══════════════ -->
       <div id="panelRocks" class="tab-panel">
-        <div class="toolbar">
-          <select class="filter-select" id="rockFilterQuarter"></select>
-          <div class="toolbar-spacer"></div>
-          <button class="btn btn-primary" id="btnAddRock" style="display:none">+ New Rock</button>
+        <div id="rockListView">
+          <div class="toolbar">
+            <select class="filter-select" id="rockFilterQuarter"></select>
+            <div class="toolbar-spacer"></div>
+            <button class="btn btn-primary" id="btnAddRock" style="display:none">+ New Rock</button>
+          </div>
+          <div id="rocksGrid" class="card-grid"></div>
+          <div id="rocksEmpty" class="empty-state" style="display:none">
+            <div class="empty-state-icon">&#127967;</div>
+            <div class="empty-state-title">No rocks for this quarter</div>
+            <div class="empty-state-text">EOS Rocks represent the key quarterly initiatives for the company.</div>
+          </div>
+          <div id="rocksLoading" class="empty-state">
+            <div class="spinner" style="margin:0 auto 12px"></div>
+            <div class="empty-state-text">Loading rocks...</div>
+          </div>
         </div>
-        <div id="rocksGrid" class="card-grid"></div>
-        <div id="rocksEmpty" class="empty-state" style="display:none">
-          <div class="empty-state-icon">&#127967;</div>
-          <div class="empty-state-title">No rocks for this quarter</div>
-          <div class="empty-state-text">EOS Rocks represent the key quarterly initiatives for the company.</div>
-        </div>
-        <div id="rocksLoading" class="empty-state">
-          <div class="spinner" style="margin:0 auto 12px"></div>
-          <div class="empty-state-text">Loading rocks...</div>
+
+        <div id="rockWorksheetView" style="display:none">
+          <div style="margin-bottom:20px">
+            <button class="btn btn-ghost" id="btnBackToRocks">&larr; Back to Rocks</button>
+          </div>
+          <div class="rock-worksheet">
+            <!-- Section 1: Rock Overview -->
+            <div class="rock-ws-section">
+              <div class="rock-ws-section-title">Rock Overview</div>
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <input type="text" class="form-input" id="rockWsTitle" placeholder="Rock title">
+              </div>
+              <div class="form-row-3">
+                <div class="form-group">
+                  <label class="form-label">Quarter</label>
+                  <select class="form-select" id="rockWsQuarter"></select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Department</label>
+                  <select class="form-select" id="rockWsDepartment">
+                    <option value="">Select...</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="HR">HR</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Operations">Operations</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Priority</label>
+                  <select class="form-select" id="rockPriority">
+                    <option value="">Select...</option>
+                    <option value="Company Rock">Company Rock</option>
+                    <option value="Department Rock">Department Rock</option>
+                    <option value="Individual Rock">Individual Rock</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group">
+                  <label class="form-label">Rock Owner</label>
+                  <select class="form-select" id="rockOwner"></select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Accountable To</label>
+                  <select class="form-select" id="rockAccountable"></select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" id="rockWsStatus">
+                    <option value="Not Started">Not Started</option>
+                    <option value="On Track">On Track</option>
+                    <option value="At Risk">At Risk</option>
+                    <option value="Behind">Behind</option>
+                    <option value="Complete">Complete</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-textarea" id="rockWsDescription" rows="3" placeholder="Describe this rock..."></textarea>
+              </div>
+            </div>
+
+            <!-- Section 2: SMART Criteria -->
+            <div class="rock-ws-section">
+              <div class="rock-ws-section-title">SMART Criteria</div>
+              <div class="smart-field">
+                <div class="smart-letter">S</div>
+                <div style="flex:1">
+                  <div class="smart-helper">Specific</div>
+                  <textarea class="form-textarea" id="rockSmartS" rows="3" placeholder="What exactly will be accomplished? Define done in one sentence."></textarea>
+                </div>
+              </div>
+              <div class="smart-field">
+                <div class="smart-letter">M</div>
+                <div style="flex:1">
+                  <div class="smart-helper">Measurable</div>
+                  <textarea class="form-textarea" id="rockSmartM" rows="3" placeholder="How will you know it's complete? What metrics prove success?"></textarea>
+                </div>
+              </div>
+              <div class="smart-field">
+                <div class="smart-letter">A</div>
+                <div style="flex:1">
+                  <div class="smart-helper">Achievable</div>
+                  <textarea class="form-textarea" id="rockSmartA" rows="3" placeholder="Is this realistic in 90 days? Do you have the competency, commitment, and capacity?"></textarea>
+                </div>
+              </div>
+              <div class="smart-field">
+                <div class="smart-letter">R</div>
+                <div style="flex:1">
+                  <div class="smart-helper">Relevant</div>
+                  <textarea class="form-textarea" id="rockSmartR" rows="3" placeholder="How does this connect to the company's 1-Year and 3-Year goals?"></textarea>
+                </div>
+              </div>
+              <div class="smart-field">
+                <div class="smart-letter">T</div>
+                <div style="flex:1">
+                  <div class="smart-helper">Time-bound</div>
+                  <textarea class="form-textarea" id="rockSmartT" rows="3" placeholder="What is the hard deadline? When will success be measured?"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Milestones -->
+            <div class="rock-ws-section">
+              <div class="rock-ws-section-title">Milestones <button class="btn btn-sm btn-secondary" id="btnAddMilestone" style="margin-left:12px">+ Add Milestone</button></div>
+              <div id="milestoneProgress" style="margin-bottom:16px"></div>
+              <div id="milestoneList"></div>
+            </div>
+
+            <!-- Section 4: KPIs & Measurables -->
+            <div class="rock-ws-section">
+              <div class="rock-ws-section-title">KPIs &amp; Measurables <button class="btn btn-sm btn-secondary" id="btnAddKPI" style="margin-left:12px">+ Add KPI</button></div>
+              <div id="kpiList"></div>
+            </div>
+
+            <!-- Section 5: Weekly Pulse Updates -->
+            <div class="rock-ws-section">
+              <div class="rock-ws-section-title">Weekly Pulse Updates <button class="btn btn-sm btn-secondary" id="btnAddPulse" style="margin-left:12px">+ Add Update</button></div>
+              <div id="pulseList"></div>
+            </div>
+
+            <!-- Section 6: Linked Goals -->
+            <div class="rock-ws-section">
+              <div class="rock-ws-section-title">Linked SMART Goals</div>
+              <div id="linkedGoalsList"></div>
+            </div>
+
+            <!-- Save/Delete Actions -->
+            <div class="ws-exit-actions">
+              <button class="btn btn-secondary" id="btnRockSaveDraft">Save Draft</button>
+              <button class="btn btn-primary" id="btnRockSave">Save Rock</button>
+              <button class="btn btn-danger" id="btnRockDelete" style="display:none;margin-left:auto">Delete Rock</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -291,8 +509,14 @@
       USI.choiceCol('Quarter', ['Q1 2024','Q2 2024','Q3 2024','Q4 2024','Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Q2 2026','Q3 2026','Q4 2026']),
       USI.choiceCol('Department', ['Engineering','Sales','Marketing','HR','Finance','Operations']),
       USI.textCol('OwnerEmail'), USI.textCol('OwnerName'),
+      USI.textCol('AccountableToEmail'), USI.textCol('AccountableToName'),
       USI.multilineCol('Description'),
-      USI.choiceCol('Status', ['Not Started','On Track','At Risk','Behind','Complete'])
+      USI.choiceCol('Status', ['Not Started','On Track','At Risk','Behind','Complete']),
+      USI.choiceCol('Priority', ['Company Rock','Department Rock','Individual Rock']),
+      USI.multilineCol('SMART_S'), USI.multilineCol('SMART_M'), USI.multilineCol('SMART_A'), USI.multilineCol('SMART_R'), USI.multilineCol('SMART_T'),
+      USI.multilineCol('Milestones'),
+      USI.multilineCol('KPIs'),
+      USI.multilineCol('PulseUpdates')
     ];
 
     const REVIEWS_COLUMNS = [
@@ -667,6 +891,37 @@
       renderRocks();
     }
 
+    // ── Worksheet State ──
+    let wsRock = null;
+    let wsMilestones = [];
+    let wsKPIs = [];
+    let wsPulse = [];
+    let wsEditingId = null;
+    let wsPulseFormVisible = false;
+
+    function parseJSON(str) {
+      if (!str) return [];
+      try { return JSON.parse(str); } catch { return []; }
+    }
+
+    function getQuarterEndDate(quarter) {
+      if (!quarter) return null;
+      const match = quarter.match(/Q(\d)\s+(\d{4})/);
+      if (!match) return null;
+      const q = parseInt(match[1]);
+      const y = parseInt(match[2]);
+      const endMonth = q * 3;
+      return new Date(y, endMonth, 0);
+    }
+
+    function daysRemaining(quarter) {
+      const end = getQuarterEndDate(quarter);
+      if (!end) return null;
+      const now = new Date();
+      const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+      return diff;
+    }
+
     function renderRocks() {
       const quarterFilter = document.getElementById('rockFilterQuarter').value;
       let filtered = rocks;
@@ -686,8 +941,25 @@
         const status = r.Status || 'Not Started';
         const alignedCount = allGoals.filter(g => g.LinkedRockId == r.id).length;
 
+        // Parse milestones, KPIs, pulse for card summary
+        const milestones = parseJSON(r.Milestones);
+        const completedMs = milestones.filter(m => m.status === 'Complete').length;
+        const totalMs = milestones.length;
+
+        const kpis = parseJSON(r.KPIs);
+        const onTargetKPIs = kpis.filter(k => {
+          const cur = parseFloat(k.current) || 0;
+          const tgt = parseFloat(k.target) || 1;
+          return cur >= tgt;
+        }).length;
+
+        const pulseUpdates = parseJSON(r.PulseUpdates);
+        const latestPulse = pulseUpdates.length > 0 ? pulseUpdates.sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0] : null;
+
+        const days = daysRemaining(r.Quarter);
+
         return `
-        <div class="card rock-card">
+        <div class="card rock-card" style="cursor:pointer" onclick="openRockWorksheet('${r.id}')">
           <div class="rock-card-header">
             <div>
               <div class="rock-card-title">${USI.escapeHtml(r.Title || 'Untitled Rock')}</div>
@@ -695,12 +967,29 @@
                 <span class="pill pill-info">${USI.escapeHtml(r.Department || '')}</span>
                 <span class="status-dot ${USI.pulseClass(status)}" title="${USI.escapeHtml(status)}"></span>
                 <span style="font-size:12px;color:var(--text-muted)">${USI.escapeHtml(status)}</span>
+                ${r.Priority ? `<span class="pill" style="font-size:11px">${USI.escapeHtml(r.Priority)}</span>` : ''}
               </div>
             </div>
-            ${amManager || amHRAdmin ? `<button class="btn btn-ghost btn-sm" onclick="openRockModal(${r.id})">Edit</button>` : ''}
+            ${amManager || amHRAdmin ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openRockWorksheet('${r.id}')">Edit</button>` : ''}
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:8px">Owner: ${USI.escapeHtml(r.OwnerName || r.OwnerEmail || 'Unassigned')}</div>
           <div class="rock-desc truncated">${USI.escapeHtml(r.Description || '')}</div>
+          <div class="rock-extra">
+            ${totalMs > 0 ? `
+              <span>${completedMs}/${totalMs} milestones</span>
+              <div class="progress-bar" style="width:60px;height:6px;display:inline-block;vertical-align:middle">
+                <div class="progress-fill ${progressColor(totalMs > 0 ? Math.round(completedMs / totalMs * 100) : 0)}" style="width:${totalMs > 0 ? Math.round(completedMs / totalMs * 100) : 0}%"></div>
+              </div>
+            ` : ''}
+            ${latestPulse ? `
+              <span class="rock-pulse-inline">
+                <span class="pulse-dot-lg ${latestPulse.status === 'On Track' ? 'on-track' : latestPulse.status === 'Off Track' ? 'off-track' : 'at-risk'}" style="width:8px;height:8px"></span>
+                ${USI.escapeHtml(latestPulse.status || '')} &middot; ${USI.escapeHtml(latestPulse.date ? new Date(latestPulse.date).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '')}
+              </span>
+            ` : ''}
+            ${kpis.length > 0 ? `<span>${onTargetKPIs}/${kpis.length} KPIs on target</span>` : ''}
+            ${days !== null ? `<span><span class="rock-days-left">${days > 0 ? days : 0}</span> days left</span>` : ''}
+          </div>
           <div class="rock-aligned">
             <span class="rock-aligned-count">${alignedCount}</span> goal${alignedCount !== 1 ? 's' : ''} aligned
           </div>
@@ -708,94 +997,415 @@
       }).join('');
     }
 
-    async function openRockModal(rockId) {
-      const rock = rockId ? rocks.find(r => r.id == rockId) : null;
-      const isEdit = !!rock;
-      const title = isEdit ? 'Edit Rock' : 'New EOS Rock';
+    // ── Rock Worksheet Functions ──
 
+    function populatePersonDropdown(selectId, selectedEmail) {
+      const sel = document.getElementById(selectId);
+      const people = USI.orgAll();
+      sel.innerHTML = '<option value="">Select...</option>' +
+        people.map(p => `<option value="${USI.escapeHtml(p.email)}" ${p.email.toLowerCase() === (selectedEmail || '').toLowerCase() ? 'selected' : ''}>${USI.escapeHtml(p.name)} (${USI.escapeHtml(p.email)})</option>`).join('');
+    }
+
+    function populateQuarterDropdown(selectId, selectedQ) {
+      const sel = document.getElementById(selectId);
       const quarters = ['Q1 2024','Q2 2024','Q3 2024','Q4 2024','Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Q2 2026','Q3 2026','Q4 2026'];
-      const departments = ['Engineering','Sales','Marketing','HR','Finance','Operations'];
-      const statuses = ['Not Started','On Track','At Risk','Behind','Complete'];
+      sel.innerHTML = quarters.map(q => `<option value="${q}" ${q === selectedQ ? 'selected' : ''}>${q}</option>`).join('');
+    }
 
-      const html = `
-        <div class="form-group">
-          <label class="form-label">Title</label>
-          <input type="text" class="form-input" id="rockTitle" value="${USI.escapeHtml(rock?.Title || '')}">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Quarter</label>
-            <select class="form-select" id="rockQuarter">
-              ${quarters.map(q => `<option value="${q}" ${rock?.Quarter === q ? 'selected' : ''}>${q}</option>`).join('')}
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Department</label>
-            <select class="form-select" id="rockDepartment">
-              ${departments.map(d => `<option value="${d}" ${rock?.Department === d ? 'selected' : ''}>${d}</option>`).join('')}
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Owner Name</label>
-            <input type="text" class="form-input" id="rockOwnerName" value="${USI.escapeHtml(rock?.OwnerName || '')}">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Owner Email</label>
-            <input type="email" class="form-input" id="rockOwnerEmail" value="${USI.escapeHtml(rock?.OwnerEmail || '')}">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea class="form-textarea" id="rockDescription" rows="4">${USI.escapeHtml(rock?.Description || '')}</textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select class="form-select" id="rockStatus">
-            ${statuses.map(s => `<option value="${s}" ${rock?.Status === s ? 'selected' : ''}>${s}</option>`).join('')}
+    function isReadOnlyUser() {
+      return !amManager && !amHRAdmin;
+    }
+
+    function setWorksheetReadOnly(readOnly) {
+      const ws = document.querySelector('.rock-worksheet');
+      if (!ws) return;
+      ws.querySelectorAll('input, textarea, select').forEach(el => { el.disabled = readOnly; });
+      document.getElementById('btnRockSave').style.display = readOnly ? 'none' : '';
+      document.getElementById('btnRockSaveDraft').style.display = readOnly ? 'none' : '';
+      document.getElementById('btnRockDelete').style.display = readOnly ? 'none' : (wsEditingId ? '' : 'none');
+      document.getElementById('btnAddMilestone').style.display = readOnly ? 'none' : '';
+      document.getElementById('btnAddKPI').style.display = readOnly ? 'none' : '';
+      document.getElementById('btnAddPulse').style.display = readOnly ? 'none' : '';
+    }
+
+    function openRockWorksheet(rockId) {
+      const rock = rockId ? rocks.find(r => r.id == rockId) : null;
+      wsEditingId = rock ? rock.id : null;
+      wsRock = rock ? { ...rock } : {};
+      wsMilestones = rock ? parseJSON(rock.Milestones) : [];
+      wsKPIs = rock ? parseJSON(rock.KPIs) : [];
+      wsPulse = rock ? parseJSON(rock.PulseUpdates) : [];
+      wsPulseFormVisible = false;
+
+      // Hide list, show worksheet
+      document.getElementById('rockListView').style.display = 'none';
+      document.getElementById('rockWorksheetView').style.display = '';
+
+      // Populate quarter dropdown
+      const currentQ = getCurrentQuarter();
+      populateQuarterDropdown('rockWsQuarter', rock ? rock.Quarter : currentQ);
+
+      // Populate fields
+      document.getElementById('rockWsTitle').value = rock ? (rock.Title || '') : '';
+      document.getElementById('rockWsDepartment').value = rock ? (rock.Department || '') : '';
+      document.getElementById('rockPriority').value = rock ? (rock.Priority || '') : '';
+      document.getElementById('rockWsStatus').value = rock ? (rock.Status || 'Not Started') : 'Not Started';
+      document.getElementById('rockWsDescription').value = rock ? (rock.Description || '') : '';
+
+      // Owner and Accountable To dropdowns
+      populatePersonDropdown('rockOwner', rock ? rock.OwnerEmail : me.mail);
+      populatePersonDropdown('rockAccountable', rock ? rock.AccountableToEmail : '');
+
+      // SMART fields
+      document.getElementById('rockSmartS').value = rock ? (rock.SMART_S || '') : '';
+      document.getElementById('rockSmartM').value = rock ? (rock.SMART_M || '') : '';
+      document.getElementById('rockSmartA').value = rock ? (rock.SMART_A || '') : '';
+      document.getElementById('rockSmartR').value = rock ? (rock.SMART_R || '') : '';
+      document.getElementById('rockSmartT').value = rock ? (rock.SMART_T || '') : '';
+
+      // Show delete button only for existing rocks
+      document.getElementById('btnRockDelete').style.display = wsEditingId ? '' : 'none';
+
+      // Render sub-sections
+      renderWorksheetMilestones();
+      renderWorksheetKPIs();
+      renderWorksheetPulse();
+      renderWorksheetLinkedGoals();
+
+      // Set read-only for non-managers
+      if (isReadOnlyUser()) {
+        setWorksheetReadOnly(true);
+      }
+    }
+
+    function closeRockWorksheet() {
+      document.getElementById('rockWorksheetView').style.display = 'none';
+      document.getElementById('rockListView').style.display = '';
+      wsRock = null;
+      wsMilestones = [];
+      wsKPIs = [];
+      wsPulse = [];
+      wsEditingId = null;
+      wsPulseFormVisible = false;
+    }
+
+    // ── Milestones ──
+
+    function renderWorksheetMilestones() {
+      const progressEl = document.getElementById('milestoneProgress');
+      const listEl = document.getElementById('milestoneList');
+      const readOnly = isReadOnlyUser();
+
+      if (wsMilestones.length === 0) {
+        progressEl.innerHTML = '';
+        listEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No milestones yet</div>';
+        return;
+      }
+
+      // Sort by due date
+      wsMilestones.sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
+
+      const completed = wsMilestones.filter(m => m.status === 'Complete').length;
+      const total = wsMilestones.length;
+      const pct = total > 0 ? Math.round(completed / total * 100) : 0;
+
+      progressEl.innerHTML = `
+        <div class="milestone-progress-bar">
+          <span>${completed} of ${total} milestones complete</span>
+          <div class="progress-bar"><div class="progress-fill ${progressColor(pct)}" style="width:${pct}%"></div></div>
+          <span>${pct}%</span>
+        </div>`;
+
+      const people = USI.orgAll();
+      listEl.innerHTML = wsMilestones.map((m, idx) => `
+        <div class="milestone-row" data-ms-idx="${idx}">
+          <input type="checkbox" class="milestone-check" ${m.status === 'Complete' ? 'checked' : ''} ${readOnly ? 'disabled' : ''} onchange="toggleMilestoneComplete(${idx}, this.checked)">
+          <input type="text" class="form-input milestone-title" value="${USI.escapeHtml(m.title || '')}" placeholder="Milestone title" ${readOnly ? 'disabled' : ''} onchange="wsMilestones[${idx}].title=this.value">
+          <input type="date" class="form-input milestone-due" value="${m.dueDate || ''}" ${readOnly ? 'disabled' : ''} onchange="wsMilestones[${idx}].dueDate=this.value">
+          <select class="form-select milestone-assign" ${readOnly ? 'disabled' : ''} onchange="wsMilestones[${idx}].assignedTo=this.value">
+            <option value="">Assign to...</option>
+            ${people.map(p => `<option value="${USI.escapeHtml(p.email)}" ${m.assignedTo === p.email ? 'selected' : ''}>${USI.escapeHtml(p.name)}</option>`).join('')}
           </select>
+          <input type="text" class="form-input milestone-notes" value="${USI.escapeHtml(m.notes || '')}" placeholder="Notes" ${readOnly ? 'disabled' : ''} onchange="wsMilestones[${idx}].notes=this.value">
+          ${!readOnly ? `<button class="btn btn-danger" onclick="removeWorksheetMilestone('${m.id}')">&times;</button>` : ''}
         </div>
-      `;
+      `).join('');
+    }
 
-      await USI.modal(title, html, [
-        { label: 'Cancel', class: 'btn-secondary', value: null },
-        {
-          label: isEdit ? 'Update Rock' : 'Create Rock',
-          class: 'btn-primary',
-          onClick: async (overlay) => {
-            const titleVal = overlay.querySelector('#rockTitle').value.trim();
-            if (!titleVal) { USI.toast('Title is required', 'error'); return false; }
+    function toggleMilestoneComplete(idx, checked) {
+      wsMilestones[idx].status = checked ? 'Complete' : 'Not Started';
+      renderWorksheetMilestones();
+    }
 
-            const fields = {
-              Title: titleVal,
-              Quarter: overlay.querySelector('#rockQuarter').value,
-              Department: overlay.querySelector('#rockDepartment').value,
-              OwnerName: overlay.querySelector('#rockOwnerName').value,
-              OwnerEmail: overlay.querySelector('#rockOwnerEmail').value,
-              Description: overlay.querySelector('#rockDescription').value,
-              Status: overlay.querySelector('#rockStatus').value
-            };
+    function addWorksheetMilestone() {
+      wsMilestones.push({
+        id: USI.generateId(),
+        title: '',
+        dueDate: '',
+        assignedTo: '',
+        status: 'Not Started',
+        notes: ''
+      });
+      renderWorksheetMilestones();
+    }
 
-            try {
-              const btns = overlay.querySelectorAll('.modal-footer .btn');
-              btns.forEach(b => b.disabled = true);
-              if (isEdit) {
-                await USI.updateListItem(ROCKS_LIST, rockId, fields);
-                USI.toast('Rock updated', 'success');
-              } else {
-                await USI.createListItem(ROCKS_LIST, fields);
-                USI.toast('Rock created', 'success');
-              }
-              await loadRocks();
-            } catch (e) {
-              console.error('Failed to save rock:', e);
-              USI.toast('Failed to save rock', 'error');
-              return false;
-            }
-          }
+    function removeWorksheetMilestone(id) {
+      wsMilestones = wsMilestones.filter(m => m.id !== id);
+      renderWorksheetMilestones();
+    }
+
+    // ── KPIs ──
+
+    function renderWorksheetKPIs() {
+      const listEl = document.getElementById('kpiList');
+      const readOnly = isReadOnlyUser();
+
+      if (wsKPIs.length === 0) {
+        listEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No KPIs defined yet</div>';
+        return;
+      }
+
+      listEl.innerHTML = wsKPIs.map((k, idx) => {
+        const cur = parseFloat(k.current) || 0;
+        const tgt = parseFloat(k.target) || 0;
+        const pct = tgt > 0 ? Math.min(100, Math.round(cur / tgt * 100)) : 0;
+
+        return `
+        <div class="kpi-row" data-kpi-idx="${idx}">
+          <input type="text" class="form-input kpi-name" value="${USI.escapeHtml(k.name || '')}" placeholder="KPI Name" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].name=this.value">
+          <input type="number" class="form-input kpi-target" value="${k.target || ''}" placeholder="Target" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].target=this.value">
+          <input type="number" class="form-input kpi-current" value="${k.current || ''}" placeholder="Current" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].current=this.value">
+          <input type="text" class="form-input kpi-unit" value="${USI.escapeHtml(k.unit || '')}" placeholder="Unit" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].unit=this.value">
+          <select class="form-select kpi-freq" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].frequency=this.value">
+            <option value="">Frequency</option>
+            ${['Weekly','Bi-Weekly','Monthly','Quarterly'].map(f => `<option value="${f}" ${k.frequency === f ? 'selected' : ''}>${f}</option>`).join('')}
+          </select>
+          <div class="kpi-progress-mini">
+            <div class="progress-bar"><div class="progress-fill ${progressColor(pct)}" style="width:${pct}%"></div></div>
+            <span>${pct}%</span>
+          </div>
+          ${!readOnly ? `<button class="btn btn-danger" onclick="removeWorksheetKPI('${k.id}')">&times;</button>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function addWorksheetKPI() {
+      wsKPIs.push({
+        id: USI.generateId(),
+        name: '',
+        target: '',
+        current: '',
+        unit: '',
+        frequency: ''
+      });
+      renderWorksheetKPIs();
+    }
+
+    function removeWorksheetKPI(id) {
+      wsKPIs = wsKPIs.filter(k => k.id !== id);
+      renderWorksheetKPIs();
+    }
+
+    // ── Pulse Updates ──
+
+    function renderWorksheetPulse() {
+      const listEl = document.getElementById('pulseList');
+      const readOnly = isReadOnlyUser();
+
+      let html = '';
+
+      // Inline add form
+      if (wsPulseFormVisible && !readOnly) {
+        html += `
+          <div class="pulse-inline-form" id="pulseInlineForm">
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-input" id="pulseNewDate" value="${new Date().toISOString().split('T')[0]}">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="pulseNewStatus">
+                  <option value="On Track">On Track</option>
+                  <option value="Off Track">Off Track</option>
+                  <option value="At Risk">At Risk</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:10px;margin-bottom:10px">
+              <label class="form-label">Notes</label>
+              <textarea class="form-textarea" id="pulseNewNotes" rows="2" placeholder="What happened this week? Any blockers?"></textarea>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="savePulseEntry()">Save Update</button>
+              <button class="btn btn-secondary btn-sm" onclick="wsPulseFormVisible=false;renderWorksheetPulse()">Cancel</button>
+            </div>
+          </div>`;
+      }
+
+      if (wsPulse.length === 0 && !wsPulseFormVisible) {
+        listEl.innerHTML = html + '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No updates yet</div>';
+        return;
+      }
+
+      // Sort newest first
+      const sorted = [...wsPulse].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      html += sorted.map(p => {
+        const dotClass = p.status === 'On Track' ? 'on-track' : p.status === 'Off Track' ? 'off-track' : 'at-risk';
+        const dateStr = p.date ? new Date(p.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        return `
+        <div class="pulse-entry">
+          <div class="pulse-dot-lg ${dotClass}"></div>
+          <div class="pulse-entry-content">
+            <div class="pulse-entry-header">
+              <span>${USI.escapeHtml(p.status || '')}</span>
+              <span style="font-weight:400;color:var(--text-muted)">${USI.escapeHtml(dateStr)}</span>
+            </div>
+            <div class="pulse-entry-notes">${USI.escapeHtml(p.notes || '')}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      listEl.innerHTML = html;
+    }
+
+    function addWorksheetPulse() {
+      wsPulseFormVisible = true;
+      renderWorksheetPulse();
+    }
+
+    function savePulseEntry() {
+      const date = document.getElementById('pulseNewDate').value;
+      const status = document.getElementById('pulseNewStatus').value;
+      const notes = document.getElementById('pulseNewNotes').value.trim();
+
+      if (!date) { USI.toast('Date is required', 'error'); return; }
+      if (!status) { USI.toast('Status is required', 'error'); return; }
+
+      wsPulse.push({
+        id: USI.generateId(),
+        date: date,
+        status: status,
+        notes: notes
+      });
+
+      wsPulseFormVisible = false;
+      renderWorksheetPulse();
+    }
+
+    // ── Linked Goals ──
+
+    function renderWorksheetLinkedGoals() {
+      const listEl = document.getElementById('linkedGoalsList');
+
+      if (!wsEditingId) {
+        listEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;font-style:italic">Save the rock first to link goals</div>';
+        return;
+      }
+
+      const linked = allGoals.filter(g => g.LinkedRockId == wsEditingId);
+
+      if (linked.length === 0) {
+        listEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;font-style:italic">No goals linked to this rock yet</div>';
+        return;
+      }
+
+      listEl.innerHTML = linked.map(g => {
+        const pct = g.ProgressPercent || 0;
+        const pulse = g.WeeklyPulse || 'Not Started';
+        return `
+        <div class="linked-goal-item">
+          <span class="pulse-dot ${USI.pulseClass(pulse)}" title="${USI.escapeHtml(pulse)}"></span>
+          <span class="goal-title-link">${USI.escapeHtml(g.Title || 'Untitled Goal')}</span>
+          <span class="goal-owner">${USI.escapeHtml(g.EmployeeName || '')}</span>
+          <span class="goal-pct">${pct}%</span>
+          <div class="progress-bar" style="width:50px;height:6px">
+            <div class="progress-fill ${progressColor(pct)}" style="width:${pct}%"></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Save / Delete Rock ──
+
+    async function saveWorksheetRock(isDraft) {
+      const titleVal = document.getElementById('rockWsTitle').value.trim();
+      if (!titleVal) {
+        USI.toast('Title is required', 'error');
+        return;
+      }
+
+      const ownerSelect = document.getElementById('rockOwner');
+      const ownerEmail = ownerSelect.value;
+      const ownerOption = ownerSelect.options[ownerSelect.selectedIndex];
+      const ownerName = ownerEmail ? (USI.orgFind(ownerEmail)?.name || '') : '';
+
+      const acctSelect = document.getElementById('rockAccountable');
+      const acctEmail = acctSelect.value;
+      const acctName = acctEmail ? (USI.orgFind(acctEmail)?.name || '') : '';
+
+      const fields = {
+        Title: titleVal,
+        Quarter: document.getElementById('rockWsQuarter').value,
+        Department: document.getElementById('rockWsDepartment').value,
+        Priority: document.getElementById('rockPriority').value,
+        OwnerEmail: ownerEmail,
+        OwnerName: ownerName,
+        AccountableToEmail: acctEmail,
+        AccountableToName: acctName,
+        Status: document.getElementById('rockWsStatus').value,
+        Description: document.getElementById('rockWsDescription').value,
+        SMART_S: document.getElementById('rockSmartS').value,
+        SMART_M: document.getElementById('rockSmartM').value,
+        SMART_A: document.getElementById('rockSmartA').value,
+        SMART_R: document.getElementById('rockSmartR').value,
+        SMART_T: document.getElementById('rockSmartT').value,
+        Milestones: JSON.stringify(wsMilestones),
+        KPIs: JSON.stringify(wsKPIs),
+        PulseUpdates: JSON.stringify(wsPulse)
+      };
+
+      try {
+        // Disable buttons during save
+        document.getElementById('btnRockSave').disabled = true;
+        document.getElementById('btnRockSaveDraft').disabled = true;
+
+        if (wsEditingId) {
+          await USI.updateListItem(ROCKS_LIST, wsEditingId, fields);
+          USI.toast(isDraft ? 'Draft saved' : 'Rock updated', 'success');
+        } else {
+          await USI.createListItem(ROCKS_LIST, fields);
+          USI.toast('Rock created', 'success');
         }
-      ]);
+
+        await loadRocks();
+        closeRockWorksheet();
+      } catch (e) {
+        console.error('Failed to save rock:', e);
+        USI.toast('Failed to save rock', 'error');
+      } finally {
+        const saveBtn = document.getElementById('btnRockSave');
+        const draftBtn = document.getElementById('btnRockSaveDraft');
+        if (saveBtn) saveBtn.disabled = false;
+        if (draftBtn) draftBtn.disabled = false;
+      }
+    }
+
+    async function deleteWorksheetRock() {
+      if (!wsEditingId) return;
+      const confirmed = await USI.confirm('Are you sure you want to delete this rock? This action cannot be undone.');
+      if (!confirmed) return;
+
+      try {
+        await USI.deleteListItem(ROCKS_LIST, wsEditingId);
+        USI.toast('Rock deleted', 'success');
+        await loadRocks();
+        closeRockWorksheet();
+      } catch (e) {
+        console.error('Failed to delete rock:', e);
+        USI.toast('Failed to delete rock', 'error');
+      }
     }
 
     // ══════════════════════════════════════════════════════════
@@ -1406,7 +2016,16 @@
       document.getElementById('rockFilterQuarter').addEventListener('change', renderRocks);
 
       // New rock button
-      document.getElementById('btnAddRock').addEventListener('click', () => openRockModal(null));
+      document.getElementById('btnAddRock').addEventListener('click', () => openRockWorksheet(null));
+
+      // Rock worksheet buttons
+      document.getElementById('btnBackToRocks').addEventListener('click', closeRockWorksheet);
+      document.getElementById('btnRockSave').addEventListener('click', () => saveWorksheetRock(false));
+      document.getElementById('btnRockSaveDraft').addEventListener('click', () => saveWorksheetRock(true));
+      document.getElementById('btnRockDelete').addEventListener('click', deleteWorksheetRock);
+      document.getElementById('btnAddMilestone').addEventListener('click', addWorksheetMilestone);
+      document.getElementById('btnAddKPI').addEventListener('click', addWorksheetKPI);
+      document.getElementById('btnAddPulse').addEventListener('click', addWorksheetPulse);
 
       // Review period selector
       document.getElementById('reviewPeriodSelect').addEventListener('change', loadMyReview);
