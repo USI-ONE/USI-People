@@ -3138,6 +3138,11 @@
         if (panel === 'panelPIPs') loadPIPs();
       });
 
+      // Pre-load PIPs data so it's ready when the tab is viewed
+      if (amManager || amHRAdmin || amExecutive) {
+        loadPIPs();
+      }
+
       // ── Event Listeners ──
 
       // Goal filters
