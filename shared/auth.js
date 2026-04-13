@@ -5,7 +5,7 @@ const USI = (() => {
   let _config = {
     clientId: '345c6c12-5f4a-45a6-8e15-191d9051fad8',
     tenantId: '53e2c3bd-d5d4-443d-bd75-e93b8d6a32c1',
-    scopes: 'User.Read Sites.ReadWrite.All',
+    scopes: 'https://graph.microsoft.com/User.Read https://graph.microsoft.com/Files.Read.All https://graph.microsoft.com/Sites.Read.All https://graph.microsoft.com/Sites.ReadWrite.All',
     redirectUri: window.location.href.split('?')[0].split('#')[0],
     sharePointHost: 'universalsystemsinc100.sharepoint.com',
     sharePointSite: '/sites/HR',
