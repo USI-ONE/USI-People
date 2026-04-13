@@ -173,9 +173,9 @@
 
       <!-- Tab Bar -->
       <div class="tab-bar" id="mainTabBar">
-        <div class="tab active" data-tab="panelOnboarding">Onboarding</div>
-        <div class="tab" data-tab="panelOffboarding">Offboarding</div>
-        <div class="tab" data-tab="panelExitInterview">Exit Interview</div>
+        <div class="tab active" data-tab="panelOnboarding" id="tabOnboarding">Onboarding</div>
+        <div class="tab" data-tab="panelOffboarding" id="tabOffboarding">Offboarding</div>
+        <div class="tab" data-tab="panelExitInterview" id="tabExitInterview">Exit Interview</div>
         <div class="tab" data-tab="panelOrgChart" id="tabOrgChart" style="display:none">Org Chart</div>
       </div>
 
@@ -1502,6 +1502,15 @@
     USI.boot('onboarding', async (user) => {
       me = user;
       amManager = USI.isManager(me.mail) || USI.isHRAdmin(me.mail);
+
+      // For regular employees: hide Onboarding/Offboarding tabs, default to Exit Interview
+      if (!amManager) {
+        document.getElementById('tabOnboarding').style.display = 'none';
+        document.getElementById('tabOffboarding').style.display = 'none';
+        // Switch default active tab to Exit Interview
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'panelExitInterview'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panelExitInterview'));
+      }
 
       // Show manager-only buttons
       if (amManager) {
