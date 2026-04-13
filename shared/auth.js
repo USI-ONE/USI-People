@@ -48,9 +48,10 @@ const USI = (() => {
 
   async function handleRedirect() {
     const code = new URLSearchParams(window.location.search).get('code');
-    if (!code) return false;
+    if (!code) { console.log('[USI Auth] No code in URL'); return false; }
     const verifier = sessionStorage.getItem('pkce_verifier');
-    if (!verifier) return false;
+    if (!verifier) { console.error('[USI Auth] No PKCE verifier found in sessionStorage'); return false; }
+    console.log('[USI Auth] Exchanging code for token, redirect_uri:', _config.redirectUri);
     try {
       const body = new URLSearchParams({
         client_id: _config.clientId,
@@ -66,14 +67,16 @@ const USI = (() => {
       });
       const data = await res.json();
       if (data.access_token) {
+        console.log('[USI Auth] Token obtained successfully');
         sessionStorage.setItem('usi_token', data.access_token);
         sessionStorage.setItem('usi_token_exp', String(Date.now() + (data.expires_in - 60) * 1000));
         sessionStorage.removeItem('pkce_verifier');
         window.history.replaceState({}, '', _config.redirectUri);
         return true;
       }
+      console.error('[USI Auth] Token exchange error:', JSON.stringify(data));
     } catch (e) {
-      console.error('Token exchange failed:', e);
+      console.error('[USI Auth] Token exchange failed:', e);
     }
     return false;
   }
