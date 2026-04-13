@@ -2559,7 +2559,49 @@
             `}
           </div>`;
 
-      // ══ Section 10: Acknowledgment & Signatures ══
+      // ══ Section 10: Final Review & Decision ══
+      const finalStatus = pip ? (pip.CompletionStatus || '') : '';
+      const finalNotes = pip ? (pip.CompletionNotes || '') : '';
+      const finalDate = pip ? (pip.CompletionDate || '') : '';
+      html += `
+          <div class="pip-sec">
+            <div class="pip-sec-heading"><span class="sec-num">10</span> Final Review &amp; Decision</div>
+            <div class="pip-signature-block-disclaimer" style="margin-bottom:16px">
+              To be completed at the conclusion of the review period. This section documents the final determination and justifies the action taken based on the employee's performance during the PIP period.
+            </div>
+            ${readOnly ? `
+              ${finalStatus ? `
+                <div style="margin-bottom:12px"><strong>Decision:</strong> <span class="pill ${finalStatus === 'Completed Successfully' ? 'pill-success' : finalStatus === 'Extended' ? 'pill-warning' : 'pill-error'}">${USI.escapeHtml(finalStatus)}</span></div>
+                <div style="margin-bottom:12px"><strong>Decision Date:</strong> ${finalDate ? new Date(finalDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}</div>
+                <div><strong>Justification & Next Steps:</strong></div>
+                <div class="readonly-block">${USI.escapeHtml(finalNotes)}</div>
+              ` : `<div style="font-size:13px;color:var(--text-muted);font-style:italic">Final review has not been completed yet.</div>`}
+            ` : `
+              <div class="form-row" style="margin-bottom:12px">
+                <div class="form-group">
+                  <label class="form-label">Decision</label>
+                  <select class="form-select" id="pipFinalStatus">
+                    <option value="" ${!finalStatus ? 'selected' : ''}>Not yet determined</option>
+                    <option value="Completed Successfully" ${finalStatus === 'Completed Successfully' ? 'selected' : ''}>Completed Successfully — PIP Closed</option>
+                    <option value="Extended" ${finalStatus === 'Extended' ? 'selected' : ''}>Extended — Additional review period required</option>
+                    <option value="Accommodation Modified" ${finalStatus === 'Accommodation Modified' ? 'selected' : ''}>Accommodation Modified or Withdrawn</option>
+                    <option value="Additional Warning" ${finalStatus === 'Additional Warning' ? 'selected' : ''}>Additional Written Warning Issued</option>
+                    <option value="Terminated" ${finalStatus === 'Terminated' ? 'selected' : ''}>Employment Terminated</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Decision Date</label>
+                  <input type="date" class="form-input" id="pipFinalDate" value="${finalDate}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Justification & Next Steps</label>
+                <textarea class="form-textarea" id="pipFinalNotes" rows="5" placeholder="Summarize the employee's performance during the PIP period. Reference specific improvement goals and check-in assessments. Document the rationale for the decision and outline any next steps, follow-up actions, or conditions going forward.">${USI.escapeHtml(finalNotes)}</textarea>
+              </div>
+            `}
+          </div>`;
+
+      // ══ Section 11: Acknowledgment & Signatures ══
       const empSig = pip ? pip.EmployeeSignature : '';
       const empSigDate = pip ? pip.EmployeeSignatureDate : null;
       const supSig = pip ? pip.SupervisorSignature : '';
@@ -2854,25 +2896,40 @@
               ${isCompleted ? `
                 <div class="pip-checkin-log-entry completed" style="margin-top:8px">
                   <div class="pip-checkin-log-header">
-                    <span>Completed: ${new Date(c.completedDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    <span class="pip-checkin-log-status pill ${c.status === 'On Track' ? 'pill-success' : c.status === 'Needs Improvement' ? 'pill-warning' : 'pill-error'}">${USI.escapeHtml(c.status || '')}</span>
+                    <span>Reviewed: ${new Date(c.completedDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span class="pip-checkin-log-status pill ${c.status === 'Meeting Expectations' || c.status === 'On Track' ? 'pill-success' : c.status === 'Improving' ? 'pill-info' : c.status === 'Needs Improvement' ? 'pill-warning' : 'pill-error'}">${USI.escapeHtml(c.status || '')}</span>
                   </div>
-                  <div class="pip-checkin-log-notes">${USI.escapeHtml(c.notes || '')}</div>
+                  ${c.progress ? `<div style="margin-top:6px"><strong style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Progress Against Goals</strong><div class="pip-checkin-log-notes">${USI.escapeHtml(c.progress)}</div></div>` : ''}
+                  ${c.barriers ? `<div style="margin-top:6px"><strong style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Barriers / Concerns</strong><div class="pip-checkin-log-notes">${USI.escapeHtml(c.barriers)}</div></div>` : ''}
+                  ${c.notes ? `<div style="margin-top:6px"><strong style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Supervisor Notes & Recommendations</strong><div class="pip-checkin-log-notes">${USI.escapeHtml(c.notes)}</div></div>` : ''}
                 </div>
               ` : `
-                <div style="margin-top:8px;padding:10px 12px;background:#fff;border:1px dashed var(--border);border-radius:var(--radius-sm)">
-                  <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Log Completion</div>
-                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+                <div style="margin-top:8px;padding:14px 16px;background:#fff;border:1px dashed var(--border);border-radius:var(--radius-sm)">
+                  <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--primary)">Supervisor Review</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
                     <input type="date" class="form-input" style="flex:1;min-width:130px" id="pipCI_date_${idx}" value="${new Date().toISOString().split('T')[0]}">
                     <select class="form-select" style="flex:1;min-width:130px" id="pipCI_status_${idx}">
-                      <option value="">Status...</option>
-                      <option value="On Track">On Track</option>
+                      <option value="">Overall Assessment...</option>
+                      <option value="Meeting Expectations">Meeting Expectations</option>
+                      <option value="Improving">Improving</option>
                       <option value="Needs Improvement">Needs Improvement</option>
                       <option value="Not Meeting Expectations">Not Meeting Expectations</option>
+                      <option value="Regressing">Regressing</option>
                     </select>
                   </div>
-                  <textarea class="form-textarea" rows="2" id="pipCI_notes_${idx}" placeholder="Check-in notes..."></textarea>
-                  <button class="btn btn-primary btn-sm" style="margin-top:6px" onclick="pipCompleteCheckIn(${idx})">Log Check-In</button>
+                  <div class="form-group" style="margin-bottom:8px">
+                    <label class="form-label" style="margin-bottom:4px">Progress Against Goals</label>
+                    <textarea class="form-textarea" rows="3" id="pipCI_progress_${idx}" placeholder="For each improvement goal, note specific progress made, evidence reviewed, and any areas still falling short..."></textarea>
+                  </div>
+                  <div class="form-group" style="margin-bottom:8px">
+                    <label class="form-label" style="margin-bottom:4px">Barriers or Concerns</label>
+                    <textarea class="form-textarea" rows="2" id="pipCI_barriers_${idx}" placeholder="Any obstacles preventing improvement, new concerns observed, or resource needs identified..."></textarea>
+                  </div>
+                  <div class="form-group" style="margin-bottom:8px">
+                    <label class="form-label" style="margin-bottom:4px">Supervisor Notes & Recommendations</label>
+                    <textarea class="form-textarea" rows="3" id="pipCI_notes_${idx}" placeholder="Overall assessment, specific feedback, and recommended next steps..."></textarea>
+                  </div>
+                  <button class="btn btn-primary btn-sm" style="margin-top:4px" onclick="pipCompleteCheckIn(${idx})">Log Check-In Review</button>
                 </div>
               `}
             `}
@@ -2903,15 +2960,21 @@
     function pipCompleteCheckIn(idx) {
       const dateEl = document.getElementById(`pipCI_date_${idx}`);
       const statusEl = document.getElementById(`pipCI_status_${idx}`);
+      const progressEl = document.getElementById(`pipCI_progress_${idx}`);
+      const barriersEl = document.getElementById(`pipCI_barriers_${idx}`);
       const notesEl = document.getElementById(`pipCI_notes_${idx}`);
 
       if (!dateEl || !dateEl.value) { USI.toast('Date is required', 'error'); return; }
-      if (!statusEl || !statusEl.value) { USI.toast('Status is required', 'error'); return; }
+      if (!statusEl || !statusEl.value) { USI.toast('Overall assessment is required', 'error'); return; }
+      if (!notesEl || !notesEl.value.trim()) { USI.toast('Supervisor notes are required to justify this assessment', 'error'); return; }
 
       pipCheckIns[idx].completedDate = dateEl.value;
       pipCheckIns[idx].status = statusEl.value;
+      pipCheckIns[idx].progress = progressEl ? progressEl.value : '';
+      pipCheckIns[idx].barriers = barriersEl ? barriersEl.value : '';
       pipCheckIns[idx].notes = notesEl ? notesEl.value : '';
       renderPIPCheckIns();
+      USI.toast('Check-in review logged — remember to save the PIP', 'info');
     }
 
     // ══ Signatures ══
@@ -2979,6 +3042,9 @@
       if (el('pipSupport')) state.SupportResources = el('pipSupport').value;
       if (el('pipConsequences')) state.Consequences = el('pipConsequences').value;
       if (el('pipShowExecSig')) state.ShowExecutiveSignature = el('pipShowExecSig').checked;
+      if (el('pipFinalStatus')) state.CompletionStatus = el('pipFinalStatus').value;
+      if (el('pipFinalDate')) state.CompletionDate = el('pipFinalDate').value;
+      if (el('pipFinalNotes')) state.CompletionNotes = el('pipFinalNotes').value;
       state.ImprovementGoals = JSON.stringify(pipGoals);
       state.CheckIns = JSON.stringify(pipCheckIns);
       return state;
