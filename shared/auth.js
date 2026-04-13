@@ -8,7 +8,7 @@ const USI = (() => {
     scopes: 'User.Read Sites.ReadWrite.All',
     redirectUri: window.location.href.split('?')[0].split('#')[0],
     sharePointHost: 'universalsystemsinc100.sharepoint.com',
-    sharePointSite: '/sites/Finance',
+    sharePointSite: '/sites/HR',
     managerEmails: []
   };
 
