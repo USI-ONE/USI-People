@@ -327,20 +327,9 @@
 
   <script src="shared/auth.js"></script>
   <script src="shared/ui.js"></script>
+  <script src="shared/org.js"></script>
   <script>
     // ── Config ──
-    const MANAGER_EMAILS = ['CWall@usicomputer.com', 'Aaron@usicomputer.com'];
-
-    const TEAM_EMAILS = [
-      { email: 'chriss@usicomputer.com', name: 'Chris Sudweeks' },
-      { email: 'mark@usicomputer.com', name: 'Mark Foy' },
-      { email: 'MJones@usicomputer.com', name: 'Marc Jones' },
-      { email: 'Ray@usicomputer.com', name: 'Ray Leota' },
-      { email: 'colton@usicomputer.com', name: 'Colton Parker' },
-      { email: 'ethan@usicomputer.com', name: 'Ethan Sudweeks' },
-      { email: 'Justin@usicomputer.com', name: 'Justin Silotti' }
-    ];
-
     const CATEGORIES = ['Updates', 'Blockers', 'Wins', 'Feedback', 'Career', 'Topics'];
     const CATEGORY_PILL_CLASS = {
       Updates: 'pill-info',
@@ -393,10 +382,11 @@
     };
 
     // ── Initialization ──
-    USI.init({ managerEmails: MANAGER_EMAILS });
+    USI.init({});
     USI.boot('oneonone', async (me) => {
       App.me = me;
-      App.isManager = USI.isManager(me.mail || me.userPrincipalName);
+      const myEmail = me.mail || me.userPrincipalName;
+      App.isManager = USI.isManager(myEmail) || USI.isHRAdmin(myEmail);
 
       // Ensure SharePoint lists
       await Promise.all([
@@ -406,13 +396,14 @@
 
       // Set up manager employee selector
       if (App.isManager) {
+        const teamMembers = USI.getTeamForSelector(myEmail);
         const selector = document.getElementById('employeeSelector');
         selector.style.display = 'flex';
         const select = document.getElementById('employeeSelect');
-        select.innerHTML = TEAM_EMAILS.map(t =>
+        select.innerHTML = teamMembers.map(t =>
           `<option value="${USI.escapeHtml(t.email)}">${USI.escapeHtml(t.name)} (${USI.escapeHtml(t.email)})</option>`
         ).join('');
-        App.selectedEmployeeEmail = TEAM_EMAILS.length > 0 ? TEAM_EMAILS[0].email : '';
+        App.selectedEmployeeEmail = teamMembers.length > 0 ? teamMembers[0].email : '';
       } else {
         App.selectedEmployeeEmail = me.mail || me.userPrincipalName;
       }
@@ -467,9 +458,10 @@
       }
 
       const priority = document.getElementById('itemPriority').value;
+      const managerObj = USI.getManager(App.selectedEmployeeEmail);
       const managerEmail = App.isManager
         ? (App.me.mail || App.me.userPrincipalName)
-        : MANAGER_EMAILS[0];
+        : (managerObj ? managerObj.email : App.me.mail || App.me.userPrincipalName);
 
       try {
         await USI.createListItem(LIST_ITEMS, {
@@ -765,12 +757,12 @@
           .join('\n');
 
         // Find employee name
-        const empEntry = TEAM_EMAILS.find(t => t.email.toLowerCase() === App.selectedEmployeeEmail.toLowerCase());
-        const employeeName = empEntry ? empEntry.name : App.selectedEmployeeEmail;
+        const employeeName = USI.orgName(App.selectedEmployeeEmail) || App.selectedEmployeeEmail;
 
+        const managerObj = USI.getManager(App.selectedEmployeeEmail);
         const managerEmail = App.isManager
           ? (App.me.mail || App.me.userPrincipalName)
-          : MANAGER_EMAILS[0];
+          : (managerObj ? managerObj.email : App.me.mail || App.me.userPrincipalName);
 
         // Create meeting record
         await USI.createListItem(LIST_MEETINGS, {

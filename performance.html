@@ -260,12 +260,12 @@
 
   <script src="shared/auth.js"></script>
   <script src="shared/ui.js"></script>
+  <script src="shared/org.js"></script>
   <script>
-    const MANAGER_EMAILS = ['CWall@usicomputer.com', 'Aaron@usicomputer.com'];
-
     // ── State ──
     let me = null;
     let amManager = false;
+    let amHRAdmin = false;
     let goals = [];
     let rocks = [];
     let allGoals = [];
@@ -353,8 +353,8 @@
       try {
         const items = await USI.getListItems(GOALS_LIST);
         allGoals = items.map(i => ({ id: i.id, ...i.fields }));
-        if (viewAllGoals && amManager) {
-          goals = allGoals;
+        if (viewAllGoals && (amManager || amHRAdmin)) {
+          goals = USI.filterByAccess(allGoals, me.mail, 'EmployeeEmail');
         } else {
           goals = allGoals.filter(g => g.EmployeeEmail && g.EmployeeEmail.toLowerCase() === me.mail.toLowerCase());
         }
@@ -408,7 +408,7 @@
                 <div class="goal-card-title">${USI.escapeHtml(g.Title || 'Untitled Goal')}</div>
                 <span class="pulse-dot ${USI.pulseClass(pulse)}" title="${USI.escapeHtml(pulse)}"></span>
               </div>
-              ${viewAllGoals && amManager ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">${USI.escapeHtml(g.EmployeeName || g.EmployeeEmail || '')}</div>` : ''}
+              ${viewAllGoals && (amManager || amHRAdmin) ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">${USI.escapeHtml(g.EmployeeName || g.EmployeeEmail || '')}</div>` : ''}
               <div class="goal-card-meta">
                 ${g.LinkedRockTitle ? `<span class="pill pill-primary">${USI.escapeHtml(g.LinkedRockTitle)}</span>` : ''}
                 <span class="pill ${USI.statusPillClass(status)}">${USI.escapeHtml(status)}</span>
@@ -437,7 +437,7 @@
                 <div class="smart-item"><div class="smart-letter">T</div><div class="smart-text">${USI.escapeHtml(g.SMART_T || '')}</div></div>
               </div>
 
-              ${isOwnGoal || amManager ? `
+              ${isOwnGoal || amManager || amHRAdmin ? `
               <div style="margin-top:16px">
                 <button class="btn btn-secondary btn-sm" onclick="openGoalModal(${g.id})">Edit Goal</button>
                 <button class="btn btn-danger btn-sm" onclick="deleteGoal(${g.id})" style="margin-left:6px">Delete</button>
@@ -697,7 +697,7 @@
                 <span style="font-size:12px;color:var(--text-muted)">${USI.escapeHtml(status)}</span>
               </div>
             </div>
-            ${amManager ? `<button class="btn btn-ghost btn-sm" onclick="openRockModal(${r.id})">Edit</button>` : ''}
+            ${amManager || amHRAdmin ? `<button class="btn btn-ghost btn-sm" onclick="openRockModal(${r.id})">Edit</button>` : ''}
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:8px">Owner: ${USI.escapeHtml(r.OwnerName || r.OwnerEmail || 'Unassigned')}</div>
           <div class="rock-desc truncated">${USI.escapeHtml(r.Description || '')}</div>
@@ -1015,12 +1015,13 @@
 
         if (submit) {
           // Email manager
-          const managerEmail = MANAGER_EMAILS[0];
+          const mgr = USI.getManager(me.mail);
+          const managerEmail = mgr ? mgr.email : null;
           const period = document.getElementById('reviewPeriodSelect').value;
-          try {
+          if (managerEmail) try {
             await USI.sendMail(
               managerEmail,
-              'Aaron@usicomputer.com',
+              null,
               `Performance Review Submitted - ${me.displayName} (${period})`,
               `<p><strong>${USI.escapeHtml(me.displayName)}</strong> has submitted their self-assessment for the <strong>${USI.escapeHtml(period)}</strong> review period.</p>
                <p>Please log in to <a href="${window.location.href}">USI People</a> to complete the manager review.</p>`
@@ -1065,7 +1066,7 @@
     let expandedTeamCards = new Set();
 
     async function loadTeamReviews() {
-      if (!amManager) return;
+      if (!amManager && !amHRAdmin) return;
       const loading = document.getElementById('teamLoading');
       const list = document.getElementById('teamList');
       const empty = document.getElementById('teamEmpty');
@@ -1076,7 +1077,8 @@
 
       try {
         const items = await USI.getListItems(REVIEWS_LIST);
-        teamReviews = items.map(i => ({ id: i.id, ...i.fields }));
+        const allReviews = items.map(i => ({ id: i.id, ...i.fields }));
+        teamReviews = USI.filterByAccess(allReviews, me.mail, 'EmployeeEmail');
       } catch (e) {
         console.error('Failed to load team reviews:', e);
         USI.toast('Failed to load team reviews', 'error');
@@ -1317,14 +1319,15 @@
     // ██  INITIALIZATION
     // ══════════════════════════════════════════════════════════
 
-    USI.init({ managerEmails: MANAGER_EMAILS });
+    USI.init({});
 
     USI.boot('performance', async (user) => {
       me = user;
       amManager = USI.isManager(me.mail);
+      amHRAdmin = USI.isHRAdmin(me.mail);
 
-      // Show manager-only elements
-      if (amManager) {
+      // Show manager/HR admin elements
+      if (amManager || amHRAdmin) {
         document.getElementById('tabTeam').style.display = '';
         document.getElementById('btnAddRock').style.display = '';
         document.getElementById('goalViewAllToggle').style.display = '';
@@ -1374,7 +1377,7 @@
       tabBar.addEventListener('tabchange', (e) => {
         const panel = e.detail;
         if (panel === 'panelReview') loadMyReview();
-        if (panel === 'panelTeam' && amManager) loadTeamReviews();
+        if (panel === 'panelTeam' && (amManager || amHRAdmin)) loadTeamReviews();
       });
 
       // ── Event Listeners ──
@@ -1392,7 +1395,7 @@
         viewAllGoals = !viewAllGoals;
         this.classList.toggle('active', viewAllGoals);
         if (viewAllGoals) {
-          goals = allGoals;
+          goals = USI.filterByAccess(allGoals, me.mail, 'EmployeeEmail');
         } else {
           goals = allGoals.filter(g => g.EmployeeEmail && g.EmployeeEmail.toLowerCase() === me.mail.toLowerCase());
         }

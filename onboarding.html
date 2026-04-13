@@ -339,12 +339,11 @@
 
   <script src="shared/auth.js"></script>
   <script src="shared/ui.js"></script>
+  <script src="shared/org.js"></script>
   <script>
     /* ═══════════════════════════════════════════════════════
        USI People — HR / Onboarding Module
        ═══════════════════════════════════════════════════════ */
-
-    const MANAGER_EMAILS = ['CWall@usicomputer.com', 'Aaron@usicomputer.com'];
 
     // ── Templates ──
     const ONBOARDING_TEMPLATES = {
@@ -987,8 +986,8 @@
         );
       }
 
-      // If confidential and not manager, filter out
-      if (!amManager) {
+      // If confidential, only HR admins can see them
+      if (!USI.isHRAdmin(me.mail)) {
         filtered = filtered.filter(i => !i.fields.IsConfidential);
       }
 
@@ -1101,7 +1100,8 @@
 
     async function loadOnboarding() {
       try {
-        onboardItems = await USI.getListItems('USI_Onboarding');
+        const allItems = await USI.getListItems('USI_Onboarding');
+        onboardItems = USI.filterByAccess(allItems, me.mail, 'EmployeeEmail');
         renderBoard({
           items: onboardItems,
           containerId: 'onboardGrid',
@@ -1122,7 +1122,8 @@
 
     async function loadOffboarding() {
       try {
-        offboardItems = await USI.getListItems('USI_Offboarding');
+        const allItems = await USI.getListItems('USI_Offboarding');
+        offboardItems = USI.filterByAccess(allItems, me.mail, 'EmployeeEmail');
         renderBoard({
           items: offboardItems,
           containerId: 'offboardGrid',
@@ -1143,7 +1144,13 @@
 
     async function loadExitInterviews() {
       try {
-        exitInterviews = await USI.getListItems('USI_ExitInterviews');
+        const allInterviews = await USI.getListItems('USI_ExitInterviews');
+        // HR Admins and executives see all; managers see their reports; others see none
+        if (USI.isHRAdmin(me.mail) || USI.isExecutive(me.mail)) {
+          exitInterviews = allInterviews;
+        } else {
+          exitInterviews = USI.filterByAccess(allInterviews, me.mail, 'EmployeeEmail');
+        }
         renderExitInterviews();
       } catch (err) {
         console.error('Error loading exit interviews:', err);
@@ -1160,11 +1167,11 @@
     // Initialization
     // ══════════════════════════════════════════════════════
 
-    USI.init({ managerEmails: MANAGER_EMAILS });
+    USI.init({});
 
     USI.boot('onboarding', async (user) => {
       me = user;
-      amManager = USI.isManager(me.mail);
+      amManager = USI.isManager(me.mail) || USI.isHRAdmin(me.mail);
 
       // Show manager-only buttons
       if (amManager) {
