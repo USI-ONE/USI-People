@@ -311,12 +311,6 @@
                   <label class="form-label">Department</label>
                   <select class="form-select" id="rockWsDepartment">
                     <option value="">Select...</option>
-                    <option value="Engineering">Engineering</option>
-                    <option value="Sales">Sales</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="HR">HR</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Operations">Operations</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -507,7 +501,7 @@
 
     const ROCKS_COLUMNS = [
       USI.choiceCol('Quarter', ['Q1 2024','Q2 2024','Q3 2024','Q4 2024','Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Q2 2026','Q3 2026','Q4 2026']),
-      USI.choiceCol('Department', ['Engineering','Sales','Marketing','HR','Finance','Operations']),
+      USI.choiceCol('Department', ['Sales','Marketing','Operations','Professional Services (TOS)','Production']),
       USI.textCol('OwnerEmail'), USI.textCol('OwnerName'),
       USI.textCol('AccountableToEmail'), USI.textCol('AccountableToName'),
       USI.multilineCol('Description'),
@@ -1044,6 +1038,11 @@
       // Populate quarter dropdown
       const currentQ = getCurrentQuarter();
       populateQuarterDropdown('rockWsQuarter', rock ? rock.Quarter : currentQ);
+
+      // Populate department dropdown from org config
+      const deptSelect = document.getElementById('rockWsDepartment');
+      deptSelect.innerHTML = '<option value="">Select...</option>' +
+        USI.getDepartments().map(d => `<option value="${d}">${d}</option>`).join('');
 
       // Populate fields
       document.getElementById('rockWsTitle').value = rock ? (rock.Title || '') : '';

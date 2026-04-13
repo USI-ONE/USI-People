@@ -54,6 +54,10 @@
     return ORG_MEMBERS.find(m => _norm(m.email) === _norm(email)) || null;
   };
 
+  // ── Departments ──
+  const DEPARTMENTS = ['Sales', 'Marketing', 'Operations', 'Professional Services (TOS)', 'Production'];
+  USI.getDepartments = function() { return [...DEPARTMENTS]; };
+
   // Get all org members
   USI.orgAll = function() { return [...ORG_MEMBERS]; };
 

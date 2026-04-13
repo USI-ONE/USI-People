@@ -391,12 +391,6 @@
           <div class="toolbar">
             <select class="filter-select" id="tmplFilterDept">
               <option value="">All Departments</option>
-              <option value="Engineering">Engineering</option>
-              <option value="Sales">Sales</option>
-              <option value="Marketing">Marketing</option>
-              <option value="HR">HR</option>
-              <option value="Finance">Finance</option>
-              <option value="Operations">Operations</option>
             </select>
             <select class="filter-select" id="tmplFilterRole">
               <option value="">All Roles</option>
@@ -441,12 +435,6 @@
                   <label class="form-label">Department</label>
                   <select class="form-select" id="tmplDept">
                     <option value="All">All</option>
-                    <option value="Engineering">Engineering</option>
-                    <option value="Sales">Sales</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="HR">HR</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Operations">Operations</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -851,7 +839,7 @@
         }).join('');
       }
 
-      const deptOptions = ['', 'Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'].map(d =>
+      const deptOptions = ['', ...USI.getDepartments()].map(d =>
         `<option value="${d}">${d || 'Any Department'}</option>`
       ).join('');
       const roleOptions = ['', 'Employee', 'Manager', 'Executive'].map(r =>
@@ -993,7 +981,7 @@
         }).join('');
       }
 
-      const deptOptions = ['', 'Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'].map(d =>
+      const deptOptions = ['', ...USI.getDepartments()].map(d =>
         `<option value="${d}">${d || 'Any Department'}</option>`
       ).join('');
       const roleOptions = ['', 'Employee', 'Manager', 'Executive'].map(r =>
@@ -1761,6 +1749,13 @@
       document.getElementById('templateManagerView').style.display = 'block';
       document.getElementById('templateListView').style.display = 'block';
       document.getElementById('templateEditorView').style.display = 'none';
+
+      // Populate department dropdowns from org config
+      const depts = USI.getDepartments();
+      document.getElementById('tmplFilterDept').innerHTML = '<option value="">All Departments</option>' +
+        depts.map(d => `<option value="${d}">${d}</option>`).join('');
+      document.getElementById('tmplDept').innerHTML = '<option value="All">All</option>' +
+        depts.map(d => `<option value="${d}">${d}</option>`).join('');
       document.getElementById('tmplType').value = type;
       document.getElementById('btnBackFromTemplates').textContent = '\u2190 Back to ' + type;
       renderTemplateList();
