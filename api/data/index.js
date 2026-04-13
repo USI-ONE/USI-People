@@ -84,6 +84,40 @@ function canWriteItem(userEmail, item, emailField) {
   return false;
 }
 
+// 1:1 meetings — restricted to employee + their direct manager chain only
+// HR admins and executives cannot see 1:1s unless they are in the employee's manager chain
+const PRIVATE_LISTS = ['USI_OneOnOneItems', 'USI_OneOnOneMeetings'];
+
+function canView1on1(userEmail, item, emailField) {
+  const target = item[emailField] || '';
+  if (!target) return true;
+  const uNorm = norm(userEmail);
+  const tNorm = norm(target);
+  // Self
+  if (uNorm === tNorm) return true;
+  // Viewer is in the employee's manager chain (direct or indirect manager)
+  const managerChain = getManagerChain(target);
+  if (managerChain.some(m => norm(m) === uNorm)) return true;
+  // Employee is a report of the viewer (viewer is the manager)
+  const reports = getAllReports(userEmail);
+  if (reports.some(r => norm(r.email) === tNorm)) return true;
+  return false;
+}
+
+function getManagerChain(email) {
+  const chain = [];
+  let current = norm(email);
+  const visited = new Set();
+  while (current && !visited.has(current)) {
+    visited.add(current);
+    const member = ORG_MEMBERS.find(m => norm(m.email) === current);
+    if (!member || !member.managerEmail) break;
+    chain.push(member.managerEmail);
+    current = norm(member.managerEmail);
+  }
+  return chain;
+}
+
 // Lists that don't need per-item filtering (visible to all authenticated users)
 const PUBLIC_LISTS = ['USI_Rocks', 'USI_OrgChart'];
 
@@ -241,7 +275,12 @@ async function fetchAndFilterList(listName, userEmail) {
 
   if (!PUBLIC_LISTS.includes(listName)) {
     const emailField = LIST_EMAIL_FIELD[listName] || 'EmployeeEmail';
-    items = items.filter(item => canViewItem(userEmail, item, emailField));
+    if (PRIVATE_LISTS.includes(listName)) {
+      // 1:1s — only employee + their manager chain can see
+      items = items.filter(item => canView1on1(userEmail, item, emailField));
+    } else {
+      items = items.filter(item => canViewItem(userEmail, item, emailField));
+    }
   }
 
   return items;
