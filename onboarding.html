@@ -105,6 +105,26 @@
     }
     .board-card-delete:hover { color: var(--error); }
 
+    /* ── Template Manager ── */
+    .template-card { transition: box-shadow 0.15s; }
+    .template-card:hover { box-shadow: var(--shadow-md); }
+    .template-card-header { display: flex; align-items: center; gap: 12px; }
+    .template-card-name { font-size: 15px; font-weight: 600; flex: 1; }
+    .template-card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .template-card-actions { display: flex; gap: 6px; margin-top: 12px; }
+    .template-task-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .template-task-row input, .template-task-row select { font-size: 12px; padding: 4px 8px; }
+    .template-task-title { flex: 2; }
+    .template-task-category { flex: 1; }
+    .template-task-assignee { width: 80px; }
+    .template-task-days { width: 70px; }
+    .tag-input-container { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+    .tag-pill-removable { cursor: pointer; }
+    .tag-pill-removable:hover { opacity: 0.7; }
+    .built-in-badge { font-size: 10px; background: #f3f4f6; color: var(--text-muted); padding: 2px 8px; border-radius: 999px; }
+    .template-editor-section { margin-bottom: 20px; }
+    .template-editor-section-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+
     /* ── Print Styles ── */
     @media print {
       .topbar, .tab-bar, .toolbar, .btn, .exit-form-actions,
@@ -169,6 +189,7 @@
           </select>
           <input type="text" class="search-input" id="onboardSearch" placeholder="Search onboardings...">
           <div class="toolbar-spacer"></div>
+          <button class="btn btn-secondary" id="btnManageOnboardTemplates" style="display:none">Manage Templates</button>
           <button class="btn btn-primary" id="btnNewOnboarding" style="display:none">+ New Onboarding</button>
         </div>
         <div id="onboardGrid" class="card-list"></div>
@@ -193,6 +214,7 @@
           </select>
           <input type="text" class="search-input" id="offboardSearch" placeholder="Search offboardings...">
           <div class="toolbar-spacer"></div>
+          <button class="btn btn-secondary" id="btnManageOffboardTemplates" style="display:none">Manage Templates</button>
           <button class="btn btn-primary" id="btnNewOffboarding" style="display:none">+ Start Offboarding</button>
         </div>
         <div id="offboardGrid" class="card-list"></div>
@@ -356,6 +378,105 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- ═══════════════ Template Manager (shared, full-page overlay) ═══════════════ -->
+      <div id="templateManagerView" class="tab-panel" style="display:none">
+        <div style="margin-bottom:20px">
+          <button class="btn btn-ghost" id="btnBackFromTemplates">&larr; Back</button>
+        </div>
+
+        <!-- Template List View -->
+        <div id="templateListView">
+          <div class="toolbar">
+            <select class="filter-select" id="tmplFilterDept">
+              <option value="">All Departments</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Sales">Sales</option>
+              <option value="Marketing">Marketing</option>
+              <option value="HR">HR</option>
+              <option value="Finance">Finance</option>
+              <option value="Operations">Operations</option>
+            </select>
+            <select class="filter-select" id="tmplFilterRole">
+              <option value="">All Roles</option>
+              <option value="Employee">Employee</option>
+              <option value="Manager">Manager</option>
+              <option value="Executive">Executive</option>
+            </select>
+            <input type="text" class="search-input" id="tmplSearch" placeholder="Search templates...">
+            <div class="toolbar-spacer"></div>
+            <button class="btn btn-primary" id="btnCreateTemplate">+ Create Template</button>
+          </div>
+          <div id="tmplGrid" class="card-list"></div>
+          <div id="tmplEmpty" class="empty-state" style="display:none">
+            <div class="empty-state-icon">&#128196;</div>
+            <div class="empty-state-title">No templates found</div>
+            <div class="empty-state-text">Create a custom template or adjust your filters.</div>
+          </div>
+        </div>
+
+        <!-- Template Editor View -->
+        <div id="templateEditorView" style="display:none">
+          <div class="card" style="max-width:900px">
+            <div class="card-header">
+              <div class="card-title" id="tmplEditorTitle">Create Template</div>
+            </div>
+            <div style="padding:20px">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Template Name *</label>
+                  <input type="text" class="form-input" id="tmplName" placeholder="e.g. Standard Engineering Onboarding">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Type *</label>
+                  <select class="form-select" id="tmplType">
+                    <option value="Onboarding">Onboarding</option>
+                    <option value="Offboarding">Offboarding</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Department</label>
+                  <select class="form-select" id="tmplDept">
+                    <option value="All">All</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="HR">HR</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Operations">Operations</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Role</label>
+                  <select class="form-select" id="tmplRole">
+                    <option value="All">All</option>
+                    <option value="Employee">Employee</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Executive">Executive</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tags (comma-separated)</label>
+                <input type="text" class="form-input" id="tmplTags" placeholder="e.g. Remote, Full-Time, Contractor">
+              </div>
+
+              <div class="template-editor-section" style="margin-top:20px">
+                <div class="template-editor-section-title">Tasks</div>
+                <div id="tmplTaskList"></div>
+                <button class="btn btn-secondary btn-sm" id="btnAddTemplateTask" style="margin-top:8px">+ Add Task</button>
+              </div>
+
+              <div style="display:flex;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+                <button class="btn btn-primary" id="btnSaveTemplate">Save Template</button>
+                <button class="btn btn-secondary" id="btnCancelTemplate">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ═══════════════ Tab 4: Org Chart (HR Admin only) ═══════════════ -->
@@ -713,8 +834,28 @@
     // ══════════════════════════════════════════════════════
 
     async function showNewOnboardingModal() {
-      const templateOptions = ['Blank', ...Object.keys(ONBOARDING_TEMPLATES)].map(t =>
-        `<option value="${t}">${t}</option>`
+      await loadTemplates();
+      const allTmpls = getAllTemplates().filter(t => t.Type === 'Onboarding');
+
+      function buildOnboardTemplateOptions(dept, role) {
+        const filtered = allTmpls.filter(t => {
+          if (dept && t.Department !== 'All' && t.Department !== dept) return false;
+          if (role && t.Role !== 'All' && t.Role !== role) return false;
+          return true;
+        });
+        return '<option value="Blank">Blank</option>' + filtered.map(t => {
+          const tags = (t.Tags || []).length > 0 ? ' [' + t.Tags.join(', ') + ']' : '';
+          const deptRole = (t.Department !== 'All' ? t.Department : '') + (t.Role !== 'All' ? ' / ' + t.Role : '');
+          const suffix = deptRole ? ' (' + deptRole + ')' : '';
+          return `<option value="${USI.escapeHtml(t.id)}">${USI.escapeHtml(t.Title)}${suffix}${tags}</option>`;
+        }).join('');
+      }
+
+      const deptOptions = ['', 'Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'].map(d =>
+        `<option value="${d}">${d || 'Any Department'}</option>`
+      ).join('');
+      const roleOptions = ['', 'Employee', 'Manager', 'Executive'].map(r =>
+        `<option value="${r}">${r || 'Any Role'}</option>`
       ).join('');
 
       const html = `
@@ -730,9 +871,19 @@
           <label class="form-label">Start Date</label>
           <input type="date" class="form-input" id="modalOnboardDate">
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <select class="form-select" id="modalOnboardDept">${deptOptions}</select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <select class="form-select" id="modalOnboardRole">${roleOptions}</select>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label">Template</label>
-          <select class="form-select" id="modalOnboardTemplate">${templateOptions}</select>
+          <select class="form-select" id="modalOnboardTemplate">${buildOnboardTemplateOptions('', '')}</select>
         </div>`;
 
       await USI.modal('New Onboarding', html, [
@@ -744,7 +895,7 @@
             const name = overlay.querySelector('#modalOnboardName').value.trim();
             const email = overlay.querySelector('#modalOnboardEmail').value.trim();
             const startDate = overlay.querySelector('#modalOnboardDate').value;
-            const template = overlay.querySelector('#modalOnboardTemplate').value;
+            const templateId = overlay.querySelector('#modalOnboardTemplate').value;
 
             if (!name || !email || !startDate) {
               USI.toast('Please fill in all fields', 'error');
@@ -752,12 +903,23 @@
             }
 
             try {
-              const tasks = template !== 'Blank' && ONBOARDING_TEMPLATES[template]
-                ? ONBOARDING_TEMPLATES[template]
-                : [];
+              let tasks = [];
+              let templateName = 'Blank';
 
-              if (tasks.length === 0 && template === 'Blank') {
-                // Create a single placeholder task for blank
+              if (templateId !== 'Blank') {
+                const tmpl = getAllTemplates().find(t => t.id === templateId);
+                if (tmpl) {
+                  templateName = tmpl.Title;
+                  tasks = (tmpl.Tasks || []).map(t => ({
+                    title: t.title,
+                    category: t.category,
+                    assigneeType: t.assigneeType,
+                    daysFromStart: t.daysFromDate
+                  }));
+                }
+              }
+
+              if (tasks.length === 0 && templateId === 'Blank') {
                 await USI.createListItem('USI_Onboarding', {
                   Title: 'First onboarding task',
                   EmployeeName: name,
@@ -780,7 +942,7 @@
                     AssigneeType: task.assigneeType,
                     DueDate: addDays(startDate, task.daysFromStart),
                     Status: 'Pending',
-                    TemplateName: template
+                    TemplateName: templateName
                   });
                 }
               }
@@ -794,6 +956,19 @@
           }
         }
       ]);
+
+      // Wire up dynamic template filtering
+      const overlay = document.querySelector('.modal-overlay');
+      if (overlay) {
+        const deptSel = overlay.querySelector('#modalOnboardDept');
+        const roleSel = overlay.querySelector('#modalOnboardRole');
+        const tmplSel = overlay.querySelector('#modalOnboardTemplate');
+        const updateTmplOptions = () => {
+          tmplSel.innerHTML = buildOnboardTemplateOptions(deptSel.value, roleSel.value);
+        };
+        deptSel.addEventListener('change', updateTmplOptions);
+        roleSel.addEventListener('change', updateTmplOptions);
+      }
     }
 
     // ══════════════════════════════════════════════════════
@@ -801,8 +976,28 @@
     // ══════════════════════════════════════════════════════
 
     async function showNewOffboardingModal() {
-      const templateOptions = ['Blank', ...Object.keys(OFFBOARDING_TEMPLATES)].map(t =>
-        `<option value="${t}">${t}</option>`
+      await loadTemplates();
+      const allTmpls = getAllTemplates().filter(t => t.Type === 'Offboarding');
+
+      function buildOffboardTemplateOptions(dept, role) {
+        const filtered = allTmpls.filter(t => {
+          if (dept && t.Department !== 'All' && t.Department !== dept) return false;
+          if (role && t.Role !== 'All' && t.Role !== role) return false;
+          return true;
+        });
+        return '<option value="Blank">Blank</option>' + filtered.map(t => {
+          const tags = (t.Tags || []).length > 0 ? ' [' + t.Tags.join(', ') + ']' : '';
+          const deptRole = (t.Department !== 'All' ? t.Department : '') + (t.Role !== 'All' ? ' / ' + t.Role : '');
+          const suffix = deptRole ? ' (' + deptRole + ')' : '';
+          return `<option value="${USI.escapeHtml(t.id)}">${USI.escapeHtml(t.Title)}${suffix}${tags}</option>`;
+        }).join('');
+      }
+
+      const deptOptions = ['', 'Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'].map(d =>
+        `<option value="${d}">${d || 'Any Department'}</option>`
+      ).join('');
+      const roleOptions = ['', 'Employee', 'Manager', 'Executive'].map(r =>
+        `<option value="${r}">${r || 'Any Role'}</option>`
       ).join('');
 
       const html = `
@@ -818,9 +1013,19 @@
           <label class="form-label">Last Day</label>
           <input type="date" class="form-input" id="modalOffboardDate">
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <select class="form-select" id="modalOffboardDept">${deptOptions}</select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <select class="form-select" id="modalOffboardRole">${roleOptions}</select>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label">Template</label>
-          <select class="form-select" id="modalOffboardTemplate">${templateOptions}</select>
+          <select class="form-select" id="modalOffboardTemplate">${buildOffboardTemplateOptions('', '')}</select>
         </div>`;
 
       await USI.modal('Start Offboarding', html, [
@@ -832,7 +1037,7 @@
             const name = overlay.querySelector('#modalOffboardName').value.trim();
             const email = overlay.querySelector('#modalOffboardEmail').value.trim();
             const lastDay = overlay.querySelector('#modalOffboardDate').value;
-            const template = overlay.querySelector('#modalOffboardTemplate').value;
+            const templateId = overlay.querySelector('#modalOffboardTemplate').value;
 
             if (!name || !email || !lastDay) {
               USI.toast('Please fill in all fields', 'error');
@@ -840,11 +1045,23 @@
             }
 
             try {
-              const tasks = template !== 'Blank' && OFFBOARDING_TEMPLATES[template]
-                ? OFFBOARDING_TEMPLATES[template]
-                : [];
+              let tasks = [];
+              let templateName = 'Blank';
 
-              if (tasks.length === 0 && template === 'Blank') {
+              if (templateId !== 'Blank') {
+                const tmpl = getAllTemplates().find(t => t.id === templateId);
+                if (tmpl) {
+                  templateName = tmpl.Title;
+                  tasks = (tmpl.Tasks || []).map(t => ({
+                    title: t.title,
+                    category: t.category,
+                    assigneeType: t.assigneeType,
+                    daysFromEnd: t.daysFromDate
+                  }));
+                }
+              }
+
+              if (tasks.length === 0 && templateId === 'Blank') {
                 await USI.createListItem('USI_Offboarding', {
                   Title: 'First offboarding task',
                   EmployeeName: name,
@@ -867,7 +1084,7 @@
                     AssigneeType: task.assigneeType,
                     DueDate: addDays(lastDay, task.daysFromEnd),
                     Status: 'Pending',
-                    TemplateName: template
+                    TemplateName: templateName
                   });
                 }
               }
@@ -899,6 +1116,19 @@
           }
         }
       ]);
+
+      // Wire up dynamic template filtering
+      const overlay = document.querySelector('.modal-overlay');
+      if (overlay) {
+        const deptSel = overlay.querySelector('#modalOffboardDept');
+        const roleSel = overlay.querySelector('#modalOffboardRole');
+        const tmplSel = overlay.querySelector('#modalOffboardTemplate');
+        const updateTmplOptions = () => {
+          tmplSel.innerHTML = buildOffboardTemplateOptions(deptSel.value, roleSel.value);
+        };
+        deptSel.addEventListener('change', updateTmplOptions);
+        roleSel.addEventListener('change', updateTmplOptions);
+      }
     }
 
     // ══════════════════════════════════════════════════════
@@ -1292,6 +1522,12 @@
         document.getElementById('btnNewExitInterview').style.display = '';
       }
 
+      // Show template management buttons for HR admins
+      if (USI.isHRAdmin(me.mail)) {
+        document.getElementById('btnManageOnboardTemplates').style.display = '';
+        document.getElementById('btnManageOffboardTemplates').style.display = '';
+      }
+
       // Initialize tabs
       USI.initTabs(document.getElementById('mainTabBar').parentElement);
 
@@ -1325,6 +1561,9 @@
           USI.textCol('TemplateName'),
           USI.dateCol('LastDay'),
           USI.dateTimeCol('CompletedDate')
+        ]),
+        USI.ensureList('USI_Templates', [
+          USI.multilineCol('JsonData')
         ]),
         USI.ensureList('USI_ExitInterviews', [
           USI.textCol('EmployeeEmail'), USI.textCol('EmployeeName'),
@@ -1387,6 +1626,25 @@
       document.getElementById('btnDeleteInterview').addEventListener('click', deleteInterview);
       document.getElementById('exitSearch').addEventListener('input', USI.debounce(renderExitInterviews, 300));
 
+      // Template Manager
+      document.getElementById('btnManageOnboardTemplates').addEventListener('click', async () => {
+        await loadTemplates();
+        showTemplateManager('Onboarding');
+      });
+      document.getElementById('btnManageOffboardTemplates').addEventListener('click', async () => {
+        await loadTemplates();
+        showTemplateManager('Offboarding');
+      });
+      document.getElementById('btnBackFromTemplates').addEventListener('click', hideTemplateManager);
+      document.getElementById('btnCreateTemplate').addEventListener('click', () => showTemplateEditor(null, tmplCurrentType));
+      document.getElementById('btnAddTemplateTask').addEventListener('click', addTemplateTask);
+      document.getElementById('btnSaveTemplate').addEventListener('click', saveTemplate);
+      document.getElementById('btnCancelTemplate').addEventListener('click', hideTemplateEditor);
+      document.getElementById('tmplFilterDept').addEventListener('change', renderTemplateList);
+      document.getElementById('tmplFilterRole').addEventListener('change', renderTemplateList);
+      document.getElementById('tmplSearch').addEventListener('input', USI.debounce(renderTemplateList, 300));
+      document.getElementById('tmplType').addEventListener('change', renderTemplateTasks);
+
       // ══════════════════════════════════════════════════════════
       // ██  ORG CHART TAB (HR Admin only)
       // ══════════════════════════════════════════════════════════
@@ -1403,6 +1661,401 @@
       }
 
     });
+
+    // ══════════════════════════════════════════════════════
+    // Template Management System
+    // ══════════════════════════════════════════════════════
+
+    let customTemplates = [];
+    let tmplCurrentType = 'Onboarding';
+    let tmplEditingId = null;
+    let tmplEditorTasks = [];
+    let tmplTaskCounter = 0;
+
+    // Convert built-in templates to standard format
+    function getBuiltInTemplates() {
+      const builtIn = [];
+      for (const [name, tasks] of Object.entries(ONBOARDING_TEMPLATES)) {
+        builtIn.push({
+          id: 'builtin-onboard-' + name.replace(/\s+/g, '-').toLowerCase(),
+          builtIn: true,
+          Title: name,
+          Type: 'Onboarding',
+          Department: 'All',
+          Role: 'All',
+          Tags: [],
+          Tasks: tasks.map((t, i) => ({
+            id: 'bt' + i,
+            title: t.title,
+            category: t.category,
+            assigneeType: t.assigneeType,
+            daysFromDate: t.daysFromStart,
+            notes: ''
+          }))
+        });
+      }
+      for (const [name, tasks] of Object.entries(OFFBOARDING_TEMPLATES)) {
+        builtIn.push({
+          id: 'builtin-offboard-' + name.replace(/\s+/g, '-').toLowerCase(),
+          builtIn: true,
+          Title: name,
+          Type: 'Offboarding',
+          Department: 'All',
+          Role: 'All',
+          Tags: [],
+          Tasks: tasks.map((t, i) => ({
+            id: 'bt' + i,
+            title: t.title,
+            category: t.category,
+            assigneeType: t.assigneeType,
+            daysFromDate: t.daysFromEnd,
+            notes: ''
+          }))
+        });
+      }
+      return builtIn;
+    }
+
+    async function loadTemplates() {
+      try {
+        const items = await USI.getListItems('USI_Templates');
+        customTemplates = items.map(item => {
+          let data = {};
+          try { data = JSON.parse(item.fields.JsonData || '{}'); } catch (e) { data = {}; }
+          return {
+            id: item.id,
+            builtIn: false,
+            Title: data.Title || item.fields.Title || 'Untitled',
+            Type: data.Type || 'Onboarding',
+            Department: data.Department || 'All',
+            Role: data.Role || 'All',
+            Tags: data.Tags || [],
+            Tasks: data.Tasks || []
+          };
+        });
+      } catch (err) {
+        console.error('Error loading templates:', err);
+        customTemplates = [];
+      }
+    }
+
+    function getAllTemplates() {
+      return [...getBuiltInTemplates(), ...customTemplates];
+    }
+
+    function getFilteredTemplates(type, department, role) {
+      return getAllTemplates().filter(t => {
+        if (t.Type !== type) return false;
+        if (department && t.Department !== 'All' && t.Department !== department) return false;
+        if (role && t.Role !== 'All' && t.Role !== role) return false;
+        return true;
+      });
+    }
+
+    // ── Template Manager UI ──
+
+    function showTemplateManager(type) {
+      tmplCurrentType = type;
+      // Hide all tab panels
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('templateManagerView').style.display = '';
+      document.getElementById('templateListView').style.display = '';
+      document.getElementById('templateEditorView').style.display = 'none';
+      document.getElementById('tmplType').value = type;
+      document.getElementById('btnBackFromTemplates').textContent = '\u2190 Back to ' + type;
+      renderTemplateList();
+    }
+
+    function hideTemplateManager() {
+      document.getElementById('templateManagerView').style.display = 'none';
+      // Re-activate the correct tab panel
+      const targetPanel = tmplCurrentType === 'Onboarding' ? 'panelOnboarding' : 'panelOffboarding';
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === targetPanel));
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === targetPanel));
+    }
+
+    function renderTemplateList() {
+      const container = document.getElementById('tmplGrid');
+      const emptyEl = document.getElementById('tmplEmpty');
+      const filterDept = document.getElementById('tmplFilterDept').value;
+      const filterRole = document.getElementById('tmplFilterRole').value;
+      const searchTerm = document.getElementById('tmplSearch').value.toLowerCase();
+
+      let templates = getAllTemplates().filter(t => t.Type === tmplCurrentType);
+
+      if (filterDept) {
+        templates = templates.filter(t => t.Department === 'All' || t.Department === filterDept);
+      }
+      if (filterRole) {
+        templates = templates.filter(t => t.Role === 'All' || t.Role === filterRole);
+      }
+      if (searchTerm) {
+        templates = templates.filter(t =>
+          t.Title.toLowerCase().includes(searchTerm) ||
+          (t.Tags || []).some(tag => tag.toLowerCase().includes(searchTerm))
+        );
+      }
+
+      if (templates.length === 0) {
+        container.innerHTML = '';
+        emptyEl.style.display = '';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      container.innerHTML = templates.map(t => {
+        const tagPills = (t.Tags || []).map(tag =>
+          `<span class="pill pill-neutral">${USI.escapeHtml(tag)}</span>`
+        ).join('');
+        const builtInBadge = t.builtIn ? '<span class="built-in-badge">Built-in</span>' : '';
+        const typeBadge = t.Type === 'Onboarding'
+          ? '<span class="pill pill-primary">Onboarding</span>'
+          : '<span class="pill pill-warning">Offboarding</span>';
+
+        const editBtn = t.builtIn ? '' :
+          `<button class="btn btn-secondary btn-sm" onclick="editTemplate('${USI.escapeHtml(t.id)}')">Edit</button>`;
+        const deleteBtn = t.builtIn ? '' :
+          `<button class="btn btn-ghost btn-sm" style="color:var(--error)" onclick="deleteTemplate('${USI.escapeHtml(t.id)}')">Delete</button>`;
+
+        return `
+          <div class="card template-card">
+            <div class="template-card-header">
+              <div class="template-card-name">${USI.escapeHtml(t.Title)}</div>
+              ${builtInBadge}
+              ${typeBadge}
+            </div>
+            <div class="template-card-meta">
+              <span class="pill pill-neutral">${USI.escapeHtml(t.Department)}</span>
+              <span class="pill pill-neutral">${USI.escapeHtml(t.Role)}</span>
+              ${tagPills}
+              <span style="color:var(--text-muted);font-size:12px">${(t.Tasks || []).length} tasks</span>
+            </div>
+            <div class="template-card-actions">
+              ${editBtn}
+              <button class="btn btn-secondary btn-sm" onclick="duplicateTemplate('${USI.escapeHtml(t.id)}')">Duplicate</button>
+              ${deleteBtn}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Template Editor ──
+
+    function showTemplateEditor(template, type) {
+      document.getElementById('templateListView').style.display = 'none';
+      document.getElementById('templateEditorView').style.display = '';
+
+      if (template) {
+        tmplEditingId = template.id;
+        document.getElementById('tmplEditorTitle').textContent = 'Edit Template';
+        document.getElementById('tmplName').value = template.Title;
+        document.getElementById('tmplType').value = template.Type;
+        document.getElementById('tmplDept').value = template.Department || 'All';
+        document.getElementById('tmplRole').value = template.Role || 'All';
+        document.getElementById('tmplTags').value = (template.Tags || []).join(', ');
+        tmplEditorTasks = (template.Tasks || []).map(t => ({ ...t }));
+        tmplTaskCounter = tmplEditorTasks.length;
+      } else {
+        tmplEditingId = null;
+        document.getElementById('tmplEditorTitle').textContent = 'Create Template';
+        document.getElementById('tmplName').value = '';
+        document.getElementById('tmplType').value = type || tmplCurrentType;
+        document.getElementById('tmplDept').value = 'All';
+        document.getElementById('tmplRole').value = 'All';
+        document.getElementById('tmplTags').value = '';
+        tmplEditorTasks = [];
+        tmplTaskCounter = 0;
+      }
+      renderTemplateTasks();
+    }
+
+    function hideTemplateEditor() {
+      document.getElementById('templateEditorView').style.display = 'none';
+      document.getElementById('templateListView').style.display = '';
+    }
+
+    function getCategoriesForType(type) {
+      return type === 'Offboarding' ? OFFBOARD_CATEGORIES : ONBOARD_CATEGORIES;
+    }
+
+    function renderTemplateTasks() {
+      const container = document.getElementById('tmplTaskList');
+      const type = document.getElementById('tmplType').value;
+      const categories = getCategoriesForType(type);
+      const daysLabel = type === 'Offboarding' ? 'Days from end' : 'Days from start';
+
+      if (tmplEditorTasks.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">No tasks yet. Click "Add Task" to begin.</div>';
+        return;
+      }
+
+      container.innerHTML = tmplEditorTasks.map((task, idx) => {
+        const catOptions = categories.map(c =>
+          `<option value="${USI.escapeHtml(c)}" ${task.category === c ? 'selected' : ''}>${USI.escapeHtml(c)}</option>`
+        ).join('');
+        const assigneeOptions = ['HR', 'IT', 'Manager'].map(a =>
+          `<option value="${a}" ${task.assigneeType === a ? 'selected' : ''}>${a}</option>`
+        ).join('');
+
+        return `
+          <div class="template-task-row" data-idx="${idx}">
+            <input type="text" class="form-input template-task-title" value="${USI.escapeHtml(task.title || '')}"
+              placeholder="Task title" onchange="tmplEditorTasks[${idx}].title=this.value">
+            <select class="form-select template-task-category"
+              onchange="tmplEditorTasks[${idx}].category=this.value">
+              <option value="">Category...</option>
+              ${catOptions}
+            </select>
+            <select class="form-select template-task-assignee"
+              onchange="tmplEditorTasks[${idx}].assigneeType=this.value">
+              ${assigneeOptions}
+            </select>
+            <input type="number" class="form-input template-task-days" value="${task.daysFromDate || 0}"
+              title="${daysLabel}" placeholder="${daysLabel}"
+              onchange="tmplEditorTasks[${idx}].daysFromDate=parseInt(this.value)||0">
+            <button class="btn btn-ghost btn-sm" style="color:var(--error);flex-shrink:0"
+              onclick="removeTemplateTask(${idx})">&times;</button>
+          </div>`;
+      }).join('');
+    }
+
+    function addTemplateTask() {
+      tmplTaskCounter++;
+      tmplEditorTasks.push({
+        id: 't' + tmplTaskCounter,
+        title: '',
+        category: '',
+        assigneeType: 'HR',
+        daysFromDate: 0,
+        notes: ''
+      });
+      renderTemplateTasks();
+    }
+
+    function removeTemplateTask(idx) {
+      tmplEditorTasks.splice(idx, 1);
+      renderTemplateTasks();
+    }
+
+    async function saveTemplate() {
+      const name = document.getElementById('tmplName').value.trim();
+      const type = document.getElementById('tmplType').value;
+      const dept = document.getElementById('tmplDept').value;
+      const role = document.getElementById('tmplRole').value;
+      const tagsRaw = document.getElementById('tmplTags').value;
+      const tags = tagsRaw.split(',').map(t => t.trim()).filter(t => t);
+
+      if (!name) {
+        USI.toast('Please enter a template name', 'error');
+        return;
+      }
+      if (tmplEditorTasks.length === 0) {
+        USI.toast('Please add at least one task', 'error');
+        return;
+      }
+      // Validate tasks have titles
+      const emptyTasks = tmplEditorTasks.filter(t => !t.title.trim());
+      if (emptyTasks.length > 0) {
+        USI.toast('All tasks must have a title', 'error');
+        return;
+      }
+
+      const templateData = {
+        Title: name,
+        Type: type,
+        Department: dept,
+        Role: role,
+        Tags: tags,
+        Tasks: tmplEditorTasks.map((t, i) => ({
+          id: 't' + (i + 1),
+          title: t.title,
+          category: t.category,
+          assigneeType: t.assigneeType,
+          daysFromDate: t.daysFromDate || 0,
+          notes: t.notes || ''
+        }))
+      };
+
+      try {
+        if (tmplEditingId) {
+          await USI.updateListItem('USI_Templates', tmplEditingId, {
+            Title: name,
+            JsonData: JSON.stringify(templateData)
+          });
+          USI.toast('Template updated', 'success');
+        } else {
+          await USI.createListItem('USI_Templates', {
+            Title: name,
+            JsonData: JSON.stringify(templateData)
+          });
+          USI.toast('Template created', 'success');
+        }
+        await loadTemplates();
+        hideTemplateEditor();
+        renderTemplateList();
+      } catch (err) {
+        console.error('Error saving template:', err);
+        USI.toast('Failed to save template', 'error');
+      }
+    }
+
+    function editTemplate(id) {
+      const template = getAllTemplates().find(t => t.id === id);
+      if (!template || template.builtIn) return;
+      showTemplateEditor(template, template.Type);
+    }
+
+    async function duplicateTemplate(id) {
+      const template = getAllTemplates().find(t => t.id === id);
+      if (!template) return;
+
+      const newData = {
+        Title: template.Title + ' (Copy)',
+        Type: template.Type,
+        Department: template.Department,
+        Role: template.Role,
+        Tags: [...(template.Tags || [])],
+        Tasks: (template.Tasks || []).map((t, i) => ({
+          id: 't' + (i + 1),
+          title: t.title,
+          category: t.category,
+          assigneeType: t.assigneeType,
+          daysFromDate: t.daysFromDate,
+          notes: t.notes || ''
+        }))
+      };
+
+      try {
+        await USI.createListItem('USI_Templates', {
+          Title: newData.Title,
+          JsonData: JSON.stringify(newData)
+        });
+        await loadTemplates();
+        renderTemplateList();
+        USI.toast('Template duplicated', 'success');
+      } catch (err) {
+        console.error('Error duplicating template:', err);
+        USI.toast('Failed to duplicate template', 'error');
+      }
+    }
+
+    async function deleteTemplate(id) {
+      const template = customTemplates.find(t => t.id === id);
+      if (!template) return;
+
+      const confirmed = await USI.confirm('Delete template "' + template.Title + '"? This cannot be undone.');
+      if (!confirmed) return;
+
+      try {
+        await USI.deleteListItem('USI_Templates', id);
+        await loadTemplates();
+        renderTemplateList();
+        USI.toast('Template deleted', 'success');
+      } catch (err) {
+        console.error('Error deleting template:', err);
+        USI.toast('Failed to delete template', 'error');
+      }
+    }
 
     // ── Org Chart Functions ──
 
