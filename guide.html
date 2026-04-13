@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Guide | USI People</title>
+  <link rel="stylesheet" href="shared/styles.css">
+  <style>
+    /* ── Guide Layout ── */
+    .guide-layout { display: flex; gap: 32px; }
+    .guide-sidebar {
+      width: 260px; flex-shrink: 0;
+      position: sticky; top: 72px;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    .guide-sidebar::-webkit-scrollbar { width: 4px; }
+    .guide-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .guide-content { flex: 1; max-width: 800px; }
+
+    /* ── Table of Contents ── */
+    .guide-toc { list-style: none; padding: 0; }
+    .guide-toc li { margin-bottom: 2px; }
+    .guide-toc a {
+      font-size: 13px; color: var(--text-muted);
+      padding: 4px 12px; display: block;
+      border-radius: var(--radius-sm);
+      border-left: 2px solid transparent;
+      transition: color 0.15s, background 0.15s;
+    }
+    .guide-toc a:hover { color: var(--text); background: var(--bg); text-decoration: none; }
+    .guide-toc a.active { color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
+    .toc-section {
+      font-weight: 600; color: var(--text); font-size: 12px;
+      text-transform: uppercase; letter-spacing: 0.03em;
+      padding: 8px 12px; margin-top: 12px;
+    }
+    .toc-section:first-child { margin-top: 0; }
+
+    /* ── Sections ── */
+    .guide-section { margin-bottom: 40px; scroll-margin-top: 80px; }
+    .guide-section h2 {
+      font-size: 22px; font-weight: 700; color: var(--text);
+      margin-bottom: 8px; padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary-light);
+    }
+    .guide-section h3 {
+      font-size: 16px; font-weight: 600; color: var(--primary);
+      margin: 24px 0 12px; scroll-margin-top: 80px;
+    }
+    .guide-section h4 {
+      font-size: 14px; font-weight: 600; color: var(--text);
+      margin: 16px 0 8px;
+    }
+    .guide-section p {
+      font-size: 14px; line-height: 1.7; color: var(--text);
+      margin-bottom: 12px;
+    }
+    .guide-section ul, .guide-section ol {
+      font-size: 14px; line-height: 1.7;
+      margin-bottom: 12px; padding-left: 24px;
+    }
+    .guide-section li { margin-bottom: 6px; }
+
+    /* ── Tips & Warnings ── */
+    .guide-tip {
+      padding: 12px 16px; background: var(--primary-light);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 16px 0; font-size: 13px;
+    }
+    .guide-tip strong { color: var(--primary); }
+    .guide-warning {
+      padding: 12px 16px; background: var(--warning-bg);
+      border-left: 3px solid var(--warning);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 16px 0; font-size: 13px;
+    }
+    .guide-warning strong { color: #92400e; }
+    .guide-info {
+      padding: 12px 16px; background: var(--info-bg);
+      border-left: 3px solid var(--info);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 16px 0; font-size: 13px;
+    }
+    .guide-info strong { color: #1e40af; }
+
+    /* ── Role Badges ── */
+    .guide-role-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 10px; border-radius: var(--radius-pill);
+      font-size: 11px; font-weight: 600; vertical-align: middle;
+      margin-left: 6px;
+    }
+    .guide-role-employee { background: #f3f4f6; color: var(--text-muted); }
+    .guide-role-manager { background: var(--primary-light); color: var(--primary); }
+    .guide-role-executive { background: var(--warning-bg); color: #92400e; }
+    .guide-role-hr { background: var(--info-bg); color: #1e40af; }
+
+    /* ── Collapsible Sections ── */
+    .guide-collapsible { margin-bottom: 8px; }
+    .guide-collapsible-toggle {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 10px 14px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer; font-size: 14px; font-weight: 600;
+      color: var(--text); text-align: left;
+      font-family: var(--font);
+      transition: background 0.15s;
+    }
+    .guide-collapsible-toggle:hover { background: var(--bg); }
+    .guide-collapsible-toggle .arrow {
+      font-size: 10px; color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .guide-collapsible.open .guide-collapsible-toggle .arrow { transform: rotate(90deg); }
+    .guide-collapsible-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .guide-collapsible.open .guide-collapsible-body { max-height: 5000px; }
+    .guide-collapsible-inner { padding: 16px 14px 8px; }
+
+    /* ── Keyboard Shortcut Style ── */
+    kbd {
+      display: inline-block; padding: 2px 6px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 4px; font-size: 12px;
+      font-family: var(--font); color: var(--text);
+    }
+
+    /* ── Steps ── */
+    .guide-steps { counter-reset: step; list-style: none; padding-left: 0; }
+    .guide-steps li {
+      counter-increment: step; position: relative;
+      padding-left: 36px; margin-bottom: 12px;
+    }
+    .guide-steps li::before {
+      content: counter(step);
+      position: absolute; left: 0; top: 1px;
+      width: 24px; height: 24px;
+      background: var(--primary); color: #fff;
+      border-radius: 50%; font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .guide-layout { flex-direction: column; }
+      .guide-sidebar {
+        width: 100%; position: static;
+        max-height: none; border-bottom: 1px solid var(--border);
+        padding-bottom: 16px; margin-bottom: 16px;
+      }
+    }
+
+    /* ── Print ── */
+    @media print {
+      .guide-sidebar { display: none; }
+      .guide-content { max-width: 100%; }
+      .guide-collapsible-body { max-height: none !important; }
+      .guide-collapsible-toggle .arrow { display: none; }
+      .guide-role-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .guide-tip, .guide-warning, .guide-info { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="guide-layout">
+
+      <!-- ═══════ SIDEBAR TOC ═══════ -->
+      <nav class="guide-sidebar" id="guideSidebar">
+        <ul class="guide-toc" id="guideToc">
+          <li class="toc-section">Getting Started</li>
+          <li><a href="#introduction">Introduction</a></li>
+          <li><a href="#signing-in">Signing In</a></li>
+          <li><a href="#navigation">Navigation</a></li>
+
+          <li class="toc-section">For All Employees</li>
+          <li><a href="#smart-goals">SMART Goals</a></li>
+          <li><a href="#my-review">My Review</a></li>
+          <li><a href="#one-on-ones">1:1 Meetings</a></li>
+          <li><a href="#exit-interview-employee">Exit Interview</a></li>
+
+          <li class="toc-section">For Managers</li>
+          <li><a href="#eos-rocks">EOS Rocks</a></li>
+          <li><a href="#team-reviews">Team Reviews</a></li>
+          <li><a href="#manager-one-on-ones">1:1s &mdash; Manager View</a></li>
+          <li><a href="#onboarding">Onboarding</a></li>
+          <li><a href="#offboarding">Offboarding</a></li>
+
+          <li class="toc-section">For HR Admins</li>
+          <li><a href="#org-chart">Org Chart</a></li>
+          <li><a href="#templates">Template Management</a></li>
+          <li><a href="#exit-interviews-admin">Exit Interview Admin</a></li>
+
+          <li class="toc-section">For Executives</li>
+          <li><a href="#executive-access">Executive Access</a></li>
+
+          <li class="toc-section">Help</li>
+          <li><a href="#faq">FAQ / Troubleshooting</a></li>
+        </ul>
+      </nav>
+
+      <!-- ═══════ MAIN CONTENT ═══════ -->
+      <main class="guide-content">
+
+        <!-- ────── INTRODUCTION ────── -->
+        <section class="guide-section" id="introduction">
+          <h2>Introduction</h2>
+          <p>USI People is the HR Information System (HRIS) for managing performance, 1:1 meetings, onboarding, offboarding, and organizational data. It is a web application that connects to your company's Microsoft 365 account, and all data is stored securely in SharePoint.</p>
+          <p>This guide covers every feature in the platform, organized by role. Start with the sections marked <span class="guide-role-badge guide-role-employee">All Employees</span>, and continue to the sections that match your role.</p>
+          <div class="guide-tip"><strong>Tip:</strong> Use the sidebar on the left to jump to any section. On mobile, scroll up to see the table of contents.</div>
+        </section>
+
+        <!-- ────── SIGNING IN ────── -->
+        <section class="guide-section" id="signing-in">
+          <h2>Signing In</h2>
+          <p>USI People uses Microsoft single sign-on. You do not need a separate username or password.</p>
+          <ol class="guide-steps">
+            <li>Open any USI People page (for example, <strong>performance.html</strong>).</li>
+            <li>If you are not already signed in, you will see the sign-in screen with the USI People logo.</li>
+            <li>Click <strong>Sign in with Microsoft</strong>.</li>
+            <li>A Microsoft login window will appear. Enter your company email and password, or pick your account if you are already signed in to Microsoft.</li>
+            <li>After successful authentication, you will be redirected back to USI People and the app will load automatically.</li>
+          </ol>
+          <div class="guide-info"><strong>Note:</strong> If you see an error during sign-in, make sure pop-ups are not blocked for this site. If the issue persists, try clearing your browser cache or contact your HR administrator.</div>
+        </section>
+
+        <!-- ────── NAVIGATION ────── -->
+        <section class="guide-section" id="navigation">
+          <h2>Navigation</h2>
+          <p>The top navigation bar appears on every page and provides quick access to all areas of the platform:</p>
+          <ul>
+            <li><strong>Performance</strong> &mdash; SMART Goals, EOS Rocks, and performance reviews.</li>
+            <li><strong>1:1s</strong> &mdash; One-on-one meeting agendas and meeting mode.</li>
+            <li><strong>HR / Onboarding</strong> &mdash; Onboarding checklists, offboarding, exit interviews, org chart, and templates.</li>
+            <li><strong>User Guide</strong> &mdash; This page.</li>
+          </ul>
+          <p>Your name appears on the right side of the navigation bar, along with a <strong>Sign Out</strong> button. On mobile devices, tap the hamburger menu icon to reveal the navigation links.</p>
+          <div class="guide-tip"><strong>Tip:</strong> Some tabs within pages (such as "Team" or "Rocks" on the Performance page) are only visible if you have a Manager, Executive, or HR Admin role. If you cannot see a tab you expect, check the FAQ section below.</div>
+        </section>
+
+        <!-- ═══════════════════════════════ -->
+        <!-- FOR ALL EMPLOYEES              -->
+        <!-- ═══════════════════════════════ -->
+
+        <!-- ────── SMART GOALS ────── -->
+        <section class="guide-section" id="smart-goals">
+          <h2>SMART Goals <span class="guide-role-badge guide-role-employee">All Employees</span></h2>
+          <p>The SMART Goals tab on the Performance page is where you create, track, and update your individual performance goals throughout the year.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Creating a New Goal
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to <strong>Performance</strong> and select the <strong>My Goals</strong> tab.</li>
+                <li>Click the <strong>+ New Goal</strong> button in the toolbar.</li>
+                <li>A form will appear with fields for each part of the SMART framework.</li>
+                <li>Fill in each field (see SMART Criteria below) and click <strong>Save</strong>.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> SMART Criteria &mdash; What Each Field Means
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ul>
+                <li><strong>Specific</strong> &mdash; A clear, precise description of what you want to accomplish. Avoid vague language. Example: "Reduce average customer support response time" rather than "Improve customer service."</li>
+                <li><strong>Measurable</strong> &mdash; How you will quantify success. Include numbers, percentages, or concrete deliverables. Example: "From 24 hours to under 4 hours."</li>
+                <li><strong>Achievable</strong> &mdash; Why this goal is realistic given your current resources and constraints. Example: "We are implementing a new ticketing system that enables faster routing."</li>
+                <li><strong>Relevant</strong> &mdash; How this goal connects to team or company objectives. Example: "Aligns with Q2 company Rock to improve NPS score."</li>
+                <li><strong>Time-bound</strong> &mdash; The deadline or timeframe. Use the date picker to set a target completion date.</li>
+              </ul>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Linking Goals to EOS Rocks
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>If your manager has created EOS Rocks, you can link your goal to a Rock to show alignment with company priorities.</p>
+              <ol class="guide-steps">
+                <li>When creating or editing a goal, look for the <strong>Linked Rock</strong> dropdown.</li>
+                <li>Select the Rock that your goal supports. Only Rocks from your direct manager's list are shown.</li>
+                <li>Save the goal. A link icon will appear on the goal card indicating it is connected to a Rock.</li>
+              </ol>
+              <div class="guide-tip"><strong>Tip:</strong> Linking your goal to a Rock helps your manager see how individual work drives company priorities. It also shows up in the Rock's detail view under "Linked Goals."</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Updating Progress and Weekly Pulse
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Keep your goals current by updating progress regularly:</p>
+              <ol class="guide-steps">
+                <li>Click on a goal card to expand it.</li>
+                <li>Use the <strong>Progress</strong> slider or field to update the percentage complete (0&ndash;100%).</li>
+                <li>Set the <strong>Weekly Pulse</strong> to reflect current status: <strong>On Track</strong>, <strong>Needs Attention</strong>, or <strong>Off Track</strong>. This pulse is visible to your manager and is commonly reviewed in L10 meetings.</li>
+                <li>Click <strong>Save</strong> to record your update.</li>
+              </ol>
+              <div class="guide-warning"><strong>Important:</strong> Update your pulse weekly before your team's L10 meeting so your manager has current information.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Adding Comments
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Each goal has a comment thread where you and your manager can have an ongoing conversation:</p>
+              <ol class="guide-steps">
+                <li>Expand the goal card by clicking on it.</li>
+                <li>Scroll down to the comment section at the bottom.</li>
+                <li>Type your comment in the text field and click <strong>Add</strong> or press <kbd>Enter</kbd>.</li>
+              </ol>
+              <p>Comments are timestamped and show the author's name. They are visible to you and your manager.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Filtering and Searching Goals
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>If you have many goals, use the toolbar to find what you need:</p>
+              <ul>
+                <li><strong>Search</strong> &mdash; Type in the search box to filter goals by title or description.</li>
+                <li><strong>Status filter</strong> &mdash; Use the dropdown to show only goals with a specific pulse status (On Track, Needs Attention, Off Track).</li>
+              </ul>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── MY REVIEW ────── -->
+        <section class="guide-section" id="my-review">
+          <h2>My Review <span class="guide-role-badge guide-role-employee">All Employees</span></h2>
+          <p>The My Review section is where you complete your annual self-assessment. Your review is part of the company's performance review cycle and will be read by your manager.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Starting a Self-Assessment
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to <strong>Performance</strong> and select the <strong>My Review</strong> tab.</li>
+                <li>If a review cycle is active, you will see a review form. If no cycle is active, you will see a message indicating there is no current review.</li>
+                <li>Click <strong>Start Review</strong> to begin (if you have not started one yet) or continue editing your draft.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> The 5 Review Sections
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Your self-assessment is organized into five sections:</p>
+              <ol>
+                <li><strong>Accomplishments</strong> &mdash; Describe your key achievements during the review period. Be specific about impact and results.</li>
+                <li><strong>Strengths</strong> &mdash; Identify the skills and behaviors that helped you succeed. Think about what others would say you do well.</li>
+                <li><strong>Growth Areas</strong> &mdash; Honestly assess areas where you can improve. This shows self-awareness and helps your manager support your development.</li>
+                <li><strong>Goals Assessment</strong> &mdash; Review the goals you set at the beginning of the period. For each goal, describe your progress and outcomes.</li>
+                <li><strong>Development Goals</strong> &mdash; Outline what you want to learn or accomplish in the next review period. Include specific skills, certifications, or experiences.</li>
+              </ol>
+              <div class="guide-tip"><strong>Tip:</strong> Write in complete sentences and provide concrete examples. Instead of "I did a good job on the project," write what you did, how you did it, and what the result was.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Saving Drafts vs. Submitting
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ul>
+                <li><strong>Save Draft</strong> &mdash; Saves your current progress without submitting. You can return and edit at any time. Your manager cannot see your draft.</li>
+                <li><strong>Submit</strong> &mdash; Sends your completed self-assessment to your manager for review. Once submitted, you cannot make further changes.</li>
+              </ul>
+              <div class="guide-warning"><strong>Important:</strong> Double-check all sections before submitting. Submission is final and cannot be undone.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> After Submission
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>After you submit your self-assessment:</p>
+              <ol class="guide-steps">
+                <li>Your manager will review your self-assessment and write their evaluation.</li>
+                <li>Your manager will rate your performance across five categories using a star rating (1&ndash;5 stars).</li>
+                <li>Once your manager completes their review, you will see their feedback and ratings on the My Review tab.</li>
+                <li>You will be asked to <strong>acknowledge</strong> the review, confirming that you have read it. Acknowledging does not mean you agree with everything &mdash; it simply confirms receipt.</li>
+              </ol>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── 1:1 MEETINGS ────── -->
+        <section class="guide-section" id="one-on-ones">
+          <h2>1:1 Meetings <span class="guide-role-badge guide-role-employee">All Employees</span></h2>
+          <p>The 1:1s page is where you prepare for and conduct one-on-one meetings with your manager. Both you and your manager can add items to the shared agenda.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Adding Agenda Items
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to the <strong>1:1s</strong> page.</li>
+                <li>In the <strong>Add Agenda Item</strong> card at the top, type your topic in the text field.</li>
+                <li>Select a <strong>category</strong> by clicking one of the category pills (for example: Updates, Blockers, Feedback, Action Items, or General).</li>
+                <li>Choose a <strong>priority</strong> from the dropdown: High, Medium, or Low.</li>
+                <li>Click <strong>Add</strong> to add the item to the agenda.</li>
+              </ol>
+              <p>Your item will appear in the agenda list, grouped by category. Both you and your manager can see all items.</p>
+              <div class="guide-tip"><strong>Tip:</strong> Add items throughout the week as topics come up, rather than trying to remember everything right before the meeting.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Meeting Mode
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Meeting mode provides a focused, distraction-free interface for running your 1:1:</p>
+              <ol class="guide-steps">
+                <li>Click <strong>Start Meeting</strong> to enter meeting mode. A timer will begin tracking the meeting duration.</li>
+                <li>Work through each agenda item. Check the checkbox next to an item to mark it as discussed.</li>
+                <li>The timer displays elapsed time with a blinking red dot to indicate the meeting is active.</li>
+                <li>When finished, click <strong>End Meeting</strong> to stop the timer and save the meeting record.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Archiving and Meeting History
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>After ending a meeting, discussed items are automatically archived. You can view past meetings by scrolling down to the <strong>Meeting History</strong> section, which shows previous meetings with their dates, durations, and the items that were discussed.</p>
+              <p>Archived items are read-only and cannot be edited, preserving a record of what was covered.</p>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── EXIT INTERVIEW (Employee) ────── -->
+        <section class="guide-section" id="exit-interview-employee">
+          <h2>Exit Interview <span class="guide-role-badge guide-role-employee">All Employees</span></h2>
+          <p>If you are leaving the company and an offboarding process has been started for you, you may have a pending exit interview to complete.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Completing a Pending Exit Interview
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to <strong>HR / Onboarding</strong>. If you have a pending exit interview, you will see a notification or a dedicated tab.</li>
+                <li>Open the exit interview form. It contains questions about your experience, reasons for leaving, and feedback for the company.</li>
+                <li>Answer each question thoughtfully. Your responses help the company improve.</li>
+                <li>You can <strong>Save Draft</strong> to come back later, or <strong>Complete</strong> to submit the interview.</li>
+              </ol>
+              <div class="guide-info"><strong>Note:</strong> If the interview is marked as <strong>Confidential</strong>, your responses will only be visible to HR administrators, not your direct manager.</div>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════ -->
+        <!-- FOR MANAGERS                   -->
+        <!-- ═══════════════════════════════ -->
+
+        <!-- ────── EOS ROCKS ────── -->
+        <section class="guide-section" id="eos-rocks">
+          <h2>EOS Rocks <span class="guide-role-badge guide-role-manager">Manager</span></h2>
+          <p>EOS Rocks are the 90-day priorities that drive your team's focus, based on the Entrepreneurial Operating System (EOS) methodology. As a manager, you create and track Rocks for your team on the Performance page.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> What Are EOS Rocks?
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Rocks are the 3&ndash;7 most important priorities for the quarter. They should be:</p>
+              <ul>
+                <li>Specific enough that anyone can tell whether they are done or not.</li>
+                <li>Achievable within the 90-day quarter.</li>
+                <li>Assigned to a single accountable owner (even if others contribute).</li>
+              </ul>
+              <p>Rocks are reviewed weekly in L10 meetings using pulse status updates.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Creating a New Rock
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to <strong>Performance</strong> and select the <strong>Rocks</strong> tab.</li>
+                <li>Click <strong>+ New Rock</strong>.</li>
+                <li>Complete the Rock worksheet form with the following fields:
+                  <ul>
+                    <li><strong>Title</strong> &mdash; A short, clear name for the Rock.</li>
+                    <li><strong>SMART fields</strong> &mdash; Just like individual goals, Rocks should be Specific, Measurable, Achievable, Relevant, and Time-bound.</li>
+                    <li><strong>Owner</strong> &mdash; The person ultimately accountable for completing the Rock.</li>
+                    <li><strong>Quarter</strong> &mdash; The fiscal quarter the Rock belongs to.</li>
+                  </ul>
+                </li>
+                <li>Click <strong>Save</strong> to create the Rock.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Adding Milestones
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Milestones break a Rock into smaller, trackable steps with specific due dates:</p>
+              <ol class="guide-steps">
+                <li>Open a Rock by clicking on its card.</li>
+                <li>In the <strong>Milestones</strong> section, click <strong>+ Add Milestone</strong>.</li>
+                <li>Enter a milestone title, due date, and optionally assign it to a team member.</li>
+                <li>Check off milestones as they are completed. The Rock's overall progress updates automatically based on completed milestones.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Tracking KPIs
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Some Rocks have associated Key Performance Indicators (KPIs) that measure success:</p>
+              <ul>
+                <li>KPIs are defined when creating or editing a Rock.</li>
+                <li>Enter the metric name, target value, and current value.</li>
+                <li>KPI progress is displayed as a progress bar on the Rock card.</li>
+              </ul>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Weekly Pulse Updates
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Before your weekly L10 meeting, update the pulse status of each Rock:</p>
+              <ul>
+                <li><strong>On Track</strong> (green) &mdash; The Rock is progressing as expected and will be completed on time.</li>
+                <li><strong>Needs Attention</strong> (yellow) &mdash; There are risks or minor issues, but the Rock is still recoverable.</li>
+                <li><strong>Off Track</strong> (red) &mdash; The Rock is significantly behind and may not be completed on time without intervention.</li>
+              </ul>
+              <div class="guide-warning"><strong>Important:</strong> Honest pulse reporting is critical. A Rock that is off track early can be corrected; a Rock that is reported as on track but fails at the end of the quarter is a much bigger problem.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Viewing Linked Goals
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>When employees link their individual SMART goals to one of your Rocks, those goals appear in the Rock's detail view under a <strong>Linked Goals</strong> section. This gives you visibility into how your team members are contributing to the Rock.</p>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── TEAM REVIEWS ────── -->
+        <section class="guide-section" id="team-reviews">
+          <h2>Team Reviews <span class="guide-role-badge guide-role-manager">Manager</span></h2>
+          <p>As a manager, you are responsible for reviewing your direct reports' self-assessments and providing ratings and feedback.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Viewing Employee Self-Assessments
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to <strong>Performance</strong> and select the <strong>Team</strong> tab.</li>
+                <li>You will see a list of your direct reports and the status of their reviews (Not Started, Draft, Submitted, or Completed).</li>
+                <li>Click on an employee whose status is <strong>Submitted</strong> to read their self-assessment.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Rating Employees
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Rate each employee using the 5-star system across five categories:</p>
+              <ul>
+                <li><strong>Job Knowledge &amp; Skills</strong> &mdash; Technical competence and expertise in their role.</li>
+                <li><strong>Quality of Work</strong> &mdash; Accuracy, thoroughness, and attention to detail.</li>
+                <li><strong>Communication</strong> &mdash; Clarity, responsiveness, and effectiveness in written and verbal communication.</li>
+                <li><strong>Initiative &amp; Innovation</strong> &mdash; Proactiveness, problem-solving, and willingness to improve.</li>
+                <li><strong>Teamwork &amp; Collaboration</strong> &mdash; Working effectively with others and contributing to team success.</li>
+              </ul>
+              <p>Click the stars to set your rating for each category. The system calculates an <strong>overall rating</strong> automatically as the average.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Overall Rating Labels
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>The overall rating maps to these labels:</p>
+              <ul>
+                <li>1 star &mdash; <strong>Needs Improvement</strong></li>
+                <li>2 stars &mdash; <strong>Developing</strong></li>
+                <li>3 stars &mdash; <strong>Meeting Expectations</strong></li>
+                <li>4 stars &mdash; <strong>Exceeding Expectations</strong></li>
+                <li>5 stars &mdash; <strong>Outstanding</strong></li>
+              </ul>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Writing Manager Narrative and Completing
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>After setting ratings, write your <strong>Manager Narrative</strong> in the text area provided. Include specific examples, areas of recognition, and development suggestions.</li>
+                <li>Click <strong>Save Draft</strong> if you need more time, or <strong>Complete Review</strong> when you are finished.</li>
+                <li>Once completed, the employee will be able to see your ratings and narrative on their My Review tab and will be prompted to acknowledge receipt.</li>
+              </ol>
+              <div class="guide-warning"><strong>Important:</strong> Completing a review is final. Review your ratings and narrative carefully before clicking Complete.</div>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── MANAGER 1:1 VIEW ────── -->
+        <section class="guide-section" id="manager-one-on-ones">
+          <h2>1:1 Meetings &mdash; Manager View <span class="guide-role-badge guide-role-manager">Manager</span></h2>
+          <p>As a manager, you can access the 1:1 agendas for each of your direct reports.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Selecting an Employee
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to the <strong>1:1s</strong> page.</li>
+                <li>At the top of the page, you will see an <strong>Employee</strong> dropdown (highlighted in a teal banner).</li>
+                <li>Select the employee you want to prepare a 1:1 with. The agenda below will update to show that employee's items.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Adding Items and Running the Meeting
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>As a manager, you can add agenda items to any direct report's 1:1 using the same Add Agenda Item form. Items you add are visible to the employee and will appear in their agenda as well.</p>
+              <p>Running the meeting works identically to the employee view: click <strong>Start Meeting</strong>, work through items, check them off, and click <strong>End Meeting</strong> when finished.</p>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── ONBOARDING ────── -->
+        <section class="guide-section" id="onboarding">
+          <h2>Onboarding <span class="guide-role-badge guide-role-manager">Manager</span> <span class="guide-role-badge guide-role-hr">HR Admin</span></h2>
+          <p>The Onboarding section on the HR / Onboarding page lets you create and track onboarding checklists for new hires.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Starting a New Onboarding
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to <strong>HR / Onboarding</strong> and select the <strong>Onboarding</strong> tab.</li>
+                <li>Click <strong>+ New Onboarding</strong>.</li>
+                <li>Select the <strong>employee</strong> from the dropdown (they must already exist in the org chart).</li>
+                <li>Choose a <strong>template</strong> to pre-populate the checklist with standard tasks for that role or department. If no template applies, you can start with a blank checklist.</li>
+                <li>Set the <strong>start date</strong> (the employee's first day).</li>
+                <li>Click <strong>Create</strong> to generate the onboarding checklist.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Using Templates
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Templates define a standard set of tasks grouped by category (for example: IT Setup, HR Paperwork, Team Introduction, Training). When you select a template during onboarding creation, all of its tasks are copied into the new checklist.</p>
+              <p>After creation, you can add, remove, or modify individual tasks without affecting the original template.</p>
+              <div class="guide-tip"><strong>Tip:</strong> If you find yourself frequently modifying the same template, ask your HR admin to create a new template that better fits your department's needs.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Tracking Checklist Progress
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Each onboarding has a progress bar showing the percentage of completed tasks. To update progress:</p>
+              <ol class="guide-steps">
+                <li>Click on the onboarding card to open the detailed checklist.</li>
+                <li>Check the checkbox next to each task as it is completed.</li>
+                <li>Optionally, click the notes icon next to a task to add a note (for example, the ticket number for an IT request or the date a form was received).</li>
+              </ol>
+              <p>Tasks are grouped by category and show assigned owners and due dates if specified.</p>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── OFFBOARDING ────── -->
+        <section class="guide-section" id="offboarding">
+          <h2>Offboarding <span class="guide-role-badge guide-role-manager">Manager</span> <span class="guide-role-badge guide-role-hr">HR Admin</span></h2>
+          <p>When an employee leaves the company, an offboarding checklist ensures all exit tasks are completed properly.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Starting an Offboarding
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to <strong>HR / Onboarding</strong> and select the <strong>Offboarding</strong> tab.</li>
+                <li>Click <strong>+ New Offboarding</strong>.</li>
+                <li>Select the departing employee and set their last day.</li>
+                <li>Choose an offboarding template (if available) to pre-populate tasks such as equipment return, access revocation, knowledge transfer, and final payroll processing.</li>
+                <li>Click <strong>Create</strong>.</li>
+              </ol>
+              <div class="guide-info"><strong>Note:</strong> Starting an offboarding automatically creates an <strong>exit interview</strong> for the employee. The employee will see the exit interview on their HR / Onboarding page.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Tracking Offboarding Tasks
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Offboarding checklists work the same way as onboarding checklists: check off tasks as they are completed, add notes, and monitor the overall progress bar. Common offboarding tasks include:</p>
+              <ul>
+                <li>Collect company equipment (laptop, badge, keys)</li>
+                <li>Revoke system access and email accounts</li>
+                <li>Transfer ownership of files and projects</li>
+                <li>Process final payroll and benefits</li>
+                <li>Conduct exit interview</li>
+                <li>Update org chart</li>
+              </ul>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════ -->
+        <!-- FOR HR ADMINS                  -->
+        <!-- ═══════════════════════════════ -->
+
+        <!-- ────── ORG CHART ────── -->
+        <section class="guide-section" id="org-chart">
+          <h2>Org Chart Management <span class="guide-role-badge guide-role-hr">HR Admin</span></h2>
+          <p>The Org Chart is the foundation of USI People. It determines who reports to whom, which controls visibility across the platform (managers can see their direct reports' goals, reviews, and more).</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Viewing the Org Tree
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Navigate to <strong>HR / Onboarding</strong> and select the <strong>Org Chart</strong> tab. The org tree displays the company hierarchy as a visual tree, with each node showing the employee's name, title, and department.</p>
+              <p>Click on a node to expand or collapse its children. The tree starts from the top-level executives and flows down through the reporting structure.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Adding Employees
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Click <strong>+ Add Employee</strong> in the Org Chart toolbar.</li>
+                <li>Fill in the employee's details: name, email, job title, and department.</li>
+                <li>Select their <strong>manager</strong> from the dropdown. This determines where they appear in the tree and who can see their data.</li>
+                <li>Assign a <strong>role</strong>: Employee, Manager, Executive, or HR Admin. This controls what features they can access.</li>
+                <li>Click <strong>Save</strong>.</li>
+              </ol>
+              <div class="guide-tip"><strong>Tip:</strong> Add new employees to the org chart before starting their onboarding, since the onboarding form requires selecting an employee from the org chart.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Editing Roles and Managers
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Click on an employee in the org chart to select them.</li>
+                <li>Click <strong>Edit</strong> to open the edit form.</li>
+                <li>Change any fields as needed: title, department, manager, or role.</li>
+                <li>Click <strong>Save</strong>. The org tree will update to reflect the new structure.</li>
+              </ol>
+              <div class="guide-warning"><strong>Important:</strong> Changing an employee's manager will move them in the org tree and update who can see their data. Make sure the new reporting relationship is correct before saving.</div>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Removing Employees
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>To remove an employee from the org chart:</p>
+              <ol class="guide-steps">
+                <li>Select the employee and click <strong>Remove</strong>.</li>
+                <li>You will be asked to confirm the removal.</li>
+                <li>If the employee has direct reports, you will need to reassign them to a new manager before the removal can proceed.</li>
+              </ol>
+              <div class="guide-warning"><strong>Important:</strong> Removing an employee from the org chart does not delete their historical data (reviews, goals, etc.), but they will no longer appear in the active tree or be selectable in dropdowns.</div>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── TEMPLATE MANAGEMENT ────── -->
+        <section class="guide-section" id="templates">
+          <h2>Template Management <span class="guide-role-badge guide-role-hr">HR Admin</span></h2>
+          <p>Templates define reusable sets of tasks for onboarding and offboarding checklists. Managing templates well saves time and ensures consistency across the organization.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Accessing Manage Templates
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Navigate to <strong>HR / Onboarding</strong> and select the <strong>Manage Templates</strong> tab (visible only to HR Admins). Here you will see a list of all onboarding and offboarding templates, including built-in defaults and any custom templates your team has created.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Duplicating Built-In Templates
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Built-in templates cannot be edited directly, but you can duplicate them to create a customizable copy:</p>
+              <ol class="guide-steps">
+                <li>Find the built-in template in the list.</li>
+                <li>Click the <strong>Duplicate</strong> button.</li>
+                <li>A copy is created with "(Copy)" appended to the name. You can rename and edit it freely.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Creating Custom Templates
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Click <strong>+ New Template</strong>.</li>
+                <li>Enter a template name and type (Onboarding or Offboarding).</li>
+                <li>Optionally, set <strong>scoping</strong> to control when this template is suggested:
+                  <ul>
+                    <li><strong>Department</strong> &mdash; Only suggest this template for employees in a specific department.</li>
+                    <li><strong>Role</strong> &mdash; Only suggest for specific job roles.</li>
+                    <li><strong>Tags</strong> &mdash; Add custom tags for flexible categorization (for example: "remote", "executive-level", "contractor").</li>
+                  </ul>
+                </li>
+                <li>Click <strong>Save</strong> to create the template, then add tasks to it.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Editing Task Lists
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Open a template to edit its task list:</p>
+              <ul>
+                <li><strong>Add tasks</strong> by clicking <strong>+ Add Task</strong> and filling in the task title, category (for grouping), assignee role, and optional due date offset (for example, "Day 1", "Week 1").</li>
+                <li><strong>Reorder tasks</strong> by dragging them within or between categories.</li>
+                <li><strong>Remove tasks</strong> by clicking the delete icon next to a task.</li>
+                <li><strong>Edit tasks</strong> by clicking on the task text to modify it inline.</li>
+              </ul>
+              <p>Changes to a template only affect future onboardings or offboardings created from that template. Existing checklists are not modified.</p>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ────── EXIT INTERVIEW ADMIN ────── -->
+        <section class="guide-section" id="exit-interviews-admin">
+          <h2>Exit Interview Management <span class="guide-role-badge guide-role-hr">HR Admin</span></h2>
+          <p>HR Admins can view and manage all exit interviews across the organization.</p>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Viewing All Exit Interviews
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <ol class="guide-steps">
+                <li>Navigate to <strong>HR / Onboarding</strong> and select the <strong>Exit Interviews</strong> tab.</li>
+                <li>You will see a list of all exit interviews with their status (Pending, Draft, Completed), the employee's name, and their last day.</li>
+                <li>Click on any interview to view the full responses.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Confidential Interviews
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>Exit interviews can be marked as <strong>Confidential</strong>. When an interview is confidential:</p>
+              <ul>
+                <li>Only HR Admins can view the responses.</li>
+                <li>The departing employee's manager cannot see the interview contents.</li>
+                <li>The employee is informed that the interview is confidential, which may encourage more honest feedback.</li>
+              </ul>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Printing Interviews
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>To print an exit interview for your records:</p>
+              <ol class="guide-steps">
+                <li>Open the completed exit interview.</li>
+                <li>Click the <strong>Print</strong> button, or use your browser's print function (<kbd>Ctrl</kbd>+<kbd>P</kbd> or <kbd>Cmd</kbd>+<kbd>P</kbd>).</li>
+                <li>The print view removes navigation elements and formats the interview for clean printing.</li>
+              </ol>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════ -->
+        <!-- FOR EXECUTIVES                 -->
+        <!-- ═══════════════════════════════ -->
+
+        <section class="guide-section" id="executive-access">
+          <h2>Executive Access <span class="guide-role-badge guide-role-executive">Executive</span></h2>
+          <p>Executives have the same capabilities as managers, plus full visibility across all employee data in the organization. This means you can:</p>
+          <ul>
+            <li>View goals, reviews, and 1:1 agendas for any employee, not just your direct reports.</li>
+            <li>Access the Team tab on the Performance page to see all employees' review statuses.</li>
+            <li>View all Rocks across the organization.</li>
+            <li>Access all onboarding and offboarding checklists.</li>
+            <li>View all exit interviews (subject to confidentiality settings).</li>
+          </ul>
+          <p>If you also have the <strong>HR Admin</strong> role, you will additionally have access to Org Chart management and Template management as described in the sections above.</p>
+          <div class="guide-tip"><strong>Tip:</strong> Use the filter and search tools on each page to quickly find specific employees or data. With organization-wide access, the number of items can be large.</div>
+        </section>
+
+        <!-- ═══════════════════════════════ -->
+        <!-- FAQ / TROUBLESHOOTING          -->
+        <!-- ═══════════════════════════════ -->
+
+        <section class="guide-section" id="faq">
+          <h2>FAQ / Troubleshooting</h2>
+
+          <div class="guide-collapsible open">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> I can't see the Team tab on the Performance page
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>The Team tab is only visible to users with the <strong>Manager</strong>, <strong>Executive</strong>, or <strong>HR Admin</strong> role. If you believe you should have access, contact your HR administrator to verify that your role is set correctly in the org chart.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> I can't see or add EOS Rocks
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>The Rocks tab is available only to Managers, Executives, and HR Admins. If you need to create or manage Rocks, your HR administrator must assign you the appropriate role in the org chart.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> My changes aren't saving
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>If your changes do not seem to save, try the following:</p>
+              <ol>
+                <li><strong>Check your internet connection.</strong> USI People requires an active connection to save data to SharePoint.</li>
+                <li><strong>Refresh the page.</strong> Occasionally a temporary glitch can prevent saves. Refreshing and trying again usually resolves the issue.</li>
+                <li><strong>Check for error messages.</strong> Look for a red toast notification at the bottom-right of the screen. The error message may describe the problem.</li>
+                <li><strong>Clear your browser cache.</strong> In rare cases, stale cached data can cause conflicts. Clear your cache and sign in again.</li>
+                <li><strong>Try a different browser.</strong> USI People works best in modern browsers (Chrome, Edge, Firefox, Safari). If you are using an older browser, try switching.</li>
+              </ol>
+              <p>If the problem persists after trying these steps, contact your HR administrator with a description of what you were trying to do and any error messages you saw.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> I see "Access Denied"
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>An "Access Denied" message typically means one of the following:</p>
+              <ul>
+                <li>Your Microsoft account does not have permission to access the underlying SharePoint site. Contact your HR administrator to verify you have been granted access.</li>
+                <li>Your role in the org chart does not include the level required for the feature you are trying to use. Ask your HR admin to check your assigned role.</li>
+                <li>Your session has expired. Try signing out and signing back in.</li>
+              </ul>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> I see a blank page after signing in
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>This usually means the app encountered an error during loading. Try these steps:</p>
+              <ol>
+                <li>Open your browser's developer console (<kbd>F12</kbd> or <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>I</kbd>) and check for red error messages.</li>
+                <li>Refresh the page with a hard reload (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> or <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>).</li>
+                <li>Clear your browser cache and try again.</li>
+                <li>If you see a specific error message, share it with your HR administrator for further troubleshooting.</li>
+              </ol>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> How do I print a page?
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>USI People includes print-friendly styles. To print any page:</p>
+              <ol>
+                <li>Navigate to the content you want to print.</li>
+                <li>Use <kbd>Ctrl</kbd>+<kbd>P</kbd> (Windows/Linux) or <kbd>Cmd</kbd>+<kbd>P</kbd> (Mac).</li>
+                <li>The print view automatically hides the navigation bar, buttons, and other interactive elements, leaving only the content.</li>
+              </ol>
+              <p>This User Guide is also print-friendly. The sidebar table of contents is hidden in print, and all collapsible sections are expanded.</p>
+            </div></div>
+          </div>
+
+          <div class="guide-collapsible">
+            <button class="guide-collapsible-toggle" onclick="this.parentElement.classList.toggle('open')">
+              <span class="arrow">&#9654;</span> Who do I contact for help?
+            </button>
+            <div class="guide-collapsible-body"><div class="guide-collapsible-inner">
+              <p>For any issues not covered in this guide, contact your <strong>HR Administrator</strong>. They can:</p>
+              <ul>
+                <li>Verify and update your role in the org chart.</li>
+                <li>Grant access to SharePoint if needed.</li>
+                <li>Troubleshoot technical issues with the platform.</li>
+                <li>Assist with data corrections or special requests.</li>
+              </ul>
+            </div></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="shared/auth.js"></script>
+  <script src="shared/ui.js"></script>
+  <script src="shared/org.js"></script>
+  <script>
+    (async () => {
+      // Handle auth redirect if present
+      if (window.location.search.includes('code=')) {
+        await USI.handleRedirect();
+      }
+
+      // Try to load user if we have a token (but don't require it)
+      if (USI.getToken()) {
+        try { await USI.getMe(); } catch (e) { /* ignore — guide is viewable without auth */ }
+      }
+
+      // Render nav — works even without auth (shows links without user name)
+      USI.renderNav('guide');
+
+      // If not authenticated, hide the Sign Out button and user name (they'll be empty anyway)
+      const me = JSON.parse(sessionStorage.getItem('usi_me') || '{}');
+      if (!me.displayName) {
+        const userEl = document.querySelector('.topbar-user');
+        if (userEl) userEl.style.display = 'none';
+      }
+
+      // ── Highlight active TOC item on scroll ──
+      const tocLinks = document.querySelectorAll('.guide-toc a');
+      const sections = document.querySelectorAll('.guide-section');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            tocLinks.forEach(link => {
+              link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+
+      sections.forEach(section => observer.observe(section));
+
+      // ── Smooth scroll for TOC links ──
+      tocLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.querySelector(link.getAttribute('href'));
+          if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

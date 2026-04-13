@@ -100,7 +100,8 @@
     const pages = [
       { id: 'performance', label: 'Performance', href: 'performance.html' },
       { id: 'oneonone', label: '1:1s', href: 'oneonone.html' },
-      { id: 'onboarding', label: 'HR / Onboarding', href: 'onboarding.html' }
+      { id: 'onboarding', label: 'HR / Onboarding', href: 'onboarding.html' },
+      { id: 'guide', label: 'User Guide', href: 'guide.html' }
     ];
     const me = JSON.parse(sessionStorage.getItem('usi_me') || '{}');
     nav.innerHTML = `
