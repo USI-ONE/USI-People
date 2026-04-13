@@ -72,8 +72,24 @@
           const idx = parseInt(btn.dataset.idx);
           const b = buttons[idx];
           if (b.onClick) {
-            const result = await b.onClick(overlay);
-            if (result !== false) close(b.value !== undefined ? b.value : b.label);
+            // Disable all buttons and show saving state
+            const allBtns = overlay.querySelectorAll('.modal-footer .btn');
+            const originalText = btn.textContent;
+            allBtns.forEach(b => b.disabled = true);
+            btn.textContent = 'Saving...';
+            try {
+              const result = await b.onClick(overlay);
+              if (result !== false) close(b.value !== undefined ? b.value : b.label);
+              else {
+                // Validation failed — restore buttons
+                allBtns.forEach(b => b.disabled = false);
+                btn.textContent = originalText;
+              }
+            } catch (e) {
+              allBtns.forEach(b => b.disabled = false);
+              btn.textContent = originalText;
+              throw e;
+            }
           } else {
             close(b.value !== undefined ? b.value : b.label);
           }
