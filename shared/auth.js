@@ -157,22 +157,31 @@ const USI = (() => {
     return _siteId;
   }
 
-  async function ensureList(listName, columns) {
+  let _allListsCache = null;
+  async function _fetchAllLists() {
+    if (_allListsCache) return _allListsCache;
     const siteId = await getSiteId();
+    const result = await graph('GET', `/sites/${siteId}/lists?$select=id,displayName`);
+    _allListsCache = result.value || [];
+    // Cache all list IDs at once
+    _allListsCache.forEach(l => {
+      _listIds[l.displayName] = l.id;
+      sessionStorage.setItem(`usi_list_${l.displayName}`, l.id);
+    });
+    console.log(`[USI] Loaded ${_allListsCache.length} lists from SharePoint`);
+    return _allListsCache;
+  }
+
+  async function ensureList(listName, columns) {
     const cacheKey = `usi_list_${listName}`;
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) { _listIds[listName] = cached; return cached; }
 
-    // Fetch all lists and find by display name
+    // Fetch all lists once and find by display name
     try {
-      const allLists = await graph('GET', `/sites/${siteId}/lists?$select=id,displayName`);
-      const match = (allLists.value || []).find(l => l.displayName === listName);
-      if (match) {
-        console.log(`[USI] Found list "${listName}" (${match.id})`);
-        _listIds[listName] = match.id;
-        sessionStorage.setItem(cacheKey, match.id);
-        return match.id;
-      }
+      const allLists = await _fetchAllLists();
+      const match = allLists.find(l => l.displayName === listName);
+      if (match) return match.id;
     } catch (e) { console.warn(`Could not query lists:`, e.message); }
 
     // List not found
