@@ -851,8 +851,26 @@
                 }
               }
 
+              // Auto-create a pending exit interview for the departing employee
+              await USI.createListItem('USI_ExitInterviews', {
+                Title: name + ' - Exit Interview',
+                EmployeeName: name,
+                EmployeeEmail: email,
+                InterviewDate: '',
+                InterviewerName: '',
+                InterviewerEmail: '',
+                ReasonForLeaving: '',
+                ReasonDetails: '',
+                RatingManagement: 0, RatingCompensation: 0, RatingCulture: 0,
+                RatingGrowth: 0, RatingWorkLife: 0,
+                WhatWentWell: '', WhatCouldImprove: '', Recommendations: '',
+                WouldReturn: '', IsConfidential: true,
+                Status: 'Pending',
+                CompletedDate: null
+              });
+
               await loadAllData();
-              USI.toast(`Offboarding started for ${name}`, 'success');
+              USI.toast(`Offboarding started for ${name} — exit interview assigned`, 'success');
             } catch (err) {
               console.error('Error creating offboarding:', err);
               USI.toast('Failed to create offboarding', 'error');
@@ -948,13 +966,16 @@
 
     function gatherInterviewData(status) {
       const wouldReturnEl = document.querySelector('input[name="wouldReturn"]:checked');
+      const myEmail = (me.mail || me.userPrincipalName || '').toLowerCase();
+      const empEmail = document.getElementById('exitEmployeeEmail').value.trim().toLowerCase();
+      const isSelfService = myEmail === empEmail;
       return {
         Title: document.getElementById('exitEmployeeName').value.trim() + ' - Exit Interview',
         EmployeeName: document.getElementById('exitEmployeeName').value.trim(),
         EmployeeEmail: document.getElementById('exitEmployeeEmail').value.trim(),
-        InterviewDate: document.getElementById('exitInterviewDate').value,
-        InterviewerName: me.displayName,
-        InterviewerEmail: me.mail || me.userPrincipalName,
+        InterviewDate: document.getElementById('exitInterviewDate').value || new Date().toISOString().split('T')[0],
+        InterviewerName: isSelfService ? 'Self-Service' : me.displayName,
+        InterviewerEmail: isSelfService ? empEmail : (me.mail || me.userPrincipalName),
         ReasonForLeaving: document.getElementById('exitReason').value,
         ReasonDetails: document.getElementById('exitReasonDetails').value,
         RatingManagement: starValues.management,
@@ -1191,12 +1212,36 @@
     async function loadExitInterviews() {
       try {
         const allInterviews = await USI.getListItems('USI_ExitInterviews');
-        // HR Admins and executives see all; managers see their reports; others see none
+        const myEmail = (me.mail || me.userPrincipalName || '').toLowerCase();
         if (USI.isHRAdmin(me.mail) || USI.isExecutive(me.mail)) {
           exitInterviews = allInterviews;
         } else {
-          exitInterviews = USI.filterByAccess(allInterviews, me.mail, 'EmployeeEmail');
+          // Managers see their reports' interviews, employees see their own
+          const byAccess = USI.filterByAccess(allInterviews, me.mail, 'EmployeeEmail');
+          // Also include any interview assigned to the current user (self-service)
+          const myOwn = allInterviews.filter(i =>
+            (i.EmployeeEmail || '').toLowerCase() === myEmail ||
+            (i.fields && (i.fields.EmployeeEmail || '').toLowerCase() === myEmail)
+          );
+          // Merge without duplicates
+          const seen = new Set(byAccess.map(i => i.id));
+          exitInterviews = [...byAccess, ...myOwn.filter(i => !seen.has(i.id))];
         }
+
+        // Check if current user has a pending exit interview — auto-open it
+        const myPending = exitInterviews.find(i => {
+          const email = (i.EmployeeEmail || (i.fields && i.fields.EmployeeEmail) || '').toLowerCase();
+          const status = i.Status || (i.fields && i.fields.Status) || '';
+          return email === myEmail && (status === 'Pending' || status === 'Draft');
+        });
+        if (myPending && !amManager) {
+          // Auto-switch to exit interview tab and open the form
+          document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'panelExitInterview'));
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panelExitInterview'));
+          showExitForm(myPending);
+          USI.toast('You have a pending exit interview to complete', 'info');
+        }
+
         renderExitInterviews();
       } catch (err) {
         console.error('Error loading exit interviews:', err);
