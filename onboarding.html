@@ -1266,6 +1266,24 @@
       }
     }
 
+    async function deleteInterviewFromList(itemId) {
+      const confirmed = await USI.confirm('Delete this exit interview? This cannot be undone.');
+      if (!confirmed) return;
+      try {
+        await USI.deleteListItem('USI_ExitInterviews', itemId);
+        await loadExitInterviews();
+        USI.toast('Interview deleted', 'success');
+      } catch (err) {
+        console.error('Error deleting interview:', err);
+        USI.toast('Failed to delete interview', 'error');
+      }
+    }
+
+    function editInterviewFromList(itemId) {
+      const interview = exitInterviews.find(i => i.id === itemId);
+      if (interview) showExitForm(interview);
+    }
+
     // ══════════════════════════════════════════════════════
     // Exit Interview — List Rendering
     // ══════════════════════════════════════════════════════
@@ -1305,6 +1323,8 @@
         const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : '-';
         const statusPill = f.Status === 'Complete'
           ? '<span class="pill pill-success">Complete</span>'
+          : f.Status === 'Pending'
+          ? '<span class="pill pill-info">Pending</span>'
           : '<span class="pill pill-warning">Draft</span>';
         const confidentialPill = f.IsConfidential
           ? '<span class="pill pill-neutral" title="Confidential">Confidential</span>'
@@ -1326,6 +1346,8 @@
                       <span style="color:#f59e0b">&#9733;</span>
                       <span class="interview-rating-value">${avgRating}</span>
                     </div>
+                    ${amManager ? `<button class="btn btn-ghost btn-sm" style="color:var(--error);font-size:11px" onclick="event.stopPropagation();deleteInterviewFromList('${interview.id}')">Delete</button>` : ''}
+                    ${amManager ? `<button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="event.stopPropagation();editInterviewFromList('${interview.id}')">Edit</button>` : ''}
                   </div>
                 </div>
                 <div class="interview-card-meta">
