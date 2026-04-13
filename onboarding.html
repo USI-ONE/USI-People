@@ -806,9 +806,8 @@
       try {
         const items = listName === 'USI_Onboarding' ? onboardItems : offboardItems;
         const toDelete = items.filter(i => (i.fields.EmployeeEmail || i.fields.EmployeeName) === key);
-        for (const item of toDelete) {
-          await USI.deleteListItem(listName, item.id);
-        }
+        // Delete all tasks in parallel for speed
+        await Promise.all(toDelete.map(item => USI.deleteListItem(listName, item.id)));
         await loadAllData();
         USI.toast('Employee tasks deleted', 'success');
       } catch (err) {
@@ -920,19 +919,17 @@
                   TemplateName: 'Blank'
                 });
               } else {
-                for (const task of tasks) {
-                  await USI.createListItem('USI_Onboarding', {
-                    Title: task.title,
-                    EmployeeName: name,
-                    EmployeeEmail: email,
-                    StartDate: startDate,
-                    Category: task.category,
-                    AssigneeType: task.assigneeType,
-                    DueDate: addDays(startDate, task.daysFromStart),
-                    Status: 'Pending',
-                    TemplateName: templateName
-                  });
-                }
+                await Promise.all(tasks.map(task => USI.createListItem('USI_Onboarding', {
+                  Title: task.title,
+                  EmployeeName: name,
+                  EmployeeEmail: email,
+                  StartDate: startDate,
+                  Category: task.category,
+                  AssigneeType: task.assigneeType,
+                  DueDate: addDays(startDate, task.daysFromStart),
+                  Status: 'Pending',
+                  TemplateName: templateName
+                })));
               }
 
               await loadAllData();
@@ -1062,19 +1059,17 @@
                   TemplateName: 'Blank'
                 });
               } else {
-                for (const task of tasks) {
-                  await USI.createListItem('USI_Offboarding', {
-                    Title: task.title,
-                    EmployeeName: name,
-                    EmployeeEmail: email,
-                    LastDay: lastDay,
-                    Category: task.category,
-                    AssigneeType: task.assigneeType,
-                    DueDate: addDays(lastDay, task.daysFromEnd),
-                    Status: 'Pending',
-                    TemplateName: templateName
-                  });
-                }
+                await Promise.all(tasks.map(task => USI.createListItem('USI_Offboarding', {
+                  Title: task.title,
+                  EmployeeName: name,
+                  EmployeeEmail: email,
+                  LastDay: lastDay,
+                  Category: task.category,
+                  AssigneeType: task.assigneeType,
+                  DueDate: addDays(lastDay, task.daysFromEnd),
+                  Status: 'Pending',
+                  TemplateName: templateName
+                })));
               }
 
               // Auto-create a pending exit interview for the departing employee
