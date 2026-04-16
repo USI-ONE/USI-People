@@ -1191,6 +1191,11 @@
       try { return JSON.parse(str); } catch { return []; }
     }
 
+    function isKPIMet(k) {
+      if (k.type === 'yesno') return k.current === 'Yes';
+      return parseFloat(k.current) >= parseFloat(k.target);
+    }
+
     function getQuarterEndDate(quarter) {
       if (!quarter) return null;
       const match = quarter.match(/Q(\d)\s+(\d{4})/);
@@ -1213,7 +1218,7 @@
       const totalMs = milestones.length;
       const completedMs = milestones.filter(m => m.status === 'Complete').length;
       const totalKPIs = kpis.length;
-      const metKPIs = kpis.filter(k => parseFloat(k.current) >= parseFloat(k.target)).length;
+      const metKPIs = kpis.filter(isKPIMet).length;
 
       // Complete: all milestones done AND all KPIs met (must have at least one milestone)
       if (totalMs > 0 && completedMs === totalMs && (totalKPIs === 0 || metKPIs === totalKPIs)) {
@@ -1358,7 +1363,7 @@
 
         const kpis = parseJSON(r.KPIs);
         totalKPIs += kpis.length;
-        onTargetKPIs += kpis.filter(k => parseFloat(k.current) >= parseFloat(k.target)).length;
+        onTargetKPIs += kpis.filter(isKPIMet).length;
       });
 
       const msPct = totalMs > 0 ? Math.round(completedMs / totalMs * 100) : 0;
@@ -1420,7 +1425,7 @@
               const ms = parseJSON(r.Milestones);
               const msComp = ms.filter(m => m.status === 'Complete').length;
               const kpis = parseJSON(r.KPIs);
-              const kpiMet = kpis.filter(k => parseFloat(k.current) >= parseFloat(k.target)).length;
+              const kpiMet = kpis.filter(isKPIMet).length;
               const days = daysRemaining(r.Quarter);
               const msPctR = ms.length > 0 ? Math.round(msComp / ms.length * 100) : 0;
               return `
@@ -1628,6 +1633,27 @@
       }
 
       listEl.innerHTML = wsKPIs.map((k, idx) => {
+        const isYesNo = k.type === 'yesno';
+        const met = isKPIMet(k);
+
+        if (isYesNo) {
+          return `
+          <div class="kpi-row" data-kpi-idx="${idx}">
+            <input type="text" class="form-input kpi-name" style="flex:2" value="${USI.escapeHtml(k.name || '')}" placeholder="KPI Name" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].name=this.value">
+            <select class="form-select" style="width:auto" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].type=this.value;renderWorksheetKPIs();refreshAutoStatus()">
+              <option value="number">Numeric</option>
+              <option value="yesno" selected>Yes / No</option>
+            </select>
+            <select class="form-select" style="width:auto;min-width:90px" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].current=this.value;renderWorksheetKPIs();refreshAutoStatus()">
+              <option value="">—</option>
+              <option value="Yes" ${k.current === 'Yes' ? 'selected' : ''}>Yes</option>
+              <option value="No" ${k.current === 'No' ? 'selected' : ''}>No</option>
+            </select>
+            <span class="pill ${met ? 'pill-success' : 'pill-neutral'}" style="white-space:nowrap">${met ? '&#10003; Done' : 'Pending'}</span>
+            ${!readOnly ? `<button class="btn btn-danger" onclick="removeWorksheetKPI('${k.id}')">&times;</button>` : ''}
+          </div>`;
+        }
+
         const cur = parseFloat(k.current) || 0;
         const tgt = parseFloat(k.target) || 0;
         const pct = tgt > 0 ? Math.min(100, Math.round(cur / tgt * 100)) : 0;
@@ -1635,6 +1661,10 @@
         return `
         <div class="kpi-row" data-kpi-idx="${idx}">
           <input type="text" class="form-input kpi-name" value="${USI.escapeHtml(k.name || '')}" placeholder="KPI Name" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].name=this.value">
+          <select class="form-select" style="width:auto" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].type=this.value;renderWorksheetKPIs();refreshAutoStatus()">
+            <option value="number" selected>Numeric</option>
+            <option value="yesno">Yes / No</option>
+          </select>
           <input type="number" class="form-input kpi-target" value="${k.target || ''}" placeholder="Target" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].target=this.value;renderWorksheetKPIs();refreshAutoStatus()">
           <input type="number" class="form-input kpi-current" value="${k.current || ''}" placeholder="Current" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].current=this.value;renderWorksheetKPIs();refreshAutoStatus()">
           <input type="text" class="form-input kpi-unit" value="${USI.escapeHtml(k.unit || '')}" placeholder="Unit" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].unit=this.value">
@@ -1654,6 +1684,7 @@
     function addWorksheetKPI() {
       wsKPIs.push({
         id: USI.generateId(),
+        type: 'number',
         name: '',
         target: '',
         current: '',
