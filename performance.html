@@ -123,6 +123,30 @@
     .status-dot.on-track, .status-dot.complete { background: var(--success); }
     .status-dot.at-risk, .status-dot.behind { background: var(--warning); }
     .status-dot.not-started { background: var(--text-light); }
+    .status-dot.off-track { background: var(--error); }
+
+    /* ── Rocks Dashboard ── */
+    .dash-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .dash-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .dash-card-value { font-size: 32px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .dash-card-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; }
+    .dash-card-sub { font-size: 12px; color: var(--text-light); margin-top: 8px; }
+    .dash-card-value.success { color: var(--success); }
+    .dash-card-value.warning { color: var(--warning); }
+    .dash-card-value.error { color: var(--error); }
+    .dash-status-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+    .dash-status-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; }
+    .dash-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .dash-table th { text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); background: var(--bg); border-bottom: 1px solid var(--border); }
+    .dash-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .dash-table tr:last-child td { border-bottom: none; }
+    .dash-table tr:hover { background: var(--bg); }
+    .dash-table tr { cursor: pointer; }
+    @media (max-width: 768px) { .dash-row { grid-template-columns: 1fr 1fr; } }
 
     /* ── Review Panel ── */
     .review-container { max-width: 800px; }
@@ -490,9 +514,17 @@
         <div id="rockListView">
           <div class="toolbar">
             <select class="filter-select" id="rockFilterQuarter"></select>
+            <button class="btn btn-secondary btn-sm" id="btnToggleDashboard">Dashboard</button>
             <div class="toolbar-spacer"></div>
             <button class="btn btn-primary" id="btnAddRock" style="display:none">+ New Rock</button>
           </div>
+
+          <!-- Rocks Dashboard -->
+          <div id="rocksDashboard" style="display:none;margin-bottom:24px">
+            <div class="dash-row" id="dashSummaryRow"></div>
+            <div class="card" id="dashRockTable" style="margin-top:16px;padding:0;overflow:hidden"></div>
+          </div>
+
           <div id="rocksGrid" class="card-grid"></div>
           <div id="rocksEmpty" class="empty-state" style="display:none">
             <div class="empty-state-icon">&#127967;</div>
@@ -514,22 +546,22 @@
             <div class="rock-ws-section">
               <div class="rock-ws-section-title">Rock Overview</div>
               <div class="form-group">
-                <label class="form-label">Title</label>
-                <input type="text" class="form-input" id="rockWsTitle" placeholder="Rock title">
+                <label class="form-label">Title <span style="color:var(--error)">*</span></label>
+                <input type="text" class="form-input" id="rockWsTitle" placeholder="Clear, action-oriented title (e.g. Launch customer portal by end of Q2)">
               </div>
               <div class="form-row-3">
                 <div class="form-group">
-                  <label class="form-label">Quarter</label>
+                  <label class="form-label">Quarter <span style="color:var(--error)">*</span></label>
                   <select class="form-select" id="rockWsQuarter"></select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Department</label>
+                  <label class="form-label">Department <span style="color:var(--error)">*</span></label>
                   <select class="form-select" id="rockWsDepartment">
                     <option value="">Select...</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Priority</label>
+                  <label class="form-label">Priority <span style="color:var(--error)">*</span></label>
                   <select class="form-select" id="rockPriority">
                     <option value="">Select...</option>
                     <option value="Company Rock">Company Rock</option>
@@ -540,7 +572,7 @@
               </div>
               <div class="form-row-3">
                 <div class="form-group">
-                  <label class="form-label">Rock Owner</label>
+                  <label class="form-label">Rock Owner <span style="color:var(--error)">*</span></label>
                   <select class="form-select" id="rockOwner"></select>
                 </div>
                 <div class="form-group">
@@ -549,18 +581,18 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Status</label>
-                  <select class="form-select" id="rockWsStatus">
+                  <select class="form-select" id="rockWsStatus" disabled>
                     <option value="Not Started">Not Started</option>
                     <option value="On Track">On Track</option>
-                    <option value="At Risk">At Risk</option>
-                    <option value="Behind">Behind</option>
+                    <option value="Off Track">Off Track</option>
                     <option value="Complete">Complete</option>
                   </select>
+                  <div style="font-size:11px;color:var(--text-light);margin-top:4px">Auto-calculated from milestones &amp; KPIs</div>
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea class="form-textarea" id="rockWsDescription" rows="3" placeholder="Describe this rock..."></textarea>
+                <label class="form-label">Description <span style="color:var(--error)">*</span></label>
+                <textarea class="form-textarea" id="rockWsDescription" rows="3" placeholder="What does 'done' look like? Why does this matter this quarter?"></textarea>
               </div>
             </div>
 
@@ -606,7 +638,8 @@
 
             <!-- Section 3: Milestones -->
             <div class="rock-ws-section">
-              <div class="rock-ws-section-title">Milestones <button class="btn btn-sm btn-secondary" id="btnAddMilestone" style="margin-left:12px">+ Add Milestone</button></div>
+              <div class="rock-ws-section-title">Milestones <span style="color:var(--error);font-size:11px;font-weight:400;text-transform:none;letter-spacing:0">*</span> <button class="btn btn-sm btn-secondary" id="btnAddMilestone" style="margin-left:12px">+ Add Milestone</button></div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Break this rock into 3-7 milestones spread across the quarter. Each needs a title, due date, and owner. Status is auto-calculated from milestone completion.</div>
               <div id="milestoneProgress" style="margin-bottom:16px"></div>
               <div id="milestoneList"></div>
             </div>
@@ -614,6 +647,7 @@
             <!-- Section 4: KPIs & Measurables -->
             <div class="rock-ws-section">
               <div class="rock-ws-section-title">KPIs &amp; Measurables <button class="btn btn-sm btn-secondary" id="btnAddKPI" style="margin-left:12px">+ Add KPI</button></div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Define measurable KPIs that prove this rock is succeeding. Set a numeric target and track current values over the quarter.</div>
               <div id="kpiList"></div>
             </div>
 
@@ -736,6 +770,7 @@
     let me = null;
     let amManager = false;
     let amHRAdmin = false;
+    let amExecutive = false;
     let goals = [];
     let rocks = [];
     let allGoals = [];
@@ -1174,6 +1209,44 @@
       return diff;
     }
 
+    function computeRockStatus(quarter, milestones, kpis, pulseUpdates) {
+      const totalMs = milestones.length;
+      const completedMs = milestones.filter(m => m.status === 'Complete').length;
+      const totalKPIs = kpis.length;
+      const metKPIs = kpis.filter(k => parseFloat(k.current) >= parseFloat(k.target)).length;
+
+      // Complete: all milestones done AND all KPIs met (must have at least one milestone)
+      if (totalMs > 0 && completedMs === totalMs && (totalKPIs === 0 || metKPIs === totalKPIs)) {
+        return 'Complete';
+      }
+      // Not Started: 0 milestones complete and no pulse updates
+      if (completedMs === 0 && (!pulseUpdates || pulseUpdates.length === 0)) {
+        return 'Not Started';
+      }
+      // On Track vs Off Track: compare milestone completion to time elapsed in quarter
+      const end = getQuarterEndDate(quarter);
+      if (end && totalMs > 0) {
+        const qMatch = (quarter || '').match(/Q(\d)\s+(\d{4})/);
+        if (qMatch) {
+          const start = new Date(parseInt(qMatch[2]), (parseInt(qMatch[1]) - 1) * 3, 1);
+          const now = new Date();
+          const totalDuration = end - start;
+          const elapsed = Math.max(0, now - start);
+          const timeRatio = totalDuration > 0 ? elapsed / totalDuration : 1;
+          const completionRatio = completedMs / totalMs;
+          if (completionRatio >= timeRatio * 0.8) return 'On Track';
+          return 'Off Track';
+        }
+      }
+      return 'On Track';
+    }
+
+    function refreshAutoStatus() {
+      const quarter = document.getElementById('rockWsQuarter').value;
+      const status = computeRockStatus(quarter, wsMilestones, wsKPIs, wsPulse);
+      document.getElementById('rockWsStatus').value = status;
+    }
+
     function renderRocks() {
       const quarterFilter = document.getElementById('rockFilterQuarter').value;
       let filtered = rocks;
@@ -1190,7 +1263,8 @@
       empty.style.display = 'none';
 
       grid.innerHTML = filtered.map(r => {
-        const status = r.Status || 'Not Started';
+        let status = r.Status || 'Not Started';
+        if (status === 'At Risk' || status === 'Behind') status = 'Off Track';
         const alignedCount = allGoals.filter(g => g.LinkedRockId == r.id).length;
 
         // Parse milestones, KPIs, pulse for card summary
@@ -1222,7 +1296,7 @@
                 ${r.Priority ? `<span class="pill" style="font-size:11px">${USI.escapeHtml(r.Priority)}</span>` : ''}
               </div>
             </div>
-            ${amManager || amHRAdmin ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openRockWorksheet('${r.id}')">Edit</button>` : ''}
+            ${amExecutive ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openRockWorksheet('${r.id}')">Edit</button>` : ''}
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:8px">Owner: ${USI.escapeHtml(r.OwnerName || r.OwnerEmail || 'Unassigned')}</div>
           <div class="rock-desc truncated">${USI.escapeHtml(r.Description || '')}</div>
@@ -1249,6 +1323,129 @@
       }).join('');
     }
 
+    // ── Rocks Dashboard ──
+
+    let dashboardVisible = false;
+
+    function toggleDashboard() {
+      dashboardVisible = !dashboardVisible;
+      document.getElementById('rocksDashboard').style.display = dashboardVisible ? '' : 'none';
+      document.getElementById('rocksGrid').style.display = dashboardVisible ? 'none' : '';
+      document.getElementById('rocksEmpty').style.display = 'none';
+      document.getElementById('btnToggleDashboard').textContent = dashboardVisible ? 'List View' : 'Dashboard';
+      if (dashboardVisible) renderRocksDashboard();
+    }
+
+    function renderRocksDashboard() {
+      const quarterFilter = document.getElementById('rockFilterQuarter').value;
+      let filtered = rocks;
+      if (quarterFilter) filtered = filtered.filter(r => r.Quarter === quarterFilter);
+
+      // Aggregate stats
+      const counts = { 'Not Started': 0, 'On Track': 0, 'Off Track': 0, 'Complete': 0 };
+      let totalMs = 0, completedMs = 0, totalKPIs = 0, onTargetKPIs = 0;
+
+      filtered.forEach(r => {
+        // Normalize legacy statuses
+        let st = r.Status || 'Not Started';
+        if (st === 'At Risk' || st === 'Behind') st = 'Off Track';
+        if (!counts.hasOwnProperty(st)) st = 'Not Started';
+        counts[st]++;
+
+        const ms = parseJSON(r.Milestones);
+        totalMs += ms.length;
+        completedMs += ms.filter(m => m.status === 'Complete').length;
+
+        const kpis = parseJSON(r.KPIs);
+        totalKPIs += kpis.length;
+        onTargetKPIs += kpis.filter(k => parseFloat(k.current) >= parseFloat(k.target)).length;
+      });
+
+      const msPct = totalMs > 0 ? Math.round(completedMs / totalMs * 100) : 0;
+      const kpiPct = totalKPIs > 0 ? Math.round(onTargetKPIs / totalKPIs * 100) : 0;
+
+      // Summary cards
+      document.getElementById('dashSummaryRow').innerHTML = `
+        <div class="dash-card">
+          <div class="dash-card-value">${filtered.length}</div>
+          <div class="dash-card-label">Total Rocks</div>
+          <div class="dash-status-row">
+            <span class="dash-status-pill"><span class="pulse-dot on-track"></span> ${counts['On Track']}</span>
+            <span class="dash-status-pill"><span class="pulse-dot off-track"></span> ${counts['Off Track']}</span>
+            <span class="dash-status-pill"><span class="pulse-dot not-started"></span> ${counts['Not Started']}</span>
+            <span class="dash-status-pill"><span class="pulse-dot on-track"></span> ${counts['Complete']} done</span>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-value ${progressColor(msPct)}">${msPct}%</div>
+          <div class="dash-card-label">Milestone Completion</div>
+          <div class="dash-card-sub">${completedMs} of ${totalMs} milestones complete</div>
+          <div class="progress-bar" style="margin-top:8px"><div class="progress-fill ${progressColor(msPct)}" style="width:${msPct}%"></div></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-value ${progressColor(kpiPct)}">${totalKPIs > 0 ? kpiPct + '%' : '—'}</div>
+          <div class="dash-card-label">KPI Health</div>
+          <div class="dash-card-sub">${onTargetKPIs} of ${totalKPIs} KPIs on target</div>
+          ${totalKPIs > 0 ? `<div class="progress-bar" style="margin-top:8px"><div class="progress-fill ${progressColor(kpiPct)}" style="width:${kpiPct}%"></div></div>` : ''}
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-value ${counts['Complete'] === filtered.length && filtered.length > 0 ? 'success' : ''}">${filtered.length > 0 ? Math.round(counts['Complete'] / filtered.length * 100) : 0}%</div>
+          <div class="dash-card-label">Rocks Complete</div>
+          <div class="dash-card-sub">${counts['Complete']} of ${filtered.length} rocks done</div>
+        </div>
+      `;
+
+      // Detail table
+      if (filtered.length === 0) {
+        document.getElementById('dashRockTable').innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">No rocks for this quarter</div>';
+        return;
+      }
+
+      document.getElementById('dashRockTable').innerHTML = `
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Rock</th>
+              <th>Owner</th>
+              <th>Status</th>
+              <th>Milestones</th>
+              <th>KPIs</th>
+              <th>Days Left</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map(r => {
+              let st = r.Status || 'Not Started';
+              if (st === 'At Risk' || st === 'Behind') st = 'Off Track';
+              const ms = parseJSON(r.Milestones);
+              const msComp = ms.filter(m => m.status === 'Complete').length;
+              const kpis = parseJSON(r.KPIs);
+              const kpiMet = kpis.filter(k => parseFloat(k.current) >= parseFloat(k.target)).length;
+              const days = daysRemaining(r.Quarter);
+              const msPctR = ms.length > 0 ? Math.round(msComp / ms.length * 100) : 0;
+              return `
+              <tr onclick="toggleDashboard();openRockWorksheet('${r.id}')">
+                <td>
+                  <div style="font-weight:600">${USI.escapeHtml(r.Title || '')}</div>
+                  <div style="font-size:11px;color:var(--text-muted)">${USI.escapeHtml(r.Department || '')}</div>
+                </td>
+                <td style="font-size:12px">${USI.escapeHtml(r.OwnerName || r.OwnerEmail || '—')}</td>
+                <td><span class="pill ${USI.statusPillClass(st)}">${USI.escapeHtml(st)}</span></td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span>${msComp}/${ms.length}</span>
+                    ${ms.length > 0 ? `<div class="progress-bar" style="width:50px;height:5px"><div class="progress-fill ${progressColor(msPctR)}" style="width:${msPctR}%"></div></div>` : ''}
+                  </div>
+                </td>
+                <td>${kpis.length > 0 ? `${kpiMet}/${kpis.length}` : '—'}</td>
+                <td>${days !== null && days > 0 ? `<span class="rock-days-left">${days}</span>` : days === 0 ? '<span style="color:var(--error);font-weight:600">Today</span>' : '—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
     // ── Rock Worksheet Functions ──
 
     function populatePersonDropdown(selectId, selectedEmail) {
@@ -1265,7 +1462,7 @@
     }
 
     function isReadOnlyUser() {
-      return !amManager && !amHRAdmin;
+      return !amExecutive;
     }
 
     function setWorksheetReadOnly(readOnly) {
@@ -1306,7 +1503,12 @@
       document.getElementById('rockWsTitle').value = rock ? (rock.Title || '') : '';
       document.getElementById('rockWsDepartment').value = rock ? (rock.Department || '') : '';
       document.getElementById('rockPriority').value = rock ? (rock.Priority || '') : '';
-      document.getElementById('rockWsStatus').value = rock ? (rock.Status || 'Not Started') : 'Not Started';
+      // Status is auto-computed from milestones/KPIs/pulse
+      const autoStatus = computeRockStatus(
+        rock ? rock.Quarter : currentQ,
+        wsMilestones, wsKPIs, wsPulse
+      );
+      document.getElementById('rockWsStatus').value = autoStatus;
       document.getElementById('rockWsDescription').value = rock ? (rock.Description || '') : '';
 
       // Owner and Accountable To dropdowns
@@ -1392,6 +1594,7 @@
     function toggleMilestoneComplete(idx, checked) {
       wsMilestones[idx].status = checked ? 'Complete' : 'Not Started';
       renderWorksheetMilestones();
+      refreshAutoStatus();
     }
 
     function addWorksheetMilestone() {
@@ -1404,11 +1607,13 @@
         notes: ''
       });
       renderWorksheetMilestones();
+      refreshAutoStatus();
     }
 
     function removeWorksheetMilestone(id) {
       wsMilestones = wsMilestones.filter(m => m.id !== id);
       renderWorksheetMilestones();
+      refreshAutoStatus();
     }
 
     // ── KPIs ──
@@ -1430,8 +1635,8 @@
         return `
         <div class="kpi-row" data-kpi-idx="${idx}">
           <input type="text" class="form-input kpi-name" value="${USI.escapeHtml(k.name || '')}" placeholder="KPI Name" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].name=this.value">
-          <input type="number" class="form-input kpi-target" value="${k.target || ''}" placeholder="Target" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].target=this.value">
-          <input type="number" class="form-input kpi-current" value="${k.current || ''}" placeholder="Current" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].current=this.value">
+          <input type="number" class="form-input kpi-target" value="${k.target || ''}" placeholder="Target" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].target=this.value;renderWorksheetKPIs();refreshAutoStatus()">
+          <input type="number" class="form-input kpi-current" value="${k.current || ''}" placeholder="Current" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].current=this.value;renderWorksheetKPIs();refreshAutoStatus()">
           <input type="text" class="form-input kpi-unit" value="${USI.escapeHtml(k.unit || '')}" placeholder="Unit" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].unit=this.value">
           <select class="form-select kpi-freq" ${readOnly ? 'disabled' : ''} onchange="wsKPIs[${idx}].frequency=this.value">
             <option value="">Frequency</option>
@@ -1456,11 +1661,13 @@
         frequency: ''
       });
       renderWorksheetKPIs();
+      refreshAutoStatus();
     }
 
     function removeWorksheetKPI(id) {
       wsKPIs = wsKPIs.filter(k => k.id !== id);
       renderWorksheetKPIs();
+      refreshAutoStatus();
     }
 
     // ── Pulse Updates ──
@@ -1549,6 +1756,7 @@
 
       wsPulseFormVisible = false;
       renderWorksheetPulse();
+      refreshAutoStatus();
     }
 
     // ── Linked Goals ──
@@ -1587,15 +1795,44 @@
     // ── Save / Delete Rock ──
 
     async function saveWorksheetRock(isDraft) {
+      if (!amExecutive) {
+        USI.toast('Only Leadership Team members can save rocks', 'error');
+        return;
+      }
+
       const titleVal = document.getElementById('rockWsTitle').value.trim();
       if (!titleVal) {
         USI.toast('Title is required', 'error');
         return;
       }
 
+      // Full validation for non-draft saves
+      if (!isDraft) {
+        const errors = [];
+        if (!document.getElementById('rockWsQuarter').value) errors.push('Quarter');
+        if (!document.getElementById('rockWsDepartment').value) errors.push('Department');
+        if (!document.getElementById('rockPriority').value) errors.push('Priority');
+        if (!document.getElementById('rockOwner').value) errors.push('Rock Owner');
+        if (!document.getElementById('rockWsDescription').value.trim()) errors.push('Description');
+
+        const smartNames = {S:'Specific',M:'Measurable',A:'Achievable',R:'Relevant',T:'Time-bound'};
+        ['S','M','A','R','T'].forEach(letter => {
+          if (!document.getElementById('rockSmart' + letter).value.trim())
+            errors.push('SMART — ' + smartNames[letter]);
+        });
+
+        if (wsMilestones.length === 0) errors.push('At least one milestone');
+        const badMs = wsMilestones.filter(m => !m.title || !m.dueDate);
+        if (badMs.length > 0) errors.push('All milestones need a title and due date');
+
+        if (errors.length > 0) {
+          USI.toast('Please complete: ' + errors.slice(0, 3).join(', ') + (errors.length > 3 ? ` (+${errors.length - 3} more)` : ''), 'error');
+          return;
+        }
+      }
+
       const ownerSelect = document.getElementById('rockOwner');
       const ownerEmail = ownerSelect.value;
-      const ownerOption = ownerSelect.options[ownerSelect.selectedIndex];
       const ownerName = ownerEmail ? (USI.orgFind(ownerEmail)?.name || '') : '';
 
       const acctSelect = document.getElementById('rockAccountable');
@@ -1611,7 +1848,7 @@
         OwnerName: ownerName,
         AccountableToEmail: acctEmail,
         AccountableToName: acctName,
-        Status: document.getElementById('rockWsStatus').value,
+        Status: computeRockStatus(document.getElementById('rockWsQuarter').value, wsMilestones, wsKPIs, wsPulse),
         Description: document.getElementById('rockWsDescription').value,
         SMART_S: document.getElementById('rockSmartS').value,
         SMART_M: document.getElementById('rockSmartM').value,
@@ -3159,13 +3396,16 @@
       amManager = USI.isManager(me.mail);
       amHRAdmin = USI.isHRAdmin(me.mail);
 
-      const amExecutive = USI.isExecutive(me.mail);
+      amExecutive = USI.isExecutive(me.mail);
 
       // Show manager/HR admin elements
       if (amManager || amHRAdmin) {
         document.getElementById('tabTeam').style.display = '';
-        document.getElementById('btnAddRock').style.display = '';
         document.getElementById('goalViewAllToggle').style.display = '';
+      }
+      // Only executives can create/edit rocks
+      if (amExecutive) {
+        document.getElementById('btnAddRock').style.display = '';
       }
 
       // Show PIPs tab for managers, executives, and HR admins
@@ -3263,7 +3503,13 @@
       });
 
       // Rock filter
-      document.getElementById('rockFilterQuarter').addEventListener('change', renderRocks);
+      document.getElementById('rockFilterQuarter').addEventListener('change', () => {
+        renderRocks();
+        if (dashboardVisible) renderRocksDashboard();
+      });
+
+      // Dashboard toggle
+      document.getElementById('btnToggleDashboard').addEventListener('click', toggleDashboard);
 
       // New rock button
       document.getElementById('btnAddRock').addEventListener('click', () => openRockWorksheet(null));

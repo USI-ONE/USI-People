@@ -242,7 +242,7 @@
       'In Progress': 'pill-info', 'Active': 'pill-info', 'Draft': 'pill-neutral',
       'On Track': 'pill-success', 'Complete': 'pill-success', 'Completed': 'pill-success',
       'Submitted': 'pill-info',
-      'At Risk': 'pill-warning', 'Behind': 'pill-warning', 'Blocked': 'pill-error',
+      'At Risk': 'pill-warning', 'Behind': 'pill-warning', 'Off Track': 'pill-error', 'Blocked': 'pill-error',
       'Cancelled': 'pill-neutral'
     };
     return map[status] || 'pill-neutral';
