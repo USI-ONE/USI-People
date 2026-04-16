@@ -3511,6 +3511,54 @@
         loadPIPs();
       }
 
+      // ── Seed: NIST CSF 2.0 Rock (run once, then remove) ──
+      window.seedNISTRock = async function() {
+        if (!amExecutive) { alert('Must be logged in as an executive'); return; }
+        const exists = rocks.find(r => r.Title && r.Title.includes('NIST CSF 2.0'));
+        if (exists) { alert('Rock already exists (ID: ' + exists.id + ')'); return; }
+        try {
+          USI.toast('Creating NIST CSF 2.0 rock...', 'info');
+          await USI.createListItem(ROCKS_LIST, {
+            Title: 'Establish USI Cybersecurity Baseline Using NIST CSF 2.0',
+            Quarter: 'Q2 2026', Department: 'Leadership', Priority: 'Company Rock',
+            OwnerEmail: 'CWall@usicomputer.com', OwnerName: 'Chris Wall',
+            AccountableToEmail: 'sammy@usicomputer.com', AccountableToName: 'Sammy Wong',
+            Status: 'Not Started',
+            Description: "Build USI's foundational cybersecurity program by conducting a structured assessment and baseline implementation aligned to the six functions of NIST CSF 2.0 — Govern, Identify, Protect, Detect, Respond, and Recover — so that USI has a documented, defensible security posture it can mature quarter over quarter and confidently represent to customers, partners, and insurers.\n\nNIST CSF 2.0 FUNCTION COVERAGE MAP\n\u2022 GOVERN — Policy, roles, risk tolerance, supply chain awareness (Tier 1 \u2192 Tier 2)\n\u2022 IDENTIFY — Asset inventory, risk assessment, business environment (Tier 1 \u2192 Tier 2)\n\u2022 PROTECT — Access control, awareness training, data security, hardening (Tier 1 \u2192 Tier 2)\n\u2022 DETECT — Log collection, alerting baseline, anomaly awareness (Tier 1 \u2192 Tier 1+)\n\u2022 RESPOND — Incident response plan, communication, escalation path (Tier 1 \u2192 Tier 1+)\n\u2022 RECOVER — Business continuity baseline, backup verification (Tier 1 \u2192 Tier 1+)\n\nCIO Note: Because USI is starting from a Tier 1 (Partial) posture across all six functions, the goal this quarter is not perfection — it is establishing a documented, repeatable baseline. The Current Profile completed this quarter becomes the foundation for a structured maturity roadmap, moving USI toward Tier 2 (Risk Informed) across Govern, Identify, and Protect in the following quarter.",
+            SMART_S: "Conduct a structured NIST CSF 2.0 assessment across all six functions (Govern, Identify, Protect, Detect, Respond, Recover) and implement a documented baseline cybersecurity program for USI — including a ratified cybersecurity policy, complete asset inventory, formal risk register, baseline protective controls (MFA, endpoint protection, training), event logging/monitoring, an Incident Response Plan, and a scored Current Profile — all owned by Chris Wall as CIO with executive ratification by the L10 Leadership Team.",
+            SMART_M: "Success is measured by: (1) NIST CSF 2.0 Current Profile completed and scored across all 6 functions, (2) Asset inventory covering \u226595% of known USI/TOS systems, (3) Risk register with \u226510 risks scored and assigned, (4) 100% staff security awareness training completion by May 30, (5) 100% MFA enforcement on critical systems, (6) Incident Response Plan drafted with tabletop exercise completed, (7) CSF Target Profile for Q3 2026 established, and (8) Security posture ratified by L10 leadership.",
+            SMART_A: "This is achievable because USI already has a CIO (Chris Wall) with cybersecurity expertise, existing tooling (Rapid7, Microsoft Defender), and executive support. The scope is deliberately Tier 1\u2192Tier 2 (baseline, not perfection). Each milestone maps to a specific NIST CSF function and has a dedicated 1-2 week window. No new headcount or major capital spend is required — this leverages existing tools and assigns ownership to current leadership.",
+            SMART_R: "This directly supports USI's strategic priorities: (1) customer and partner trust — a documented security posture is increasingly required in sales conversations and vendor assessments, (2) insurance — cyber liability underwriters are tightening requirements, (3) operational resilience — USI has no formal incident response or continuity plan today, and (4) EOS accountability — embedding security into the L10 scorecard makes it a standing company metric, not a one-time project.",
+            SMART_T: "Hard deadline: July 31, 2026 (end of Q2). Interim milestones: GOVERN policy ratified by April 11, roles assigned by April 18, IDENTIFY asset inventory by May 2, risk assessment by May 9, PROTECT controls implemented by May 30, data security hardened by June 6, DETECT baseline by June 20, RESPOND/RECOVER plan by July 17, and final Current Profile presentation to L10 by July 31.",
+            Milestones: JSON.stringify([
+              {id:'ms1',title:'GOVERN \u2014 Draft and ratify USI Cybersecurity Policy, assign cybersecurity role/owner, document organizational risk tolerance',dueDate:'2026-04-11',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'GV.OC, GV.RM'},
+              {id:'ms2',title:'GOVERN \u2014 Establish cybersecurity roles and responsibilities across USI leadership; integrate security into L10 scorecard',dueDate:'2026-04-18',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'GV.RR, GV.SC'},
+              {id:'ms3',title:'IDENTIFY \u2014 Complete asset inventory covering all hardware, software, data, and third-party services across USI and TOS',dueDate:'2026-05-02',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'ID.AM'},
+              {id:'ms4',title:'IDENTIFY \u2014 Conduct formal risk assessment; populate risk register with findings, likelihood/impact scoring, and assigned owners',dueDate:'2026-05-09',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'ID.RA'},
+              {id:'ms5',title:'PROTECT \u2014 Implement baseline protective controls: MFA enforcement, endpoint protection, access management review, mandatory security awareness training',dueDate:'2026-05-30',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'PR.AA, PR.AT, PR.PS'},
+              {id:'ms6',title:'PROTECT \u2014 Review and harden data security practices: data classification, backup verification, encryption posture for data at rest and in transit',dueDate:'2026-06-06',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'PR.DS'},
+              {id:'ms7',title:'DETECT \u2014 Define and document event logging and monitoring baseline; confirm alerting is active across critical systems',dueDate:'2026-06-20',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'DE.CM, DE.AE'},
+              {id:'ms8',title:'RESPOND/RECOVER \u2014 Draft USI Incident Response Plan and Business Continuity baseline; conduct tabletop walkthrough with leadership',dueDate:'2026-07-17',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'RS.MA, RC.RP'},
+              {id:'ms9',title:'ALL FUNCTIONS \u2014 Present completed NIST CSF 2.0 Current Profile to L10 Leadership Team for ratification; establish Target Profile for Q3',dueDate:'2026-07-31',assignedTo:'CWall@usicomputer.com',status:'Not Started',notes:'GV.RM \u2014 Final deliverable'}
+            ]),
+            KPIs: JSON.stringify([
+              {id:'kpi1',type:'yesno',name:'NIST CSF 2.0 Current Profile completed and scored across all 6 functions',current:'',target:'Yes',unit:'',frequency:'Quarterly'},
+              {id:'kpi2',type:'number',name:'Asset inventory coverage (% of known USI/TOS systems)',current:'0',target:'95',unit:'%',frequency:'Monthly'},
+              {id:'kpi3',type:'number',name:'Risk register populated (risks scored & assigned)',current:'0',target:'10',unit:'risks',frequency:'Monthly'},
+              {id:'kpi4',type:'number',name:'Staff security awareness training completion',current:'0',target:'100',unit:'%',frequency:'Monthly'},
+              {id:'kpi5',type:'number',name:'MFA enforcement across critical systems',current:'0',target:'100',unit:'%',frequency:'Monthly'},
+              {id:'kpi6',type:'yesno',name:'Incident Response Plan drafted & tabletop completed',current:'',target:'Yes',unit:'',frequency:'Quarterly'},
+              {id:'kpi7',type:'yesno',name:'CSF Target Profile established for Q3 2026',current:'',target:'Yes',unit:'',frequency:'Quarterly'},
+              {id:'kpi8',type:'yesno',name:'Security posture ratified by L10 leadership',current:'',target:'Yes',unit:'',frequency:'Quarterly'}
+            ]),
+            PulseUpdates: JSON.stringify([])
+          });
+          USI.toast('Rock created! Reloading...', 'success');
+          await loadRocks();
+          renderRocks();
+        } catch(e) { USI.toast('Failed: ' + e.message, 'error'); console.error(e); }
+      };
+
       // ── Event Listeners ──
 
       // Goal filters
