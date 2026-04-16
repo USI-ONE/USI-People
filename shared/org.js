@@ -55,7 +55,7 @@
   };
 
   // ── Departments ──
-  const DEPARTMENTS = ['Sales', 'Marketing', 'Operations', 'Professional Services (TOS)', 'Production'];
+  const DEPARTMENTS = ['Whole Company', 'Leadership', 'Sales', 'Marketing', 'Operations', 'Professional Services (TOS)', 'Production'];
   USI.getDepartments = function() { return [...DEPARTMENTS]; };
 
   // Get all org members
